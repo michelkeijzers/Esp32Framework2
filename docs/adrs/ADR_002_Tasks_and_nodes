@@ -1,0 +1,38 @@
+# ADR 002: TASKS
+
+## Status
+
+Accepted
+
+## Context
+
+The system should be cost effective and easy to develop. 
+Also the framework should be powerful enough to be used in complex applications.
+
+# Decision
+
+Therefore, ESP32 is chosen as the main hardware platform and ESP-IDF is chosen as the main software framework.
+
+## Alternatives
+
+1. Raspberry Pi and Raspbian OS: This option is more powerful but also more expensive and less suitable for real-time applications.
+2. Arduino and Arduino IDE: This option is cheaper but less powerful and less suitable for complex applications.
+3. STM32 and STM32Cube: This option is powerful but also more expensive and less suitable for easy development.
+4. ESP8266 and Arduino IDE: This option is cheaper but less powerful and less suitable for complex applications.
+5. ESP32 and Arduino IDE: This option is cheaper but less powerful and less suitable for complex applications.
+6. ESP32 and ESP-IDF: This option is cost effective, powerful, and suitable for easy development and complex applications. 
+
+## Consequences
+
+The choice of ESP32 and ESP-IDF will allow for cost effective development of hardware/software combined applications with a modular architecture. It will also provide the necessary power and flexibility for complex applications while being easy to extend. However, it may require more effort to set up and learn compared to other options.
+
+## References
+
+- [ESP32](https://www.espressif.com/en/products/socs/esp32)
+- [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/)
+
+# Implements
+
+- FR-SYS-100: The ESP32 and ESP-IDF combination allows for easy development of hardware/software combined applications.
+- FR-SYS-110: The ESP-IDF framework is powerful and can be used in complex applications, while also being easy to extend.
+- CON-SYS-130: The ESP32 is a cost effective hardware platform.

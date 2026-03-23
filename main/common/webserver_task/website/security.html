@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Security</title>
+   <link rel="stylesheet" href="pico.min.css">
+   <link rel="stylesheet" href="custom.css">
+   <style>
+      .subtitle-row { display: flex; }
+      .subtitle-row .home-btn { margin-left: 90px; }
+      .subtitle-row h2 { margin: 0; }
+      .security-container { display: flex; flex-direction: column; align-items: center; gap: 2.5rem; margin-top: 2.5rem; }
+      .security-pane { background: #111; color: #eee; border-radius: 1rem; padding: 2rem 2.5rem; box-shadow: 0 0 12px #000a; max-width: 650px; }
+      .espnow-pane { min-width: 420px; }
+      .wifi-pane { min-width: 540px; }
+      .security-label { font-weight: bold; margin-bottom: 1rem; display: block; }
+      .espnow-fields { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+      .wifi-input-wrapper { position: relative; width: 100%; max-width: 500px; margin-bottom: 1.5rem; }
+      .wifi-password-input { width: 100%; background: #222; color: #fff; border: 1px solid #444; border-radius: 0.3rem; font-size: 1.1rem; padding: 0.6rem 2.5rem 0.6rem 1rem; box-sizing: border-box; }
+      .toggle-password-btn { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; margin: 0; height: 2rem; width: 2rem; display: flex; align-items: center; justify-content: center; }
+      .security-submit-btn { background: #1fa750; color: #fff; font-weight: bold; border-radius: 0.5rem; padding: 0.7rem 2.2rem; font-size: 1.1rem; border: none; box-shadow: 0 2px 8px #0002; cursor: pointer; }
+   </style>
+</head>
+
+<body>
+   <main class="container">
+      <div class="header-flex">
+         <h1 class="title-colored no-margin">DMX Controller</h1>
+      </div>
+      <div class="subtitle-row">
+         <button type="button" onclick="window.location.href='../index.html'" class="home-btn">Home</button>
+         <h2>Security</h2>
+      </div>
+      <div class="security-container">
+         <!-- ESP-NOW Security Key Pane -->
+         <div class="security-pane espnow-pane">
+            <form id="espnow-key-form" autocomplete="off">
+               <label class="security-label">ESP-NOW Security Key</label>
+               <div id="key-fields" class="espnow-fields"></div>
+               <button type="submit" class="security-submit-btn">Send Key</button>
+            </form>
+         </div>
+         <!-- Wi-Fi Password Pane -->
+         <div class="security-pane wifi-pane">
+            <form id="wifi-key-form" autocomplete="off">
+               <label class="security-label">Wi-Fi Password</label>
+               <div class="wifi-input-wrapper">
+                  <input id="wifi-password-input" type="password" minlength="8" maxlength="63" required placeholder="Enter Wi-Fi password" autocomplete="current-password" class="wifi-password-input">
+                  <button id="toggle-wifi-password" type="button" tabindex="-1" aria-label="Show password" class="toggle-password-btn">
+                     <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#aaa" stroke-width="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z" />
+                        <circle cx="12" cy="12" r="3.5" stroke="#aaa" stroke-width="2" />
+                     </svg>
+                  </button>
+               </div>
+               <button type="submit" class="security-submit-btn">Send Key</button>
+               </form>
+         </div>
+         </div>
+         <script>
+                  function validateEspnowKeyFields() {
+                     const inputs = keyFields.querySelectorAll('input');
+                     let allValid = true;
+                     inputs.forEach(inp => {
+                        const v = inp.value;
+                        const valid = /^[0-9a-fA-F]{2}$/.test(v) && parseInt(v, 16) >= 0 && parseInt(v, 16) <= 255;
+                        if (!valid) {
+                           inp.style.borderColor = '#c00';
+                        } else {
+                           inp.style.borderColor = '#444';
+                        }
+                        if (!valid) allValid = false;
+                     });
+                     document.querySelector('#espnow-key-form button[type="submit"]').disabled = !allValid;
+                  }
+
+         const keyFields = document.getElementById('key-fields');
+         for (let rowIdx = 0; rowIdx < 4; rowIdx++) {
+            const row = document.createElement('div');
+            row.style = 'display:flex; align-items:center; gap:1.2rem; margin-bottom:0.2rem;';
+            for (let colIdx = 0; colIdx < 4; colIdx++) {
+               const i = rowIdx * 4 + colIdx;
+               const group = document.createElement('div');
+               group.style = 'display:flex; align-items:center; gap:0.3rem;';
+               const label = document.createElement('span');
+               label.textContent = (i + 1).toString();
+               label.style = 'width:1.5rem; text-align:right; color:#aaa; font-size:1.05rem;';
+               const input = document.createElement('input');
+               input.type = 'text';
+               input.maxLength = 2;
+               input.pattern = '[0-9a-fA-F]{2}';
+               input.inputMode = 'text';
+               input.autocomplete = 'off';
+               input.style = 'width:4rem; text-align:center; background:#222; color:#fff; border:1px solid #444; border-radius:0.3rem; font-size:1.1rem; padding:0.2rem 0.2rem;';
+               input.placeholder = '00';
+               input.value = '00';
+               input.addEventListener('input', function () {
+                  // Force uppercase for consistency
+                  this.value = this.value.replace(/[^0-9a-fA-F]/g, '').toUpperCase().slice(0, 2);
+                  validateEspnowKeyFields();
+               });
+               group.appendChild(label);
+               group.appendChild(input);
+               row.appendChild(group);
+            }
+            keyFields.appendChild(row);
+         }
+                                                                  validateEspnowKeyFields();
+
+         document.getElementById('espnow-key-form').onsubmit = function (e) {
+            e.preventDefault();
+            const inputs = keyFields.querySelectorAll('input');
+            // Use the hex string values directly (already validated)
+            const key = Array.from(inputs).map(inp => inp.value.toUpperCase());
+            const scrambleOrder = [7, 2, 12, 0, 9, 5, 1, 14, 8, 3, 10, 6, 13, 11, 4, 15];
+            const scrambledKey = scrambleOrder.map(i => key[i]);
+            const sendBtn = this.querySelector('button[type="submit"]');
+            const originalText = sendBtn.textContent;
+            const originalBg = sendBtn.style.background;
+            sendBtn.disabled = true;
+            fetch('/api/v1/esp_now_key', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify(scrambledKey)
+            }).then(resp => {
+               if (resp.ok) {
+                  sendBtn.textContent = 'Sent OK!';
+                  sendBtn.style.background = '#1fa750';
+               } else {
+                  sendBtn.textContent = 'Error!';
+                  sendBtn.style.background = '#c00';
+               }
+               setTimeout(() => {
+                  sendBtn.textContent = originalText;
+                  sendBtn.style.background = originalBg;
+                  sendBtn.disabled = false;
+               }, 2000);
+            }).catch(() => {
+               sendBtn.textContent = 'Error!';
+               sendBtn.style.background = '#c00';
+               setTimeout(() => {
+                  sendBtn.textContent = originalText;
+                  sendBtn.style.background = originalBg;
+                  sendBtn.disabled = false;
+               }, 2000);
+            });
+                     };
+
+                     // Wi-Fi password form POST logic
+                     document.getElementById('wifi-key-form').onsubmit = function (e) {
+                        e.preventDefault();
+                        const input = document.getElementById('wifi-password-input');
+                        const password = input.value;
+                        if (typeof password !== 'string' || password.length < 8 || password.length > 63) {
+                           alert('Password must be 8-63 characters.');
+                           return;
+                        }
+                        const sendBtn = this.querySelector('button[type="submit"]');
+                        const originalText = sendBtn.textContent;
+                        const originalBg = sendBtn.style.background;
+                        sendBtn.disabled = true;
+                        fetch('/api/v1/wifi_password', {
+                           method: 'POST',
+                           headers: { 'Content-Type': 'application/json' },
+                           body: JSON.stringify({ password })
+                        }).then(resp => {
+                           if (resp.ok) {
+                              sendBtn.textContent = 'Sent OK!';
+                              sendBtn.style.background = '#1fa750';
+                           } else {
+                              sendBtn.textContent = 'Error!';
+                              sendBtn.style.background = '#c00';
+                           }
+                           setTimeout(() => {
+                              sendBtn.textContent = originalText;
+                              sendBtn.style.background = originalBg;
+                              sendBtn.disabled = false;
+            }, 2000);
+         }).catch(() => {
+            sendBtn.textContent = 'Error!';
+            sendBtn.style.background = '#c00';
+            setTimeout(() => {
+               sendBtn.textContent = originalText;
+               sendBtn.style.background = originalBg;
+               sendBtn.disabled = false;
+            }, 2000);
+         });
+      };
+      </script>
+   </main>
+</body>
+
+</html>
+

@@ -1,0 +1,163 @@
+@startuml 
+
+
+class Node<<abstract common>> {}
+class RtosTask<<abstract common>> {}
+
+'Master Node 
+package MasterNode_Package 
+{
+    class MasterNode <<app_specific>> {}
+    note left of MasterNode
+        main.cpp
+    end note
+
+    MasterNode -|> Node
+
+    class MasterBridge <<common>> {}
+    MasterNode *-- MasterBridge
+
+    note bottom of MasterBridge
+        Remote Proxy
+        Design Pattern 
+    end note
+
+    class MasterTask <<app_specific>>{}
+    MasterTask --|> RtosTask
+
+    MasterNode *-- MasterTask
+
+    WebserverTask --|> RtosTask 
+    MasterNode *-- WebserverTask
+
+    MasterTask o-- WebserverTask : Uses
+
+    class ApiServer <<app_specific>> {}
+    WebserverTask *-- ApiServer
+
+    class ControlApi <<app_specific>> {}
+    ApiServer *-- ControlApi
+    class PresetEditApi <<app_specific>> {}
+    ApiServer *-- PresetEditApi
+    class ConfigurationApi <<app_specific>> {}
+    ApiServer *-- ConfigurationApi
+
+    class CommonApiServer <<common>> {}
+    ApiServer *-- CommonApiServer
+    class StatusApi <<common>> {}
+    CommonApiServer *-- StatusApi
+    class OtaApi <<common>> {}
+    CommonApiServer *-- OtaApi
+    class LoggingApi <<common>> {}
+    CommonApiServer *-- LoggingApi
+
+}
+
+
+'Slave Node
+package SlaveNode_Package
+{
+    class SlaveNode <<app_specific>> {}
+    note left of SlaveNode
+        main.cpp
+    end note
+
+    SlaveNode -|> Node
+    class SlaveBridge <<common>> {}
+    SlaveNode *-- SlaveBridge
+
+    ' Slave Task
+    class SlaveTask <<app_specific>>{}
+    SlaveTask --|> RtosTask
+    SlaveNode *-- SlaveTask
+}
+
+MasterBridge .. SlaveBridge : Direct or \n ESP-NOW
+
+package ServiceTasksPackage 
+{
+    class ServiceTasks <<common>> {}
+    
+    class LoggingTask <<common>> {}
+    LoggingTask --|> RtosTask
+    class StatusTask <<common>> {}
+    StatusTask --|> RtosTask
+    class OtaTask <<common>> {}
+    OtaTask --|> RtosTask
+
+    ServiceTasks *-- LoggingTask
+    ServiceTasks *-- StatusTask
+    ServiceTasks *-- OtaTask
+}
+
+
+package SubTasksPackage
+{
+    class SubTask<<abstract>> {}
+
+    SubTask --|> RtosTask
+    class ButtonTask <<common>> {}
+    class GpioLedTask <<common>> {}
+    class Max7219Task <<common>> {}
+    class PotmeterTask <<common>> {}
+    class DmxMax3485SenderTask <<common>> {}
+
+    ButtonTask --|> SubTask
+    GpioLedTask --|> SubTask
+    Max7219Task --|> SubTask
+    PotmeterTask --|> SubTask
+    DmxMax3485SenderTask --|> SubTask
+}
+
+MasterNode "1" *-- "0..*" SubTask
+SlaveNode  "1" *-- "0..*" SubTask
+MasterTask <-> MasterBridge
+
+MasterNode *-- ServiceTasks
+SlaveNode *-- ServiceTasks
+SlaveTask <-> SlaveBridge
+
+
+@enduml
+
+@startuml 
+
+@startuml
+
+actor User 
+
+User -> Website : Access website
+Website -> WebserverTask: HTTP Request
+WebserverTask -> ApiServer: Handle HTTP Request 
+ApiServer ->    XXXApi: Handle control API request
+XXXApi -> MasterTask: Request action
+MasterTask -> MasterBridge: Send message
+alt local message, master task
+MasterBridge -> MasterTask: Handle message
+MasterTask -> MasterBridge: Return result
+else local message, service task 
+MasterBridge -> ServiceTasks: Handle message
+ServiceTasks -> MasterBridge: Return result
+else local message, sub task 
+MasterBridge -> SubTask: Handle message
+SubTask -> MasterBridge: Return result
+else remote message
+MasterBridge -> SlaveBridge: Send message via ESP-NOW
+alt message for slave task
+SlaveBridge -> SlaveBridge: Handle message
+SlaveTask -> SlaveBridge: Return result
+else message for service task
+SlaveBridge -> ServiceTasks: Handle message
+ServiceTasks -> SlaveBridge: Return result
+else message for sub task   
+SlaveBridge -> SubTask: Handle message
+SubTask -> SlaveBridge: Return result
+end
+else error message
+SlaveBridge -> MasterBridge: Return 
+end
+MasterBridge -> MasterTask: Return result
+MasterTask -> WebserverTask: Return HTTP Response
+WebserverTask -> Website: Show
+
+@enduml

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>DMX Control</title>
+   <link rel="stylesheet" href="pico.min.css">
+   <link rel="stylesheet" href="dmx_controller_custom.css">
+   <script src="htmx.min.js"></script>
+   <style>
+      .subtitle-row { margin-bottom: 1.2rem; }
+      .subtitle-row h2 { margin: 0; }
+      .blackout-container { margin-bottom: 1.2rem; }
+      #blackout-btn {
+         background-color: #222; color: #fff; width: 100%; margin: 10px auto; display: block; font-size: 1.3rem; font-weight: bold; margin-bottom: 1.2rem;
+      }
+      .preset-grid { display: flex; flex-direction: column; }
+   </style>
+</head>
+
+<body>
+   <main class="container">
+      <div class="header-flex">
+         <h1 class="title-colored no-margin">DMX Controller</h1>
+      </div>
+      <div class="subtitle-row">
+         <button type="button" onclick="window.location.href='../index.html'" class="home-btn">Home</button>
+         <h2>Control</h2>
+      </div>
+         <div class="blackout-container">
+            <button id="blackout-btn" class="big-bold-btn selectable-btn" type="button">Blackout</button>
+         </div>
+         <div class="preset-grid" id="preset-grid"></div>
+         <script>
+            // Shared selection handler for both Blackout and preset buttons
+
+            function handleSelect(e) {
+               document.querySelectorAll('.selectable-btn').forEach(btn => btn.classList.remove('selected-btn'));
+               e.currentTarget.classList.add('selected-btn');
+            }
+
+            // Blackout button logic
+            const blackoutBtn = document.getElementById('blackout-btn');
+            blackoutBtn.addEventListener('pointerdown', function (e) {
+               handleSelect(e);
+            });
+            blackoutBtn.addEventListener('click', function (e) {
+                // Send blackout action to backend, but do n                    abel or text
+                fetch('http://localhost:8080/api/v1/blackout', { method: 'POST' });
+            });
+
+                     // Render active presets 4 per row
+                     function renderActivePresets(presetNumbers) {
+                        const grid = document.getElementById('preset-grid');
+                        grid.innerHTML = '';
+                        let rowDiv = null;
+                        presetNumbers.forEach((num, idx) => {
+                           if (idx % 4 === 0) {
+                              rowDiv = document.createElement('div');
+                              rowDiv.style.display = 'flex';
+                              rowDiv.style.gap = '1rem';
+                              rowDiv.style.marginBottom = '0.7rem';
+                              grid.appendChild(rowDiv);
+                           }
+                           const btn = document.createElement('button');
+                           btn.className = 'big-bold-btn preset-btn selectable-btn';
+                           btn.textContent = num;
+                           btn.setAttribute('hx-post', `http://localhost:8080/api/v1/select_preset/${num}`);
+                           btn.setAttribute('hx-swap', 'none');
+                           btn.setAttribute('type', 'button');
+                           btn.style.flex = '1';
+                           btn.addEventListener('pointerdown', handleSelect);
+                           rowDiv.appendChild(btn);
+                           if (window.htmx && typeof htmx.process === 'function') htmx.process(btn);
+                        });
+                     }
+                     fetch('http://localhost:8080/api/v1/active_preset_numbers')
+                        .then(r => r.json())
+                        .then(renderActivePresets)
+                        .catch(() => {
+                           // Fallback: show nothing if endpoint fails
+                        });
+                  </script>
+      </main>
+   </body>
+</html>

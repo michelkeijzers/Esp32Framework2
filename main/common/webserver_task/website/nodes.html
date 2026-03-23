@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Nodes</title>
+   <link rel="stylesheet" href="pico.min.css">
+   <link rel="stylesheet" href="custom.css">
+   <style>
+      .subtitle-row h2 { margin: 0; }
+      .node-btn-container { display: flex; justify-content: center; gap: 1.5rem; margin: 2.5rem auto 1.2rem auto; }
+      .node-btn { background: #c00; color: #fff; font-weight: bold; border-radius: 0.5rem; padding: 0.8rem 2.5rem; font-size: 1.1rem; border: none; box-shadow: 0 2px 8px #0002; cursor: pointer; }
+      .nodes-container { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; margin-top: 2.5rem; }
+   </style>
+</head>
+
+<body>
+   <main class="container">
+      <div class="header-flex">
+         <h1 class="title-colored no-margin">DMX Controller</h1>
+      </div>
+      <div class="subtitle-row">
+         <button type="button" onclick="window.location.href='../index.html'" class="home-btn">Home</button>
+         <h2>Nodes</h2>
+      </div>
+      <div class="node-btn-container">
+         <button id="reboot-btn" class="node-btn" type="button">Reboot</button>
+         <button id="factory-reset-btn" class="node-btn" type="button">Factory Reset</button>
+      </div>
+      <div id="nodes-container" class="nodes-container"></div>
+      <script>
+         function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+               binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+         }
+         let eventSource = null;
+         let activeFirmwareUploads = 0;
+         let latestNodesSnapshot = null;
+            // Store per-node firmware update result and timestamp
+            let firmwareUpdateStatus = {}; // { [idx]: { status: 'ok'|'error', until: timestamp } }
+         function renderNodes(nodes) {
+            const container = document.getElementById('nodes-container');
+            // --- Preserve focus and cursor position ---
+            const active = document.activeElement;
+            let focusIdx = null, focusPos = null, focusValue = null;
+            if (active && active.classList && active.classList.contains('mac-input')) {
+               focusIdx = active.getAttribute('data-idx');
+               focusPos = active.selectionStart;
+               focusValue = active.value;
+            }
+            container.innerHTML = '';
+            nodes.forEach((node, idx) => {
+               const statusClass = node.status_watchdog === 'OK' ? '' : 'status-error';
+               // If this MAC input is being edited, preserve the user's value
+               let macValue = node.mac_address;
+               if (focusIdx !== null && String(idx) === String(focusIdx) && focusValue !== null) {
+                  macValue = focusValue;
+               }
+               const showNodeFields = node.role !== 'Master' && node.role !== 'Remote';
+               container.innerHTML += `
+                  <div style="background: #000; color: #eee; border-radius: 1rem; padding: 1.5rem 2.5rem; min-width: 320px; min-height: 340px; box-shadow: 0 0 12px #000a; display: flex; flex-direction: column; gap: 1rem;">
+                     <h3 style=\"margin-top: 0; margin-bottom: 1.2rem; color: #fff;\">Node ${idx + 1}: ${node.name}</h3>
+                     <div><span style=\"font-weight: bold;\">Role:</span> <span>${node.role}</span></div>
+                     ${showNodeFields ? `<div><span style=\"font-weight: bold;\">Node type:</span> <span>${node.node_type || ''}</span></div>` : ''}
+                     ${showNodeFields ? `<div><span style=\"font-weight: bold;\">Node sequence number:</span> <span>${node.node_sequence}</span></div>` : ''}
+                     <div><span style=\"font-weight: bold;\">Status (watchdog):</span> <span class=\"${statusClass}\">${node.status_watchdog}</span></div>
+                     <div><span style=\"font-weight: bold;\">Last communication:</span> <span>${node.last_communication}</span></div>
+                     <div><span style=\"font-weight: bold;\">Uptime:</span> <span>${node.uptime}</span></div>
+                     <div><span style=\"font-weight: bold;\">Firmware version:</span> <span>${node.firmware_version}</span></div>
+                               <div style=\"display: flex; align-items: center; gap: 0.7em;\">
+                                  <button class=\"fw-update-btn\" data-idx=\"${idx}\" style=\"padding: 0.3em 1.1em; font-size: 1em; min-width: 0;\">Update Firmware</button>
+                                  <span class=\"fw-progress-label\" data-idx=\"${idx}\" style=\"min-width: 110px; color: #ffe600; font-weight: bold; font-size: 1.08em; background: #222; border-radius: 0.4em; padding: 0.1em 0.7em; margin-left: 0.2em; text-align: right; display: none;\">0% (0/0 Chunks)</span>
+                               </div>
+                     <div><span style=\"font-weight: bold;\">Configuration version:</span> <span>${node.config_version}</span></div>
+                     <div><span style=\"font-weight: bold;\">MAC address:</span> <input type=\"text\" value=\"${macValue}\" data-idx=\"${idx}\" class=\"mac-input\" style=\"width:200px;\" /> <button class=\"save-mac-btn\" data-idx=\"${idx}\" disabled>Save</button></div>
+                     <div><span style=\"font-weight: bold;\">IP address:</span> <span>${node.ip_address}</span></div>
+                  </div>
+               `;
+            });
+            // Restore firmware update button state if needed
+            setTimeout(() => {
+               Object.entries(firmwareUpdateStatus).forEach(([idx, info]) => {
+                  if (Date.now() < info.until) {
+                     const btn = container.querySelector(`.fw-update-btn[data-idx='${idx}']`);
+                     if (btn) {
+                        if (info.status === 'ok') {
+                           btn.textContent = 'Firmware updated!';
+                           btn.style.backgroundColor = '#1fa750';
+                        } else if (info.status === 'error') {
+                           btn.textContent = 'Error!';
+                           btn.style.backgroundColor = '#c00';
+                        }
+                        btn.disabled = false;
+                        setTimeout(() => {
+                           if (btn.textContent !== 'Uploading...') {
+                              btn.textContent = 'Update Firmware';
+                              btn.style.backgroundColor = '';
+                           }
+                        }, info.until - Date.now());
+                     }
+                  }
+               });
+            }, 10);
+            // Restore focus and cursor position if editing a MAC input
+            if (focusIdx !== null) {
+               const newInput = container.querySelector(`.mac-input[data-idx='${focusIdx}']`);
+               if (newInput) {
+                  newInput.focus();
+                  // If the value changed, try to restore cursor position as best as possible
+                  if (focusValue === newInput.value) {
+                     newInput.setSelectionRange(focusPos, focusPos);
+                  } else {
+                     // Place cursor at end if value changed
+                     newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+                  }
+               }
+            }
+            // Attach dynamic behavior for Save MAC
+            container.querySelectorAll('.mac-input').forEach(input => {
+               const idx = input.getAttribute('data-idx');
+               const saveBtn = container.querySelector(`.save-mac-btn[data-idx='${idx}']`);
+               const origMac = nodes[idx].mac_address;
+               // On every render, check if the value is valid and changed, and set Save button state
+               const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+               const mac = input.value.trim();
+               const valid = macRegex.test(mac);
+               saveBtn.disabled = !(valid && mac !== origMac);
+               input.addEventListener('input', function () {
+                  // Convert to uppercase and preserve cursor position
+                  const start = input.selectionStart;
+                  const end = input.selectionEnd;
+                  input.value = input.value.toUpperCase();
+                  input.setSelectionRange(start, end);
+                  const mac = input.value.trim();
+                  const valid = macRegex.test(mac);
+                  saveBtn.disabled = !(valid && mac !== origMac);
+               });
+               saveBtn.addEventListener('click', function () {
+                  saveBtn.disabled = true;
+                  const originalText = saveBtn.textContent;
+                  const originalBg = saveBtn.style.backgroundColor;
+                  fetch('/api/v1/nodes_info', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify(nodes.map((n, i) => i == idx ? input.value.trim() : n.mac_address))
+                  }).then(r => r.json()).then(resp => {
+                     if (resp.ack === 'ok') {
+                        saveBtn.textContent = 'Saved!';
+                        saveBtn.style.backgroundColor = '#1fa750';
+                        setTimeout(() => {
+                           saveBtn.textContent = originalText;
+                           saveBtn.style.backgroundColor = originalBg;
+                        }, 1200);
+                     } else {
+                        saveBtn.textContent = 'ERROR!';
+                        saveBtn.style.backgroundColor = '#c00';
+                        setTimeout(() => {
+                           saveBtn.textContent = originalText;
+                           saveBtn.style.backgroundColor = originalBg;
+                        }, 1800);
+                     }
+                  }).catch(() => {
+                     saveBtn.textContent = 'ERROR!';
+                     saveBtn.style.backgroundColor = '#c00';
+                     setTimeout(() => {
+                        saveBtn.textContent = originalText;
+                        saveBtn.style.backgroundColor = originalBg;
+                     }, 1800);
+                  });
+               });
+            });
+            // Attach dynamic behavior for Firmware Update
+            container.querySelectorAll('.fw-update-btn').forEach((btn, idx) => {
+               // Add a hidden file input for each node
+               let fileInput = document.getElementById('fw-file-input-' + idx);
+               if (!fileInput) {
+                  fileInput = document.createElement('input');
+                  fileInput.type = 'file';
+                  fileInput.accept = '.bin';
+                  fileInput.style.display = 'none';
+                  fileInput.id = 'fw-file-input-' + idx;
+                  btn.parentNode.appendChild(fileInput);
+               }
+               // Add a progress bar if not present
+               // Always select the progress label from the DOM when needed
+               btn.addEventListener('click', function () {
+                  fileInput.value = '';
+                  fileInput.click();
+               });
+               fileInput.onchange = function (e) {
+                  const file = fileInput.files[0];
+                  if (!file) return;
+                  if (!file.name.endsWith('.bin')) {
+                     btn.textContent = 'Error!';
+                     btn.style.backgroundColor = '#c00';
+                     setTimeout(() => {
+                        btn.textContent = 'Update Firmware';
+                        btn.style.backgroundColor = '';
+                        const progressLabel = document.querySelector(`.fw-progress-label[data-idx='${idx}']`);
+                        progressLabel.style.display = 'none';
+                        progressLabel.textContent = '0% (0/0 Chunks)';
+                     }, 1800);
+                     return;
+                  }
+                  const chunkSize = 4096;
+                  const totalChunks = Math.ceil(file.size / chunkSize);
+                  let currentChunk = 0;
+                  let aborted = false;
+                  let uploadSessionClosed = false;
+                  const progressLabel = document.querySelector(`.fw-progress-label[data-idx='${idx}']`);
+                  activeFirmwareUploads++;
+                  progressLabel.style.display = 'inline-block';
+                  progressLabel.textContent = `0% (0/${totalChunks} Chunks)`;
+                  btn.disabled = true;
+                  btn.textContent = 'Uploading...';
+                  btn.style.backgroundColor = '';
+
+                  function closeUploadSession() {
+                     if (uploadSessionClosed) return;
+                     uploadSessionClosed = true;
+                     activeFirmwareUploads = Math.max(0, activeFirmwareUploads - 1);
+                     if (activeFirmwareUploads === 0 && latestNodesSnapshot) {
+                        renderNodes(latestNodesSnapshot);
+                     }
+                  }
+
+                  function finishUpload(success) {
+                     // Store status for 2 seconds for this node
+                     firmwareUpdateStatus[idx] = { status: success ? 'ok' : 'error', until: Date.now() + 2000 };
+                     closeUploadSession();
+                     if (success) {
+                        btn.textContent = 'Firmware updated!';
+                        btn.style.backgroundColor = '#1fa750';
+                     } else {
+                        btn.textContent = 'Error!';
+                        btn.style.backgroundColor = '#c00';
+                     }
+                     setTimeout(() => {
+                        btn.textContent = 'Update Firmware';
+                        btn.style.backgroundColor = '';
+                        btn.disabled = false;
+                        progressLabel.style.display = 'none';
+                        progressLabel.textContent = '0% (0/0 Chunks)';
+                        // Remove status after timeout
+                        if (firmwareUpdateStatus[idx] && Date.now() >= firmwareUpdateStatus[idx].until) {
+                           delete firmwareUpdateStatus[idx];
+                        }
+                     }, 1800);
+                  }
+
+                  function sendChunkWithRetry(chunkNum, retriesLeft) {
+                     if (aborted) return;
+                     const start = chunkNum * chunkSize;
+                     const end = Math.min(file.size, start + chunkSize);
+                     const reader = new FileReader();
+                     reader.onload = function (evt) {
+                        const chunkData = evt.target.result;
+                        const b64 = arrayBufferToBase64(chunkData);
+                        fetch(`/api/v1/firmware_chunk/${idx}`, {
+                           method: 'POST',
+                           headers: { 'Content-Type': 'application/json' },
+                           body: JSON.stringify({ chunk: chunkNum, data: b64 })
+                        }).then(r => r.json()).then(resp => {
+                           if (resp.ack === 'ok') {
+                              currentChunk++;
+                              const percent = Math.round((currentChunk / totalChunks) * 100);
+                              progressLabel.textContent = `${percent}% (${currentChunk}/${totalChunks} Chunks)`;
+                              if (currentChunk < totalChunks) {
+                                 setTimeout(() => sendChunkWithRetry(currentChunk, 3), 0);
+                              } else {
+                                 // All chunks sent, now call firmware_finish
+                                 progressLabel.textContent = `100% (${totalChunks}/${totalChunks} Chunks)`;
+                                 fetch(`/api/v1/firmware_finish/${idx}`, { method: 'POST' })
+                                    .then(r => r.json()).then(resp2 => {
+                                       finishUpload(resp2.ack === 'ok');
+                                    }).catch(() => {
+                                       finishUpload(false);
+                                    });
+                              }
+                           } else {
+                              if (retriesLeft > 0) {
+                                 setTimeout(() => sendChunkWithRetry(chunkNum, retriesLeft - 1), 500);
+                              } else {
+                                 aborted = true;
+                                 finishUpload(false);
+                              }
+                           }
+                        }).catch(() => {
+                           if (retriesLeft > 0) {
+                              setTimeout(() => sendChunkWithRetry(chunkNum, retriesLeft - 1), 500);
+                           } else {
+                              aborted = true;
+                              finishUpload(false);
+                           }
+                        });
+                     };
+                     reader.readAsArrayBuffer(file.slice(start, end));
+                  }
+
+                  // Start upload
+                  sendChunkWithRetry(currentChunk, 3);
+               };
+            });
+         }
+         function startSSE() {
+            if (eventSource) {
+               eventSource.close();
+            }
+            eventSource = new EventSource('/api/v1/status/stream');
+            eventSource.addEventListener('status', function (e) {
+               try {
+                  const nodes = JSON.parse(e.data);
+                  latestNodesSnapshot = nodes;
+                  if (activeFirmwareUploads === 0) {
+                     renderNodes(nodes);
+                  }
+               } catch (err) {
+                  document.getElementById('nodes-container').innerHTML = '<p style="color:red;">Failed to parse node status.</p>';
+               }
+            });
+            eventSource.onerror = function () {
+               document.getElementById('nodes-container').innerHTML = '<p style="color:red;">Lost connection to status stream.</p>';
+            };
+         }
+         window.addEventListener('DOMContentLoaded', function () {
+            startSSE();
+            const rebootBtn = document.getElementById('reboot-btn');
+            rebootBtn.addEventListener('click', function () {
+               const originalText = rebootBtn.textContent;
+               rebootBtn.textContent = 'Rebooting...';
+               rebootBtn.disabled = true;
+               fetch('/api/v1/reboot', { method: 'POST' })
+                  .finally(() => {
+                     setTimeout(() => {
+                        rebootBtn.textContent = originalText;
+                        rebootBtn.disabled = false;
+                     }, 1800);
+                  });
+            });
+            const factoryResetBtn = document.getElementById('factory-reset-btn');
+            factoryResetBtn.addEventListener('click', function () {
+               const originalText = factoryResetBtn.textContent;
+               factoryResetBtn.textContent = 'Resetting...';
+               factoryResetBtn.disabled = true;
+               fetch('/api/v1/factory_reset', { method: 'POST' })
+                  .then(r => r.json())
+                  .then(resp => {
+                     if (resp.ack === 'ok') {
+                        factoryResetBtn.textContent = 'Reset Completed!';
+                        factoryResetBtn.style.backgroundColor = '#1fa750';
+                     } else {
+                        factoryResetBtn.textContent = 'Error!';
+                        factoryResetBtn.style.backgroundColor = '#c00';
+                     }
+                  })
+                  .catch(() => {
+                     factoryResetBtn.textContent = 'Error!';
+                     factoryResetBtn.style.backgroundColor = '#c00';
+                  })
+                  .finally(() => {
+                     setTimeout(() => {
+                        factoryResetBtn.textContent = originalText;
+                        factoryResetBtn.style.backgroundColor = '#c00';
+                        factoryResetBtn.disabled = false;
+                     }, 1800);
+                  });
+            });
+         });
+         window.addEventListener('beforeunload', function () {
+            if (eventSource) {
+               eventSource.close();
+            }
+         });
+      </script>
+   </main>
+</body>
+
+</html>
+

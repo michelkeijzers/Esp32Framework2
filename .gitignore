@@ -1,0 +1,50 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+
+# Python caches/environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# CMake/Ninja build outputs
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+build.ninja
+.ninja_deps
+.ninja_log
+compile_commands.json
+Testing/
+
+# ESP-IDF generated artifacts
+sdkconfig.old
+flasher_args.json
+partition-table*.bin
+bootloader*.bin
+*.elf
+*.bin
+*.map
+*.hex
+
+# Test build artifacts
+tests/build/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
