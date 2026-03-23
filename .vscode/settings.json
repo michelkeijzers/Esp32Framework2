@@ -3,5 +3,6 @@
   "idf.openOcdConfigs": ["board/esp32c3-builtin.cfg"],
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c3"
-  }
+  },
+  "coverage-gutters.coverageFileNames": ["coverage.xml"]
 }

@@ -15,20 +15,36 @@ if(BUILD_HOST_TESTS_WITH_MAIN)
 	)
 endif()
 
-# Coverage report for host-side tests (unit/integration)
-find_program(LCOV_EXECUTABLE lcov HINTS "C:/msys64/usr/bin")
-find_program(GENHTML_EXECUTABLE genhtml HINTS "C:/msys64/usr/bin")
-add_custom_target(host_coverage
-	COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target unit_tests
-	COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target integration_tests
-	COMMAND ${CMAKE_SOURCE_DIR}/tests/build/unit_tests || true
-	COMMAND ${CMAKE_SOURCE_DIR}/tests/build/integration_tests || true
-	COMMAND ${LCOV_EXECUTABLE} --capture --directory ${CMAKE_SOURCE_DIR}/tests/build --output-file ${CMAKE_SOURCE_DIR}/tests/build/coverage.info
-	COMMAND ${GENHTML_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/build/coverage.info --output-directory ${CMAKE_SOURCE_DIR}/tests/build/coverage_html
-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/build
-	COMMENT "Build, run, and generate coverage report for host-side tests (output: tests/build/coverage_html/index.html)"
-	VERBATIM
+# Coverage report for host-side tests (unit/integration) using OpenCppCoverage.
+find_program(OPENCPPCOVERAGE_EXECUTABLE
+	NAMES OpenCppCoverage.exe OpenCppCoverage
+	HINTS
+		"C:/OpenCppCoverage"
+		"C:/Program Files/OpenCppCoverage"
+		"C:/Program Files (x86)/OpenCppCoverage"
 )
+
+if(OPENCPPCOVERAGE_EXECUTABLE)
+	add_custom_target(host_coverage
+		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build -DCMAKE_BUILD_TYPE=Debug
+		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target unit_tests
+		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target integration_tests
+		COMMAND ${CMAKE_COMMAND}
+			-DOPENCPPCOVERAGE_EXE=${OPENCPPCOVERAGE_EXECUTABLE}
+			-DSOURCE_ROOT=${CMAKE_SOURCE_DIR}
+			-DTEST_BUILD_DIR=${CMAKE_SOURCE_DIR}/tests/build
+			-P ${CMAKE_SOURCE_DIR}/tests/cmake/RunOpenCppCoverage.cmake
+		COMMENT "Build, run, and generate host-side coverage with OpenCppCoverage (output: tests/build/coverage_html/index.html)"
+		VERBATIM
+	)
+else()
+	add_custom_target(host_coverage
+		COMMAND ${CMAKE_COMMAND} -E echo "OpenCppCoverage.exe was not found. Install it or add it to PATH to run host_coverage."
+		COMMAND ${CMAKE_COMMAND} -E false
+		COMMENT "OpenCppCoverage is required for host-side coverage"
+		VERBATIM
+	)
+endif()
 
 set(WEBSITE_DIR "${CMAKE_SOURCE_DIR}/main/project_dmx_controller/website")
 find_program(NPM_EXECUTABLE NAMES npm npm.cmd)

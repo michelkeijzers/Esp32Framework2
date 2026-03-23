@@ -2,14 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Esp32Framework2Tests CXX)
 
-# Enable coverage reporting (GCC/Clang only)
-option(COVERAGE "Enable coverage reporting" ON)
-if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    message(STATUS "Building with coverage flags")
-    add_compile_options(--coverage -O0)
-    add_link_options(--coverage)
-endif()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
