@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>DMX Project Control Panel</title>
+   <link rel="stylesheet" href="/pico.min.css">
+   <link rel="stylesheet" href="/custom.css">
+   <script src="/htmx.min.js"></script>
+</head>
+<script>
+   if (!window.htmx) alert('htmx not loaded!');
+</script>
+
+<body>
+   <main class="container">
+      <div class="header-flex">
+         <h1 class="title-colored no-margin">DMX Controller</h1>
+         <span class="version-colored version-label">Version 0.1.0</span>
+      </div>
+      <div style="align-items: center; margin-top: 2rem; margin-left: auto; margin-right: auto;">
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/control.html'">Control</button>
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/presets.html'">DMX Presets</button>
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/configuration.html'">Configuration</button>
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/common/webserver_task/website/nodes.html'">Nodes</button>
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/common/webserver_task/website/security.html'">Security</button>
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/common/webserver_task/website/logging.html'">Logging</button>
+         <button class="big-bold-btn" style="width: 100%;" onclick="window.location.href='/manual.html'">Manual</button>
+      </div>
+   </main>
+</body>
+
+</html>

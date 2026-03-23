@@ -1,0 +1,14 @@
+{
+  "name": "dmx-controller-website",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "prepare-public": "node scripts/sync-public.mjs",
+    "dev": "npm run prepare-public && vite --host",
+    "build": "npm run prepare-public && vite build",
+    "preview": "vite preview --host"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

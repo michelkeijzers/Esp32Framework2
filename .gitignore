@@ -48,3 +48,8 @@ tests/build/
 *.temp
 *.swp
 *.swo
+
+# Node/Vite artifacts
+node_modules/
+dist/
+main/project_dmx_controller/website/public/
