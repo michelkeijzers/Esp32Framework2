@@ -1,19 +1,21 @@
 @startuml 
 
-class Node<<abstract common>> {}
-class RtosTask<<abstract common>> {}
+legend
+|= Color |= Type |= Meaning |
+|<back:lightblue>           | App Specific | Components specific to the application, containing the main logic.|
+|<back:lightgreen>           | Common       | Generic, reusable components across different applications.|
+endlegend
+
+class MainCpp #lightblue {}
+class RtosTask<<abstract>> #lightgreen {}
+class Node<<abstract>> #lightgreen {}
 
 'Master Node 
 package MasterNode_Package 
 {
-    class MasterNode <<app_specific>> {}
-    note left of MasterNode
-        main.cpp
-    end note
-
-    MasterNode -|> Node
-
-    class MasterBridge <<common>> {}
+    class MasterNode <<Node>> #lightblue {}
+    
+    class MasterBridge <<RtosTask>> #lightgreen {}
     MasterNode *-- MasterBridge
 
     note bottom of MasterBridge
@@ -21,73 +23,73 @@ package MasterNode_Package
         Design Pattern 
     end note
 
-    class MasterTask <<app_specific>>{}
-    MasterTask --|> RtosTask
+    class MasterTask <<RtosTask>> #lightblue {}
 
     MasterNode *-- MasterTask
 
-    WebserverTask --|> RtosTask 
     MasterNode *-- WebserverTask
 
-    MasterTask o-- WebserverTask : Uses
+    class WebserverTask <<RtosTask>> #lightblue {}
+    MasterTask <--> WebserverTask
 
-    class PresetsTask <<app_specific>> {}
-    PresetsTask --|> RtosTask
+    class PresetsTask <<RtosTask>> #lightblue {}
     MasterNode *-- PresetsTask
-    PresetsTask <--> MasterBridge  
-
-    class ApiServer <<app_specific>> {}
+    MasterTask <--> PresetsTask
+    
+    class ApiServer #lightblue {}
     WebserverTask *-- ApiServer
 
-    class ControlApi <<app_specific>> {}
+    class ControlApi #lightblue {}
     ApiServer *-- ControlApi
-    class PresetEditApi <<app_specific>> {}
+    class PresetEditApi #lightblue {}
+    note bottom of PresetEditApi
+        Specific for one project
+    end note
     ApiServer *-- PresetEditApi
-    class ConfigurationApi <<app_specific>> {}
+    class ConfigurationApi #lightblue {}
     ApiServer *-- ConfigurationApi
 
-    class CommonApiServer <<common>> {}
-    ApiServer *-- CommonApiServer
-    class StatusApi <<common>> {}
-    CommonApiServer *-- StatusApi
-    class OtaApi <<common>> {}
-    CommonApiServer *-- OtaApi
-    class LoggingApi <<common>> {}
-    CommonApiServer *-- LoggingApi
-
+    class ServiceApiServer #lightgreen {}
+    ApiServer *-- ServiceApiServer
+    class StatusApi #lightgreen {}
+    ServiceApiServer *-- StatusApi
+    class OtaApi #lightgreen {}
+    ServiceApiServer *-- OtaApi
+    class LoggingApi #lightgreen {}
+    ServiceApiServer *-- LoggingApi
 }
 
+MainCpp *-- MasterNode
 
 'Slave Node
 package SlaveNode_Package
 {
-    class SlaveNode <<app_specific>> {}
-    note left of SlaveNode
-        main.cpp
+    class SlaveBridge <<RtosTask>> #lightgreen {}
+    note bottom of SlaveBridge
+        Remote Proxy
+        Design Pattern 
     end note
 
-    SlaveNode -|> Node
-    class SlaveBridge <<common>> {}
+    class SlaveNode <<Node>> #lightgreen {}
+
     SlaveNode *-- SlaveBridge
 
     ' Slave Task
-    class SlaveTask <<app_specific>>{}
-    SlaveTask --|> RtosTask
+    class SlaveTask <<RtosTask>> #lightgreen {}
     SlaveNode *-- SlaveTask
 }
+
+MainCpp *-- SlaveNode
 
 MasterBridge .. SlaveBridge : Direct or \n ESP-NOW
 
 package ServiceTasksPackage 
 {
-    class ServiceTasks <<common>> {}
+    class ServiceTasks #lightgreen {}
     
-    class LoggingTask <<common>> {}
-    LoggingTask --|> RtosTask
-    class StatusTask <<common>> {}
-    StatusTask --|> RtosTask
-    class OtaTask <<common>> {}
-    OtaTask --|> RtosTask
+    class LoggingTask <<RtosTask>> #lightgreen {}
+    class StatusTask <<RtosTask>> #lightgreen {}
+    class OtaTask <<RtosTask>> #lightgreen {}
 
     ServiceTasks *-- LoggingTask
     ServiceTasks *-- StatusTask
@@ -97,30 +99,32 @@ package ServiceTasksPackage
 
 package SubTasksPackage
 {
-    class SubTask<<abstract>> {}
+    class SubTask<<abstract, RtosTask>> #lightgreen {}
 
-    SubTask --|> RtosTask
-    class ButtonTask <<common>> {}
-    class GpioLedTask <<common>> {}
-    class Max7219Task <<common>> {}
-    class PotmeterTask <<common>> {}
-    class DmxMax3485SenderTask <<common>> {}
+    class ButtonTask #lightgreen {}
+    class GpioLedTask #lightgreen {}
+    class Max7219Task #lightgreen {}
+    class PotmeterTask #lightgreen {}
+    class DmxMax3485SenderTask #lightgreen {}
 
     ButtonTask --|> SubTask
     GpioLedTask --|> SubTask
-    Max7219Task --|> SubTask
+    Max7219Task ---|> SubTask
     PotmeterTask --|> SubTask
-    DmxMax3485SenderTask --|> SubTask
+    DmxMax3485SenderTask ---|> SubTask
 }
 
 MasterNode "1" *-- "0..*" SubTask
 SlaveNode  "1" *-- "0..*" SubTask
 MasterTask <-> MasterBridge
 
-MasterNode *-- ServiceTasks
-SlaveNode *-- ServiceTasks
+MasterNode *--- ServiceTasks
+SlaveNode *--- ServiceTasks
 SlaveTask <-> SlaveBridge
 
+'Layout
+
+MasterNode_Package -[hidden]-> ServiceTasksPackage
 
 @enduml
 

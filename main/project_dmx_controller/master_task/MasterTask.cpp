@@ -13,12 +13,10 @@ esp_err_t MasterTask::init()
 
 esp_err_t MasterTask::start()
 {
-    
+    esp_err_t err = RtosTask::start();
+    if (err != ESP_OK) return err;
 
-    
 
 
-    // TODO: create FreeRTOS task that handles inter-node communication,
-    //       applies preset values to DMX outputs, and processes slave status
     return ESP_OK;
 }

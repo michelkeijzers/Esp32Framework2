@@ -1,3 +1,4 @@
+#include "RtosQueue.hpp"
 #include "RtosTask.hpp"
 
 RtosTask::RtosTask(const char *name, uint32_t stackSize, UBaseType_t priority)
@@ -29,3 +30,10 @@ esp_err_t RtosTask::start()
     }
     return ESP_OK;
 }   
+
+IRtosQueue* RtosTask::createQueue(size_t itemSize, size_t length) {
+    auto queue = std::make_unique<RtosQueue>(itemSize, length);
+    IRtosQueue* queuePtr = queue.get();
+    queues_.push_back(std::move(queue));
+    return queuePtr;
+}

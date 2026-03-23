@@ -30,35 +30,37 @@
 
 extern "C" void app_main(void)
 {
-    #if defined(BUILD_MASTER_NODE)
-        EspNow espNow;
-        EspLittleFs espLittleFs;
-        EspHttpServer espHttpServer;
-        EspNvs espNvs;
-        EspLogger espLogger;
+    #if defined(BUILD_PROJECT_DMX_CONTROLLER)
+        #if defined(BUILD_MASTER_NODE)
+            EspNow espNow;
+            EspLittleFs espLittleFs;
+            EspHttpServer espHttpServer;
+            EspNvs espNvs;
+            EspLogger espLogger;
 
-        ApiStatus apiStatus(espHttpServer);
-        ApiNodes apiNodes(espHttpServer);
-        ApiSystem apiSystem(espHttpServer);
-        ApiFirmware apiFirmware(espHttpServer);
-        ApiSecurity apiSecurity(espHttpServer);
-        ApiLogging apiLogging(espHttpServer);
+            ApiStatus apiStatus(espHttpServer);
+            ApiNodes apiNodes(espHttpServer);
+            ApiSystem apiSystem(espHttpServer);
+            ApiFirmware apiFirmware(espHttpServer);
+            ApiSecurity apiSecurity(espHttpServer);
+            ApiLogging apiLogging(espHttpServer);
 
-        EspContexts espContexts{espLittleFs, espHttpServer, espNvs, espLogger};
-        CommonApiContexts commonApiContexts{apiStatus, apiNodes, apiSystem, apiFirmware, apiSecurity, apiLogging};
-        Contexts contexts{espContexts, commonApiContexts};
+            EspContexts espContexts{espLittleFs, espHttpServer, espNvs, espLogger};
+            CommonApiContexts commonApiContexts{apiStatus, apiNodes, apiSystem, apiFirmware, apiSecurity, apiLogging};
+            Contexts contexts{espContexts, commonApiContexts};
 
-        MasterBridge masterBridge(espNow);
+            MasterBridge masterBridge(espNow);
 
-        MasterTask masterTask(masterBridge, "master_task", 8192, 7);
-        ApiServer apiServer(contexts);
-        WebserverTask webserverTask(apiServer, "webserver_task", 8192, 6);
+            MasterTask masterTask(masterBridge, "master_task", 8192, 7);
+            ApiServer apiServer(contexts);
+            WebserverTask webserverTask(apiServer, "webserver_task", 8192, 6);
 
-        ServiceTasks serviceTasks;
+            ServiceTasks serviceTasks;
 
-        MasterNode masterNode(masterBridge, masterTask, webserverTask, serviceTasks, {}, {});
-        masterNode.init();
-        masterNode.start();
-    #elif defined(BUILD_SLAVE_NODE)
-    #endif
+            MasterNode masterNode(masterBridge, masterTask, webserverTask, serviceTasks, {}, {});
+            masterNode.init();
+            masterNode.start();
+        #elif defined(BUILD_SLAVE_NODE)
+        #endif
+    #endif // BUILD_PROJECT_DMX_CONTROLLER
 }

@@ -54,6 +54,7 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/service_tasks/status_task/StatusTask.cpp
     ${MAIN_DIR}/common/sub_tasks/SubTask.cpp
     ${MAIN_DIR}/common/tasks/RtosTask.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/RtosQueueStub.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiFirmware.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiLogging.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiNodes.cpp
