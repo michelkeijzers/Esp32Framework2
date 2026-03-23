@@ -1,11 +1,7 @@
 #include "WebserverTask.hpp"
 
-static constexpr const char *WEBSERVER_TASK_NAME = "webserver_task";
-static constexpr uint32_t WEBSERVER_TASK_STACK_SIZE = 8192;
-static constexpr UBaseType_t WEBSERVER_TASK_PRIORITY = 6;
-
-WebserverTask::WebserverTask(IApiServer &apiServer)
-    : RtosTask(WEBSERVER_TASK_NAME, WEBSERVER_TASK_STACK_SIZE, WEBSERVER_TASK_PRIORITY), apiServer_(apiServer)
+WebserverTask::WebserverTask(IApiServer &apiServer, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
+    : RtosTask(taskName, stackSize, taskPriority), apiServer_(apiServer)
 {
 }
 

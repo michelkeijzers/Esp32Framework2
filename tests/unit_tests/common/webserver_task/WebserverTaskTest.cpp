@@ -10,7 +10,7 @@ class WebserverTaskTest : public ::testing::Test
 {
 protected:
     MockIApiServer  mockApiServer;
-    WebserverTask   task{mockApiServer};
+    WebserverTask   task{mockApiServer, "webserver_task", 8192, 6};
 };
 
 TEST_F(WebserverTaskTest, InitReturnsOk)

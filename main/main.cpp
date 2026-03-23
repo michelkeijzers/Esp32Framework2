@@ -50,9 +50,9 @@ extern "C" void app_main(void)
 
         MasterBridge masterBridge(espNow);
 
-        MasterTask masterTask(masterBridge);
+        MasterTask masterTask(masterBridge, "master_task", 8192, 7);
         ApiServer apiServer(contexts);
-        WebserverTask webserverTask(apiServer);
+        WebserverTask webserverTask(apiServer, "webserver_task", 8192, 6);
 
         ServiceTasks serviceTasks;
 

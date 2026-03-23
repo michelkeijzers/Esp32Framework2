@@ -12,8 +12,8 @@ class RtosTask : public IRtosTask
     RtosTask(const char *name, uint32_t stackSize, UBaseType_t priority);
     virtual ~RtosTask() = default;
 
-    virtual esp_err_t init() = 0;
-    virtual esp_err_t start() = 0;
+    virtual esp_err_t init();
+    virtual esp_err_t start();
 
   protected:
     const char *name_;

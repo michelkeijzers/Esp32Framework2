@@ -13,7 +13,7 @@ using ::testing::Return;
 TEST(MasterTaskTest, InitDelegatesToMasterBridge)
 {
     MockIMasterBridge mockBridge;
-    MasterTask task(mockBridge);
+    MasterTask task(mockBridge, "master_task", 8192, 7);
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_OK));
     EXPECT_EQ(ESP_OK, task.init());
@@ -22,7 +22,7 @@ TEST(MasterTaskTest, InitDelegatesToMasterBridge)
 TEST(MasterTaskTest, InitPropagatesBridgeFailure)
 {
     MockIMasterBridge mockBridge;
-    MasterTask task(mockBridge);
+    MasterTask task(mockBridge, "master_task", 8192, 7);
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_FAIL));
     EXPECT_EQ(ESP_FAIL, task.init());
@@ -35,7 +35,7 @@ TEST(MasterTaskTest, InitPropagatesBridgeFailure)
 TEST(MasterTaskTest, StartReturnsOk)
 {
     MockIMasterBridge mockBridge;
-    MasterTask task(mockBridge);
+    MasterTask task(mockBridge, "master_task", 8192, 7);
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_OK));
     task.init();

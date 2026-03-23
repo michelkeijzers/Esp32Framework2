@@ -1,6 +1,5 @@
 @startuml 
 
-
 class Node<<abstract common>> {}
 class RtosTask<<abstract common>> {}
 
@@ -31,6 +30,11 @@ package MasterNode_Package
     MasterNode *-- WebserverTask
 
     MasterTask o-- WebserverTask : Uses
+
+    class PresetsTask <<app_specific>> {}
+    PresetsTask --|> RtosTask
+    MasterNode *-- PresetsTask
+    PresetsTask <--> MasterBridge  
 
     class ApiServer <<app_specific>> {}
     WebserverTask *-- ApiServer
