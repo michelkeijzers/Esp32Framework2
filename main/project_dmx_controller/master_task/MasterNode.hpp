@@ -4,7 +4,7 @@
 #include "IMasterTask.hpp"
 #include "../../common/node/Node.hpp"
 #include "../../common/bridge/master_bridge/IMasterBridge.hpp"
-#include "../../common/webserver_task/IWebserverTask.hpp"
+#include "../webserver_task/IWebserverTask.hpp"
 #include "../../common/service_tasks/IServiceTasks.hpp"
 #include "../../common/sub_tasks/ISubTask.hpp"
 

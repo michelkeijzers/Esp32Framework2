@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build (F7)",
+      "type": "shell",
+      "command": "cmd /c \"\"C:\\Users\\i4studio\\esp\\v5.4.1\\esp-idf\\export.bat\" && idf.py build && cmake --build build --target host_coverage\" && Write-Host '' && Write-Host '========== COVERAGE SUMMARY ==========' -ForegroundColor Cyan && if (Test-Path 'tests/build/coverage.info') { & C:/msys64/usr/bin/lcov --summary tests/build/coverage.info ; Write-Host '======================================' -ForegroundColor Cyan ; Write-Host 'HTML report: tests/build/coverage_html/index.html' -ForegroundColor Green } else { Write-Host 'coverage.info not found at tests/build/coverage.info' -ForegroundColor Yellow }",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always"
+      }
+    }
+  ]
+}

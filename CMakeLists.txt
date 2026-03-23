@@ -15,6 +15,21 @@ if(BUILD_HOST_TESTS_WITH_MAIN)
 	)
 endif()
 
+# Coverage report for host-side tests (unit/integration)
+find_program(LCOV_EXECUTABLE lcov HINTS "C:/msys64/usr/bin")
+find_program(GENHTML_EXECUTABLE genhtml HINTS "C:/msys64/usr/bin")
+add_custom_target(host_coverage
+	COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target unit_tests
+	COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target integration_tests
+	COMMAND ${CMAKE_SOURCE_DIR}/tests/build/unit_tests || true
+	COMMAND ${CMAKE_SOURCE_DIR}/tests/build/integration_tests || true
+	COMMAND ${LCOV_EXECUTABLE} --capture --directory ${CMAKE_SOURCE_DIR}/tests/build --output-file ${CMAKE_SOURCE_DIR}/tests/build/coverage.info
+	COMMAND ${GENHTML_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tests/build/coverage.info --output-directory ${CMAKE_SOURCE_DIR}/tests/build/coverage_html
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/build
+	COMMENT "Build, run, and generate coverage report for host-side tests (output: tests/build/coverage_html/index.html)"
+	VERBATIM
+)
+
 set(WEBSITE_DIR "${CMAKE_SOURCE_DIR}/main/project_dmx_controller/website")
 find_program(NPM_EXECUTABLE NAMES npm npm.cmd)
 

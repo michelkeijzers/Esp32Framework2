@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "WebserverTask.hpp"
+#include "project_dmx_controller/webserver_task/WebserverTask.hpp"
 #include "MockIApiServer.hpp"
 
 using ::testing::Return;

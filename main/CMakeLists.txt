@@ -23,8 +23,6 @@ idf_component_register(
         "common/webserver_task/apis/ApiStatus.cpp"
         "common/webserver_task/apis/ApiSystem.cpp"
         "common/webserver_task/apis/ApiValidator.cpp"
-        "common/webserver_task/ApiServer.cpp"
-        "common/webserver_task/WebserverTask.cpp"
         "project_dmx_controller/master_task/MasterNode.cpp"
         "project_dmx_controller/master_task/MasterTask.cpp"
         "project_dmx_controller/presets_task/PresetManager.cpp"
@@ -39,7 +37,8 @@ idf_component_register(
         "project_dmx_controller/webserver_task/apis/ApiConfiguration.cpp"
         "project_dmx_controller/webserver_task/apis/ApiPresets.cpp"
         "project_dmx_controller/webserver_task/apis/ApiPresetValues.cpp"
-        "project_dmx_controller/webserver_task/Webserver.cpp"
+        "project_dmx_controller/webserver_task/ApiServer.cpp"
+        "project_dmx_controller/webserver_task/WebserverTask.cpp"
     INCLUDE_DIRS
         "."
         "common"

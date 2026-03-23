@@ -1,10 +1,7 @@
 #pragma once
 
 /**
- * Interface for all API server implementations.
- *
- * An API server registers HTTP handlers on the underlying HTTP server and
- * exposes the application REST API.
+ * Interface for project API server implementations.
  */
 class IApiServer
 {

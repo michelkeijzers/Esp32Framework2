@@ -1,6 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "IWebserverTask.hpp"
+#include "project_dmx_controller/webserver_task/IWebserverTask.hpp"
 
 class MockIWebserverTask : public IWebserverTask
 {

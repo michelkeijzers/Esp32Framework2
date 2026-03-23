@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.20)
+
 project(Esp32Framework2Tests CXX)
+
+# Enable coverage reporting (GCC/Clang only)
+option(COVERAGE "Enable coverage reporting" ON)
+if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    message(STATUS "Building with coverage flags")
+    add_compile_options(--coverage -O0)
+    add_link_options(--coverage)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -61,7 +70,7 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/webserver_task/apis/ApiStatus.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiSystem.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiValidator.cpp
-    ${MAIN_DIR}/common/webserver_task/WebserverTask.cpp
+    ${MAIN_DIR}/project_dmx_controller/webserver_task/WebserverTask.cpp
     ${MAIN_DIR}/project_dmx_controller/master_task/MasterNode.cpp
     ${MAIN_DIR}/project_dmx_controller/master_task/MasterTask.cpp
     ${MAIN_DIR}/project_dmx_controller/presets_task/PresetManager.cpp
