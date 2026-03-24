@@ -9,7 +9,8 @@
 #include "../../../common/webserver_task/apis/ApiFirmware.hpp"
 #include "../../../common/webserver_task/apis/ApiSecurity.hpp"
 #include "../../../common/webserver_task/apis/ApiLogging.hpp"
-#include "../../../common/context/Contexts.hpp"
+#include "../../../common/context/IEspFactory.hpp"
+#include "../../../common/context/ICommonApiFactory.hpp"
 
 class IEspLittleFs;
 class IEspHttpServer;
@@ -21,7 +22,7 @@ class IEspLogger;
 class ApiServer : public IApiServer
 {
 public:
-    explicit ApiServer(Contexts &contexts);
+    ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory);
     ~ApiServer() override;
 
     void start() override;

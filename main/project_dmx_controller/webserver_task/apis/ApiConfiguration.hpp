@@ -31,7 +31,7 @@ private:
     static constexpr const char *KEY_DEVICE_NAME          = "device_name";
     static constexpr const char *KEY_CIRCULAR_NAVIGATION  = "circ_nav";
     static constexpr size_t MAX_RESPONSE_SIZE  = 512;
-    static constexpr size_t MAX_SSID_LEN       = 32;
+    static constexpr size_t API_MAX_SSID_LEN       = 32;
     static constexpr size_t MAX_DEVICE_NAME_LEN = 32;
     static constexpr size_t REQUEST_BUF_SIZE   = 256;
 };

@@ -15,7 +15,7 @@ ApiConfiguration::~ApiConfiguration() = default;
 
 esp_err_t ApiConfiguration::get_configuration_handler(httpd_req_t *req)
 {
-    char ssid[MAX_SSID_LEN + 1]           = {0};
+    char ssid[API_MAX_SSID_LEN + 1]           = {0};
     char device_name[MAX_DEVICE_NAME_LEN + 1] = {0};
     uint32_t circular_nav                 = 0;
     size_t len                            = 0;
@@ -24,7 +24,7 @@ esp_err_t ApiConfiguration::get_configuration_handler(httpd_req_t *req)
     esp_err_t err = nvsManager_.nvs_open(CONFIG_NAMESPACE, NVS_READONLY, &nvs_handle);
     if (err == ESP_OK)
     {
-        len = MAX_SSID_LEN;
+        len = API_MAX_SSID_LEN;
         nvsManager_.nvs_get_str(nvs_handle, KEY_WIFI_SSID, ssid, &len);
 
         len = MAX_DEVICE_NAME_LEN;
@@ -79,9 +79,9 @@ esp_err_t ApiConfiguration::put_configuration_handler(httpd_req_t *req)
     {
         ssid_start += 13;
         const char *ssid_end = strchr(ssid_start, '"');
-        if (ssid_end && (ssid_end - ssid_start) <= static_cast<int>(MAX_SSID_LEN))
+        if (ssid_end && (ssid_end - ssid_start) <= static_cast<int>(API_MAX_SSID_LEN))
         {
-            char ssid[MAX_SSID_LEN + 1] = {0};
+            char ssid[API_MAX_SSID_LEN + 1] = {0};
             memcpy(ssid, ssid_start, ssid_end - ssid_start);
             nvsManager_.nvs_set_str(nvs_handle, KEY_WIFI_SSID, ssid);
         }

@@ -12,12 +12,17 @@
 
 #include <cstring>
 
-ApiServer::ApiServer(Contexts &contexts)
-    : espLittleFs_(contexts.espContexts.espLittleFs), espHttpServer_(contexts.espContexts.espHttpServer),
-      logger_(contexts.espContexts.espLogger), apiStatus_(contexts.commonApiContexts.apiStatus),
-      apiNodes_(contexts.commonApiContexts.apiNodes), apiSystem_(contexts.commonApiContexts.apiSystem),
-      apiFirmware_(contexts.commonApiContexts.apiFirmware), apiSecurity_(contexts.commonApiContexts.apiSecurity),
-      apiLogging_(contexts.commonApiContexts.apiLogging), server(nullptr)
+ApiServer::ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory)
+    : espLittleFs_(espFactory.getLittleFs())
+    , espHttpServer_(espFactory.getHttpServer())
+    , logger_(espFactory.getLogger())
+    , apiStatus_(commonApiFactory.getApiStatus())
+    , apiNodes_(commonApiFactory.getApiNodes())
+    , apiSystem_(commonApiFactory.getApiSystem())
+    , apiFirmware_(commonApiFactory.getApiFirmware())
+    , apiSecurity_(commonApiFactory.getApiSecurity())
+    , apiLogging_(commonApiFactory.getApiLogging())
+    , server(nullptr)
 {
     server = nullptr;
 }

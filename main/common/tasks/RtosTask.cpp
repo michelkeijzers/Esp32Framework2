@@ -30,6 +30,8 @@ esp_err_t RtosTask::start()
     {
         return ESP_FAIL;
     }
+
+    createQueue(sizeof(int), 10); //TODO
     return ESP_OK;
 }   
 

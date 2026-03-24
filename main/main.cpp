@@ -1,19 +1,8 @@
 // DEFINES FOR THE PROJECT AND NODE TO BUILD
 #define BUILD_PROJECT_DMX_CONTROLLER
 
-#include "common/esp/esp_now/EspNow.hpp"
-#include "common/esp/esp_file_systems/EspLittleFs.hpp"
-#include "common/esp/esp_http_server/EspHttpServer.hpp"
-#include "common/esp/esp_nvs/EspNvs.hpp"
-#include "common/esp/esp_logger/EspLogger.hpp"
 #include "common/bridge/master_bridge/MasterBridge.hpp"
-#include "common/context/Contexts.hpp"
-#include "common/webserver_task/apis/ApiStatus.hpp"
-#include "common/webserver_task/apis/ApiNodes.hpp"
-#include "common/webserver_task/apis/ApiSystem.hpp"
-#include "common/webserver_task/apis/ApiFirmware.hpp"
-#include "common/webserver_task/apis/ApiSecurity.hpp"
-#include "common/webserver_task/apis/ApiLogging.hpp"
+#include "common/context/EspNowFactory.hpp"
 #include "common/service_tasks/ServiceTasks.hpp"
 
 #define BUILD_MASTER_NODE
@@ -23,6 +12,7 @@
     #if defined(BUILD_MASTER_NODE)
         #include "project_dmx_controller/master_task/MasterNode.hpp"
         #include "project_dmx_controller/master_task/MasterTask.hpp"
+        #include "project_dmx_controller/master_task/DmxContextFactory.hpp"
         #include "project_dmx_controller/webserver_task/ApiServer.hpp"
         #include "project_dmx_controller/webserver_task/WebserverTask.hpp"
     #endif
@@ -32,27 +22,17 @@ extern "C" void app_main(void)
 {
     #if defined(BUILD_PROJECT_DMX_CONTROLLER)
         #if defined(BUILD_MASTER_NODE)
-            EspNow espNow;
-            EspLittleFs espLittleFs;
-            EspHttpServer espHttpServer;
-            EspNvs espNvs;
-            EspLogger espLogger;
+            DmxContextFactory dmxContextFactory;
+            EspNowFactory espNowFactory;
 
-            ApiStatus apiStatus(espHttpServer);
-            ApiNodes apiNodes(espHttpServer);
-            ApiSystem apiSystem(espHttpServer);
-            ApiFirmware apiFirmware(espHttpServer);
-            ApiSecurity apiSecurity(espHttpServer);
-            ApiLogging apiLogging(espHttpServer);
+            IContextFactory &contextFactory = dmxContextFactory.getContextFactory();
+            IEspFactory &espFactory = contextFactory.getEspFactory();
+            ICommonApiFactory &commonApiFactory = contextFactory.getCommonApiFactory();
 
-            EspContexts espContexts{espLittleFs, espHttpServer, espNvs, espLogger};
-            CommonApiContexts commonApiContexts{apiStatus, apiNodes, apiSystem, apiFirmware, apiSecurity, apiLogging};
-            Contexts contexts{espContexts, commonApiContexts};
-
-            MasterBridge masterBridge(espNow);
+            MasterBridge masterBridge(espNowFactory.getEspNow());
 
             MasterTask masterTask(masterBridge, "master_task", 8192, 7);
-            ApiServer apiServer(contexts);
+            ApiServer apiServer(espFactory, commonApiFactory);
             WebserverTask webserverTask(apiServer, "webserver_task", 8192, 6);
 
             ServiceTasks serviceTasks;

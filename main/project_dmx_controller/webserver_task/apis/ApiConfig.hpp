@@ -38,7 +38,7 @@ private:
     
     // Buffer sizes
     static constexpr size_t MAX_RESPONSE_SIZE = 1024;
-    static constexpr size_t MAX_SSID_LEN = 32;
+    static constexpr size_t API_MAX_SSID_LEN = 32;
     static constexpr size_t MAX_PASSWORD_LEN = 63;
     static constexpr size_t MAX_ESPNOW_KEY_LEN = 32;  // 16 bytes hex-encoded
     static constexpr size_t MAX_DEVICE_NAME_LEN = 32;
