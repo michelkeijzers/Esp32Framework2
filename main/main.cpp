@@ -31,11 +31,13 @@ extern "C" void app_main(void)
 
             MasterBridge masterBridge(espNowFactory.getEspNow());
 
-            MasterTask masterTask(masterBridge, "master_task", 8192, 7);
-            ApiServer apiServer(espFactory, commonApiFactory);
-            WebserverTask webserverTask(apiServer, "webserver_task", 8192, 6);
+            IFreeRtosFactory &rtosFactory = espFactory.getFreeRtosFactory();
 
-            ServiceTasks serviceTasks;
+            MasterTask masterTask(rtosFactory, masterBridge, "master_task", 8192, 7);
+            ApiServer apiServer(espFactory, commonApiFactory);
+            WebserverTask webserverTask(rtosFactory, apiServer, "webserver_task", 8192, 6);
+
+            ServiceTasks serviceTasks(rtosFactory);
 
             MasterNode masterNode(masterBridge, masterTask, webserverTask, serviceTasks, {}, {});
             masterNode.init();

@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 #include "DmxMax3485SenderTask.hpp"
+#include "MockIFreeRtosFactory.hpp"
 
 // ─────────────────────────────────────────────────────────────
 // Fixture
 // ─────────────────────────────────────────────────────────────
 struct DmxMax3485SenderTaskTest : public ::testing::Test
 {
-    DmxMax3485SenderTask task;
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
+    DmxMax3485SenderTask task{mockRtosFactory};
 };
 
 // ─────────────────────────────────────────────────────────────

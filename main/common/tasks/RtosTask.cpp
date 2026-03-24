@@ -1,10 +1,8 @@
 #include "RtosQueue.hpp"
 #include "RtosTask.hpp"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
-RtosTask::RtosTask(const char *name, uint32_t stackSize, UBaseType_t priority)
-    : name_(name), stackSize_(stackSize), priority_(priority)
+RtosTask::RtosTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize, UBaseType_t priority)
+    : freeRtosFactory_(freeRtosFactory), name_(name), stackSize_(stackSize), priority_(priority)
 {
 }
 
@@ -17,7 +15,7 @@ esp_err_t RtosTask::init()
 
 esp_err_t RtosTask::start()
 {
-    if (xTaskCreate(
+    if (freeRtosFactory_.createTask(
             [](void *arg) {
                 auto task = static_cast<RtosTask *>(arg);
                 task->start();

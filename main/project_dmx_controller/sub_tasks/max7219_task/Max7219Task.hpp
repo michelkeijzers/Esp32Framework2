@@ -12,7 +12,7 @@
 class Max7219Task : public SubTask, public IMax7219Task
 {
 public:
-    Max7219Task();
+    explicit Max7219Task(IFreeRtosFactory &freeRtosFactory);
     ~Max7219Task() override = default;
 
     esp_err_t init()  override;

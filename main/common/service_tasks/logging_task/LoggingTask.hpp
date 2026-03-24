@@ -12,7 +12,7 @@
 class LoggingTask : public RtosTask, public ILoggingTask
 {
 public:
-    LoggingTask();
+    explicit LoggingTask(IFreeRtosFactory &freeRtosFactory);
     ~LoggingTask() override = default;
 
     esp_err_t init()  override;

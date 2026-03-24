@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 #include "DmxMax3485SenderTask.hpp"
+#include "MockIFreeRtosFactory.hpp"
 
 TEST(DmxSenderIntegrationTest, FullChannelProgrammingWorkflow)
 {
-    DmxMax3485SenderTask task;
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
+    DmxMax3485SenderTask task(mockRtosFactory);
 
     EXPECT_EQ(ESP_OK, task.init());
     EXPECT_EQ(ESP_OK, task.start());

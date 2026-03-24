@@ -3,6 +3,7 @@
 
 #include "MasterTask.hpp"
 #include "MockIMasterBridge.hpp"
+#include "MockIFreeRtosFactory.hpp"
 
 using ::testing::Return;
 
@@ -12,8 +13,9 @@ using ::testing::Return;
 
 TEST(MasterTaskTest, InitDelegatesToMasterBridge)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
-    MasterTask task(mockBridge, "master_task", 8192, 7);
+    MasterTask task(mockRtosFactory, mockBridge, "master_task", 8192, 7);
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_OK));
     EXPECT_EQ(ESP_OK, task.init());
@@ -21,8 +23,9 @@ TEST(MasterTaskTest, InitDelegatesToMasterBridge)
 
 TEST(MasterTaskTest, InitPropagatesBridgeFailure)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
-    MasterTask task(mockBridge, "master_task", 8192, 7);
+    MasterTask task(mockRtosFactory, mockBridge, "master_task", 8192, 7);
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_FAIL));
     EXPECT_EQ(ESP_FAIL, task.init());
@@ -34,8 +37,9 @@ TEST(MasterTaskTest, InitPropagatesBridgeFailure)
 
 TEST(MasterTaskTest, StartReturnsOk)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
-    MasterTask task(mockBridge, "master_task", 8192, 7);
+    MasterTask task(mockRtosFactory, mockBridge, "master_task", 8192, 7);
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_OK));
     task.init();

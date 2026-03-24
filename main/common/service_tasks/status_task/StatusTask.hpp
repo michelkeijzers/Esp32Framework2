@@ -12,7 +12,7 @@
 class StatusTask : public RtosTask, public IStatusTask
 {
 public:
-    StatusTask();
+    explicit StatusTask(IFreeRtosFactory &freeRtosFactory);
     ~StatusTask() override = default;
 
     esp_err_t init()  override;

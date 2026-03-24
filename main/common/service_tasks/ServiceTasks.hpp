@@ -5,13 +5,15 @@
 #include "status_task/StatusTask.hpp"
 #include "ota_task/OtaTask.hpp"
 
+class IFreeRtosFactory;
+
 /**
  * Concrete container that creates and manages all common service tasks.
  */
 class ServiceTasks : public IServiceTasks
 {
 public:
-    ServiceTasks();
+    explicit ServiceTasks(IFreeRtosFactory &freeRtosFactory);
     ~ServiceTasks() override = default;
 
     esp_err_t init()  override;

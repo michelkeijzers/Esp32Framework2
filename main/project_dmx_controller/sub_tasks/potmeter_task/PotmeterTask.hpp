@@ -12,7 +12,7 @@
 class PotmeterTask : public SubTask, public IPotmeterTask
 {
 public:
-    explicit PotmeterTask(int adcChannel);
+    PotmeterTask(IFreeRtosFactory &freeRtosFactory, int adcChannel);
     ~PotmeterTask() override = default;
 
     esp_err_t init()  override;

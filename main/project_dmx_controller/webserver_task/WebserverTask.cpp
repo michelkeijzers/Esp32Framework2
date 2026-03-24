@@ -1,7 +1,9 @@
 #include "WebserverTask.hpp"
 
-WebserverTask::WebserverTask(IApiServer &apiServer, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
-    : RtosTask(taskName, stackSize, taskPriority), apiServer_(apiServer)
+WebserverTask::WebserverTask(IFreeRtosFactory &freeRtosFactory, IApiServer &apiServer,
+                             const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
+    : RtosTask(freeRtosFactory, taskName, stackSize, taskPriority)
+    , apiServer_(apiServer)
 {
 }
 

@@ -12,7 +12,7 @@
 class OtaTask : public RtosTask, public IOtaTask
 {
 public:
-    OtaTask();
+    explicit OtaTask(IFreeRtosFactory &freeRtosFactory);
     ~OtaTask() override = default;
 
     esp_err_t init()  override;

@@ -14,7 +14,7 @@
 class DmxMax3485SenderTask : public SubTask, public IDmxMax3485SenderTask
 {
 public:
-    DmxMax3485SenderTask();
+    explicit DmxMax3485SenderTask(IFreeRtosFactory &freeRtosFactory);
     ~DmxMax3485SenderTask() override = default;
 
     esp_err_t init()  override;

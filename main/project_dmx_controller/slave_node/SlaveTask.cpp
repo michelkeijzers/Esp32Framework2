@@ -4,8 +4,8 @@ static constexpr const char *SLAVE_TASK_NAME       = "slave_task";
 static constexpr uint32_t    SLAVE_TASK_STACK_SIZE  = 8192;
 static constexpr UBaseType_t SLAVE_TASK_PRIORITY    = 7;
 
-SlaveTask::SlaveTask(ISlaveBridge &slaveBridge)
-    : RtosTask(SLAVE_TASK_NAME, SLAVE_TASK_STACK_SIZE, SLAVE_TASK_PRIORITY)
+SlaveTask::SlaveTask(IFreeRtosFactory &freeRtosFactory, ISlaveBridge &slaveBridge)
+    : RtosTask(freeRtosFactory, SLAVE_TASK_NAME, SLAVE_TASK_STACK_SIZE, SLAVE_TASK_PRIORITY)
     , slaveBridge_(slaveBridge)
 {
 }

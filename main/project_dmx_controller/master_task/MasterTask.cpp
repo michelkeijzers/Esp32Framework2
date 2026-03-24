@@ -1,7 +1,8 @@
 #include "MasterTask.hpp"
 
-MasterTask::MasterTask(IMasterBridge &masterBridge, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
-    : RtosTask(taskName, stackSize, taskPriority)
+MasterTask::MasterTask(IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterBridge,
+                       const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
+    : RtosTask(freeRtosFactory, taskName, stackSize, taskPriority)
     , masterBridge_(masterBridge)
 {
 }

@@ -14,7 +14,7 @@
 class SlaveTask : public RtosTask, public ISlaveTask
 {
 public:
-    explicit SlaveTask(ISlaveBridge &slaveBridge);
+    SlaveTask(IFreeRtosFactory &freeRtosFactory, ISlaveBridge &slaveBridge);
     ~SlaveTask() override = default;
 
     esp_err_t init()  override;

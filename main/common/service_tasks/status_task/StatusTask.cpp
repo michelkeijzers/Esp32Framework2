@@ -4,8 +4,8 @@ static constexpr const char *STATUS_TASK_NAME       = "status_task";
 static constexpr uint32_t    STATUS_TASK_STACK_SIZE  = 4096;
 static constexpr UBaseType_t STATUS_TASK_PRIORITY    = 5;
 
-StatusTask::StatusTask()
-    : RtosTask(STATUS_TASK_NAME, STATUS_TASK_STACK_SIZE, STATUS_TASK_PRIORITY)
+StatusTask::StatusTask(IFreeRtosFactory &freeRtosFactory)
+    : RtosTask(freeRtosFactory, STATUS_TASK_NAME, STATUS_TASK_STACK_SIZE, STATUS_TASK_PRIORITY)
 {
 }
 

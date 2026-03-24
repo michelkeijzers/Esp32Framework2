@@ -10,7 +10,8 @@
 class WebserverTask : public RtosTask, public IWebserverTask
 {
 public:
-    WebserverTask(IApiServer &apiServer, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
+    WebserverTask(IFreeRtosFactory &freeRtosFactory, IApiServer &apiServer,
+                  const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
     ~WebserverTask() override = default;
 
     esp_err_t init() override;

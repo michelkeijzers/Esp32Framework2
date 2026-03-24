@@ -4,8 +4,8 @@ static constexpr const char *LOGGING_TASK_NAME       = "logging_task";
 static constexpr uint32_t    LOGGING_TASK_STACK_SIZE  = 4096;
 static constexpr UBaseType_t LOGGING_TASK_PRIORITY    = 5;
 
-LoggingTask::LoggingTask()
-    : RtosTask(LOGGING_TASK_NAME, LOGGING_TASK_STACK_SIZE, LOGGING_TASK_PRIORITY)
+LoggingTask::LoggingTask(IFreeRtosFactory &freeRtosFactory)
+    : RtosTask(freeRtosFactory, LOGGING_TASK_NAME, LOGGING_TASK_STACK_SIZE, LOGGING_TASK_PRIORITY)
 {
 }
 

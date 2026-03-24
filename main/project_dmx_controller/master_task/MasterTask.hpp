@@ -13,7 +13,8 @@
 class MasterTask : public RtosTask, public IMasterTask
 {
 public:
-    MasterTask(IMasterBridge &masterBridge, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
+    MasterTask(IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterBridge,
+               const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
     ~MasterTask() override = default;
 
     esp_err_t init()  override;

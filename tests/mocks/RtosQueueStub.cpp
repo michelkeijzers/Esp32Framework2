@@ -5,6 +5,8 @@
 RtosQueue::RtosQueue(size_t itemSize, size_t length)
     : m_itemSize(itemSize), m_length(length), m_queueHandle(nullptr) {}
 
+bool RtosQueue::Create() { return true; }
+
 RtosQueue::~RtosQueue() {}
 
 bool RtosQueue::send(const void*, uint32_t) { return false; }

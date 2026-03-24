@@ -6,8 +6,8 @@ static constexpr const char *DMX_TASK_NAME       = "dmx_sender_task";
 static constexpr uint32_t    DMX_TASK_STACK_SIZE  = 4096;
 static constexpr UBaseType_t DMX_TASK_PRIORITY    = 10;
 
-DmxMax3485SenderTask::DmxMax3485SenderTask()
-    : SubTask(DMX_TASK_NAME, DMX_TASK_STACK_SIZE, DMX_TASK_PRIORITY)
+DmxMax3485SenderTask::DmxMax3485SenderTask(IFreeRtosFactory &freeRtosFactory)
+    : SubTask(freeRtosFactory, DMX_TASK_NAME, DMX_TASK_STACK_SIZE, DMX_TASK_PRIORITY)
 {
     memset(dmxFrame_, 0, sizeof(dmxFrame_));
 }

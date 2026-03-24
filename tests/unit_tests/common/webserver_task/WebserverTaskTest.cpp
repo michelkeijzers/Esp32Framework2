@@ -3,14 +3,16 @@
 
 #include "project_dmx_controller/webserver_task/WebserverTask.hpp"
 #include "MockIApiServer.hpp"
+#include "MockIFreeRtosFactory.hpp"
 
 using ::testing::Return;
 
 class WebserverTaskTest : public ::testing::Test
 {
 protected:
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIApiServer  mockApiServer;
-    WebserverTask   task{mockApiServer, "webserver_task", 8192, 6};
+    WebserverTask   task{mockRtosFactory, mockApiServer, "webserver_task", 8192, 6};
 };
 
 TEST_F(WebserverTaskTest, InitReturnsOk)

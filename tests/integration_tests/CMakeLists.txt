@@ -9,6 +9,10 @@ if(MSVC)
     target_link_options(integration_tests PRIVATE /OPT:NOREF /OPT:NOICF)
 endif()
 
+target_include_directories(integration_tests PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/../mocks
+)
+
 target_link_libraries(integration_tests
     production_lib
     GTest::gtest

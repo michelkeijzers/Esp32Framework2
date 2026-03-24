@@ -17,7 +17,7 @@
 class SubTask : public RtosTask, public ISubTask
 {
 public:
-    SubTask(const char *name, uint32_t stackSize, UBaseType_t priority);
+    SubTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize, UBaseType_t priority);
     virtual ~SubTask() = default;
 
     virtual esp_err_t init()  = 0;

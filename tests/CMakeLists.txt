@@ -76,8 +76,9 @@ set(PROD_SOURCES
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiConfiguration.cpp
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiPresets.cpp
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiPresetValues.cpp
-    # Use stub for RtosTask in test builds
-    ${CMAKE_CURRENT_LIST_DIR}/mocks/RtosTaskStub.cpp
+    # Use real RtosTask (now host-safe — no FreeRTOS headers) and queue stub
+    ${MAIN_DIR}/common/tasks/RtosTask.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/RtosQueueStub.cpp
 )
 
 add_library(production_lib STATIC ${PROD_SOURCES})

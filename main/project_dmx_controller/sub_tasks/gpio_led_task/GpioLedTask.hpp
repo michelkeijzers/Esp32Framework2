@@ -11,7 +11,7 @@
 class GpioLedTask : public SubTask, public IGpioLedTask
 {
 public:
-    explicit GpioLedTask(int gpioPin);
+    GpioLedTask(IFreeRtosFactory &freeRtosFactory, int gpioPin);
     ~GpioLedTask() override = default;
 
     esp_err_t init()  override;

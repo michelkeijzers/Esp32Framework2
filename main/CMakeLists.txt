@@ -18,6 +18,7 @@ idf_component_register(
         "common/service_tasks/ServiceTasks.cpp"
         "common/service_tasks/status_task/StatusTask.cpp"
         "common/sub_tasks/SubTask.cpp"
+        "common/esp/free_rtos/FreeRtosFactory.cpp"
         "common/tasks/RtosTask.cpp"
         "common/tasks/RtosQueue.cpp"
         "common/webserver_task/apis/ApiFirmware.cpp"

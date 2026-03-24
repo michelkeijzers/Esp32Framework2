@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "ServiceTasks.hpp"
+#include "MockIFreeRtosFactory.hpp"
 
 // ServiceTasks owns LoggingTask, StatusTask, OtaTask by value.
 // All three are stub implementations that return ESP_OK from init()/start().
@@ -9,7 +10,8 @@
 class ServiceTasksTest : public ::testing::Test
 {
 protected:
-    ServiceTasks serviceTasks;
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
+    ServiceTasks serviceTasks{mockRtosFactory};
 };
 
 TEST_F(ServiceTasksTest, InitReturnsOk)

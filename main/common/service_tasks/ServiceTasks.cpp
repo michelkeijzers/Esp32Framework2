@@ -1,9 +1,9 @@
 #include "ServiceTasks.hpp"
 
-ServiceTasks::ServiceTasks()
-    : loggingTask_()
-    , statusTask_()
-    , otaTask_()
+ServiceTasks::ServiceTasks(IFreeRtosFactory &freeRtosFactory)
+    : loggingTask_(freeRtosFactory)
+    , statusTask_(freeRtosFactory)
+    , otaTask_(freeRtosFactory)
 {
 }
 

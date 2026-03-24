@@ -12,7 +12,7 @@
 class ButtonTask : public SubTask, public IButtonTask
 {
 public:
-    explicit ButtonTask(int gpioPin);
+    ButtonTask(IFreeRtosFactory &freeRtosFactory, int gpioPin);
     ~ButtonTask() override = default;
 
     esp_err_t init()  override;
