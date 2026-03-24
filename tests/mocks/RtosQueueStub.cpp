@@ -3,7 +3,7 @@
 #include "tasks/RtosQueue.hpp"
 
 RtosQueue::RtosQueue(size_t itemSize, size_t length)
-    : m_queueHandle(nullptr), m_itemSize(itemSize), m_length(length) {}
+    : m_itemSize(itemSize), m_length(length), m_queueHandle(nullptr) {}
 
 RtosQueue::~RtosQueue() {}
 

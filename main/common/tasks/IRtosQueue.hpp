@@ -5,6 +5,7 @@
 class IRtosQueue {
 public:
     virtual ~IRtosQueue() = default;
+    virtual bool Create() = 0;
     virtual bool send(const void* item, uint32_t timeoutMs) = 0;
     virtual bool receive(void* item, uint32_t timeoutMs) = 0;
     virtual size_t itemSize() const = 0;

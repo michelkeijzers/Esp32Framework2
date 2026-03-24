@@ -31,19 +31,11 @@ typedef struct tskTaskControlBlock * TaskHandle_t;
 #define pdPASS  ( pdTRUE )
 #define pdFAIL  ( pdFALSE )
 
-inline BaseType_t xTaskCreate(TaskFunction_t pvTaskCode, const char* pcName, configSTACK_DEPTH_TYPE uxStackDepth, void* pvParametesr, UBaseType_t uxPriority, TaskHandle_t *pxCreatedTask)
-{
-    return pdPASS;
-}
-
 // Queue types (no function stubs — use RtosQueueStub.cpp in test builds)
 typedef uint16_t TickType_t;
 #define CONFIG_FREERTOS_HZ 100
 #define configTICK_RATE_HZ CONFIG_FREERTOS_HZ
 #define pdMS_TO_TICKS( xTimeInMs ) \
     ( ( TickType_t ) ( ( ( uint64_t ) ( xTimeInMs ) * ( uint64_t ) configTICK_RATE_HZ ) / ( uint64_t ) 1000U ) )
-
-struct QueueDefinition;
-typedef struct QueueDefinition* QueueHandle_t;
 
 #endif

@@ -1,5 +1,7 @@
 #include "RtosQueue.hpp"
 #include "RtosTask.hpp"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 RtosTask::RtosTask(const char *name, uint32_t stackSize, UBaseType_t priority)
     : name_(name), stackSize_(stackSize), priority_(priority)

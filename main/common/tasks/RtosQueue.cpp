@@ -1,23 +1,24 @@
-#include "RtosQueue.hpp"
 #include <cstring>
-
-// Platform-specific includes for FreeRTOS
-extern "C" 
-{
-#include "../esp/free_rtos/free_rtos_if.hpp"
-}
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "RtosQueue.hpp"
 
 RtosQueue::RtosQueue(size_t itemSize, size_t length)
-    : m_itemSize(itemSize), m_length(length)
-{
-    m_queueHandle = xQueueCreate(length, itemSize);
-}
+    : m_itemSize(itemSize), m_length(length), m_queueHandle(nullptr)
+{}
 
 RtosQueue::~RtosQueue() {
     if (m_queueHandle) {
         vQueueDelete(static_cast<QueueHandle_t>(m_queueHandle));
         m_queueHandle = nullptr;
     }
+}
+
+bool RtosQueue::Create()
+{
+    m_queueHandle = xQueueCreate(m_length, m_itemSize);
+    return m_queueHandle != nullptr;
 }
 
 bool RtosQueue::send(const void* item, uint32_t timeoutMs) {
