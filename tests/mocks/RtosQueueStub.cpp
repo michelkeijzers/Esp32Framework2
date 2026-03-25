@@ -1,11 +1,13 @@
 // Stub implementation of RtosQueue for test builds.
 // No FreeRTOS dependency — safe to link on host (Windows/Linux).
-#include "tasks/RtosQueue.hpp"
+#include "common/tasks/RtosQueue.hpp"
 
 RtosQueue::RtosQueue(size_t itemSize, size_t length)
     : m_itemSize(itemSize), m_length(length), m_queueHandle(nullptr) {}
 
-bool RtosQueue::Create() { return true; }
+bool RtosQueue::create() { return true; }
+
+QueueHandle_t RtosQueue::getHandle() { return m_queueHandle; }
 
 RtosQueue::~RtosQueue() {}
 

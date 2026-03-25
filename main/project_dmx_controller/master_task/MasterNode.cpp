@@ -1,13 +1,16 @@
 #include "MasterNode.hpp"
 #include "../slave_node/ISlaveNode.hpp"
 
-MasterNode::MasterNode(IMasterBridge    &masterBridge,
+MasterNode::MasterNode(
+                       IFreeRtosFactory &rtosFactory,
+                       IMasterBridge    &masterBridge,
                        IMasterTask      &masterTask,
                        IWebserverTask   &webserverTask,
                        IServiceTasks    &serviceTasks,
                        std::vector<ISubTask *>   subTasks,
                        std::vector<ISlaveNode *> slaveNodes)
-    : masterBridge_(masterBridge)
+    : rtosFactory_(rtosFactory)
+    , masterBridge_(masterBridge)
     , masterTask_(masterTask)
     , webserverTask_(webserverTask)
     , serviceTasks_(serviceTasks)

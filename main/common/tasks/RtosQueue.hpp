@@ -10,7 +10,8 @@ public:
     RtosQueue(size_t itemSize, size_t length);
     ~RtosQueue() override;
 
-    bool Create();
+    bool create();
+    QueueHandle_t getHandle();
 
     bool send(const void* item, uint32_t timeoutMs) override;
     bool receive(void* item, uint32_t timeoutMs) override;
@@ -21,5 +22,6 @@ public:
 private:
     size_t m_itemSize;
     size_t m_length;
-    void* m_queueHandle; // Opaque handle to underlying RTOS queue
+
+    QueueHandle_t m_queueHandle; // Opaque handle to underlying RTOS queue
 };

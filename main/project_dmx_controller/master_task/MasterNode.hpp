@@ -9,8 +9,10 @@
 #include "../../common/sub_tasks/ISubTask.hpp"
 
 #include <vector>
+#include "../../common/esp/free_rtos/IFreeRtosFactory.hpp"
 
 // Forward declaration to avoid circular includes
+class IFreeRtosFactory;
 class ISlaveNode;
 
 /**
@@ -22,7 +24,9 @@ class ISlaveNode;
 class MasterNode : public Node, public IMasterNode
 {
 public:
-    MasterNode(IMasterBridge    &masterBridge,
+    MasterNode(
+        IFreeRtosFactory &rtosFactory,
+        IMasterBridge    &masterBridge,
                IMasterTask      &masterTask,
                IWebserverTask   &webserverTask,
                IServiceTasks    &serviceTasks,
@@ -35,6 +39,7 @@ public:
     esp_err_t start() override;
 
 private:
+    IFreeRtosFactory  &rtosFactory_;
     IMasterBridge  &masterBridge_;
     IMasterTask    &masterTask_;
     IWebserverTask &webserverTask_;

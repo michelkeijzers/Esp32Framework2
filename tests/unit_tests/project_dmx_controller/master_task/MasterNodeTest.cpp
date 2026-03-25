@@ -2,6 +2,8 @@
 #include <gmock/gmock.h>
 
 #include "MasterNode.hpp"
+
+#include "MockIFreeRtosFactory.hpp"
 #include "MockIMasterBridge.hpp"
 #include "MockIMasterTask.hpp"
 #include "MockIWebserverTask.hpp"
@@ -14,6 +16,8 @@ using ::testing::Return;
 
 TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
 {
+    
+    ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
@@ -23,7 +27,7 @@ TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
     MockISlaveNode slaveNode1;
     MockISlaveNode slaveNode2;
 
-    MasterNode node(masterBridge, masterTask, webserverTask, serviceTasks,
+    MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
                     {&subTask1, &subTask2}, {&slaveNode1, &slaveNode2});
 
     InSequence seq;
@@ -40,6 +44,7 @@ TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
 
 TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
@@ -47,7 +52,7 @@ TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
     MockISubTask subTask;
     MockISlaveNode slaveNode;
 
-    MasterNode node(masterBridge, masterTask, webserverTask, serviceTasks,
+    MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
                     {&subTask}, {&slaveNode});
 
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_FAIL));
@@ -61,6 +66,7 @@ TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
 
 TEST(MasterNodeTest, InitStopsOnSubTaskFailure)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
@@ -69,7 +75,7 @@ TEST(MasterNodeTest, InitStopsOnSubTaskFailure)
     MockISubTask subTask2;
     MockISlaveNode slaveNode;
 
-    MasterNode node(masterBridge, masterTask, webserverTask, serviceTasks,
+    MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
                     {&subTask1, &subTask2}, {&slaveNode});
 
     InSequence seq;
@@ -85,6 +91,7 @@ TEST(MasterNodeTest, InitStopsOnSubTaskFailure)
 
 TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
@@ -94,7 +101,7 @@ TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
     MockISlaveNode slaveNode1;
     MockISlaveNode slaveNode2;
 
-    MasterNode node(masterBridge, masterTask, webserverTask, serviceTasks,
+    MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
                     {&subTask1, &subTask2}, {&slaveNode1, &slaveNode2});
 
     InSequence seq;
@@ -111,6 +118,7 @@ TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
 
 TEST(MasterNodeTest, StartStopsOnWebserverFailure)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
@@ -118,7 +126,7 @@ TEST(MasterNodeTest, StartStopsOnWebserverFailure)
     MockISubTask subTask;
     MockISlaveNode slaveNode;
 
-    MasterNode node(masterBridge, masterTask, webserverTask, serviceTasks,
+    MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
                     {&subTask}, {&slaveNode});
 
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
@@ -132,6 +140,7 @@ TEST(MasterNodeTest, StartStopsOnWebserverFailure)
 
 TEST(MasterNodeTest, StartStopsOnSlaveNodeFailure)
 {
+    ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
@@ -139,7 +148,7 @@ TEST(MasterNodeTest, StartStopsOnSlaveNodeFailure)
     MockISubTask subTask;
     MockISlaveNode slaveNode;
 
-    MasterNode node(masterBridge, masterTask, webserverTask, serviceTasks,
+    MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
                     {&subTask}, {&slaveNode});
 
     InSequence seq;

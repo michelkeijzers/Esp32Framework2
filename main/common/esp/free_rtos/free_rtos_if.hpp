@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef ESP_PLATFORM
 
 #include "freertos/FreeRTOS.h"
@@ -37,5 +39,10 @@ typedef uint16_t TickType_t;
 #define configTICK_RATE_HZ CONFIG_FREERTOS_HZ
 #define pdMS_TO_TICKS( xTimeInMs ) \
     ( ( TickType_t ) ( ( ( uint64_t ) ( xTimeInMs ) * ( uint64_t ) configTICK_RATE_HZ ) / ( uint64_t ) 1000U ) )
+
+struct QueueDefinition; /* Using old naming convention so as not to break kernel aware debuggers. */
+typedef struct QueueDefinition   * QueueHandle_t;
+typedef struct QueueDefinition   * QueueSetHandle_t;
+typedef struct QueueDefinition   * QueueSetMemberHandle_t;
 
 #endif

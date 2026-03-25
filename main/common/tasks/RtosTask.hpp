@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include "RtosQueue.hpp"
+#include "IRtosQueueSet.hpp"
 
 class RtosTask : public IRtosTask
 {
@@ -23,11 +24,15 @@ class RtosTask : public IRtosTask
     IRtosQueue* createQueue(size_t itemSize, size_t length) override;
 
   protected:
+    // Create and add a queue set to the task.
+    IRtosQueueSet* createQueueSet(UBaseType_t eventQueueLength);
+
     IFreeRtosFactory &freeRtosFactory_;
     const char *name_;
     uint32_t stackSize_;
     UBaseType_t priority_;
 
-    // Store owned queues
+    // Store owned queues and queue sets.
     std::vector<std::unique_ptr<RtosQueue>> queues_;
+    std::vector<std::unique_ptr<IRtosQueueSet>> queueSets_;
 };
