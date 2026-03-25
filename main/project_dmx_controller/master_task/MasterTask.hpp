@@ -22,4 +22,6 @@ public:
 
 private:
     IMasterBridge &masterBridge_;
+    IRtosQueue* webServerQueue_ = nullptr;
+    IRtosQueue* masterBridgeQueue_ = nullptr;
 };

@@ -31,7 +31,9 @@ else()
 endif()
 
 if(OPENCPPCOVERAGE_EXECUTABLE)
-	add_custom_target(host_coverage
+	# Keep coverage in the normal build, but force it to run after host_tests so
+	# Release and Debug host builds do not fight over the same tests/build tree.
+	add_custom_target(host_coverage ALL
 		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build -DCMAKE_BUILD_TYPE=Debug
 		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target unit_tests
 		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target integration_tests
@@ -43,6 +45,9 @@ if(OPENCPPCOVERAGE_EXECUTABLE)
 		COMMENT "Build, run, and generate host-side coverage with OpenCppCoverage (output: tests/build/coverage_html/index.html)"
 		VERBATIM
 	)
+	if(BUILD_HOST_TESTS_WITH_MAIN)
+		add_dependencies(host_coverage host_tests)
+	endif()
 else()
 	add_custom_target(host_coverage
 		COMMAND ${CMAKE_COMMAND} -E echo "OpenCppCoverage.exe was not found. Install it or add it to PATH to run host_coverage."

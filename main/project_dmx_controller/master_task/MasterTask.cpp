@@ -9,6 +9,26 @@ MasterTask::MasterTask(IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterB
 
 esp_err_t MasterTask::init()
 {
+    // Example: adjust item size and length as needed
+    constexpr size_t webServerItemSize = 64;
+    constexpr size_t webServerQueueLen = 8;
+    constexpr size_t masterBridgeItemSize = 64;
+    constexpr size_t masterBridgeQueueLen = 8;
+
+    webServerQueue_ = createQueue(webServerItemSize, webServerQueueLen);
+    if (!webServerQueue_) {
+        return ESP_FAIL;
+    }
+    
+    masterBridgeQueue_ = createQueue(masterBridgeItemSize, masterBridgeQueueLen);
+    if (!masterBridgeQueue_) {
+        return ESP_FAIL;
+    }
+
+    if (!webServerQueue_ || !masterBridgeQueue_) {
+        return ESP_FAIL;
+    }
+
     return masterBridge_.init();
 }
 
