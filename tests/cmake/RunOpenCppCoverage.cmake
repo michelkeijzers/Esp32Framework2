@@ -74,5 +74,23 @@ if(NOT integration_result EQUAL 0)
     message(FATAL_ERROR "OpenCppCoverage failed while running integration_tests.exe (exit code ${integration_result})")
 endif()
 
+set(COVERAGE_INDEX_HTML "${COVERAGE_HTML_DIR}/index.html")
+if(EXISTS "${COVERAGE_INDEX_HTML}")
+    string(TIMESTAMP COVERAGE_GENERATED_AT "%Y-%m-%d %H:%M:%S %z")
+    file(READ "${COVERAGE_INDEX_HTML}" COVERAGE_HTML_CONTENT)
+
+    # Inject a visible generation timestamp at the top of the report body.
+    string(REGEX REPLACE
+        "(<body[^>]*>)"
+        "\\1\n<div style=\"background:#0f172a;color:#e2e8f0;padding:10px 14px;font:600 14px/1.4 Segoe UI,Arial,sans-serif;border-bottom:3px solid #38bdf8;\">Coverage generated at: ${COVERAGE_GENERATED_AT}</div>"
+        COVERAGE_HTML_CONTENT
+        "${COVERAGE_HTML_CONTENT}"
+    )
+
+    file(WRITE "${COVERAGE_INDEX_HTML}" "${COVERAGE_HTML_CONTENT}")
+else()
+    message(WARNING "Coverage index.html not found for timestamp injection: ${COVERAGE_INDEX_HTML}")
+endif()
+
 message(STATUS "Coverage HTML report: ${COVERAGE_HTML_DIR}/index.html")
 message(STATUS "Coverage Cobertura XML: ${COVERAGE_XML}")

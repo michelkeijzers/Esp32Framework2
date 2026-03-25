@@ -25,6 +25,12 @@ find_program(OPENCPPCOVERAGE_EXECUTABLE
 )
 
 if(OPENCPPCOVERAGE_EXECUTABLE)
+	message(STATUS "OpenCppCoverage found: ${OPENCPPCOVERAGE_EXECUTABLE}")
+else()
+	message(WARNING "OpenCppCoverage not found. Install it or add it to PATH; host_coverage target will fail.")
+endif()
+
+if(OPENCPPCOVERAGE_EXECUTABLE)
 	add_custom_target(host_coverage
 		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build -DCMAKE_BUILD_TYPE=Debug
 		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target unit_tests
