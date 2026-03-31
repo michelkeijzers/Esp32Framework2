@@ -1,228 +1,290 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Value</title>
+    <link rel="stylesheet" href="pico.min.css" />
+    <link rel="stylesheet" href="dmx_controller_custom.css" />
+    <style>
+      .subtitle-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.7rem;
+      }
+      .home-btn.home {
+        position: relative;
+        left: -7rem;
+      }
+      .home-btn.back-btn {
+        position: relative;
+        left: -6rem;
+      }
+      .subtitle-row h2 {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        left: 1.5rem;
+        padding: 0px;
+      }
+      #edit-value-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .dmx-channel-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        margin-bottom: 0.2rem;
+      }
+      .dmx-channel-input-small {
+        width: 7rem;
+      }
+      .dmx-value-wrapper {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        margin-bottom: 1.2rem;
+      }
+    </style>
+  </head>
 
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Edit Value</title>
-   <link rel="stylesheet" href="pico.min.css">
-   <link rel="stylesheet" href="dmx_controller_custom.css">
-   <style>
-      .subtitle-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.7rem; }
-      .home-btn.home { position: relative; left: -7rem; }
-      .home-btn.back-btn { position: relative; left: -6rem; }
-      .subtitle-row h2 { text-align: center; display: flex; justify-content: center; position: relative; left: 1.5rem; padding: 0px; }
-      #edit-value-form { display: flex; flex-direction: column; align-items: center; }
-      .dmx-channel-wrapper { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.2rem; }
-      .dmx-channel-input-small { width: 7rem; }
-      .dmx-value-wrapper { display: flex; align-items: flex-start; gap: 0.7rem; margin-bottom: 1.2rem; }
-   </style>
-</head>
-
-<body>
-   <main class="container">
+  <body>
+    <main class="container">
       <div class="header-flex">
-         <h1 class="title-colored no-margin">DMX Controller</h1>
+        <h1 class="title-colored no-margin">DMX Controller</h1>
       </div>
       <div class="subtitle-row">
-         <button type="button" onclick="window.location.href='../index.html'" class="home-btn home">Home</button>
-         <button type="button" id="back-btn" class="home-btn back-btn">Back</button>
-         <h2>Edit Value</h2>
+        <button
+          type="button"
+          onclick="window.location.href = '../index.html'"
+          class="home-btn home"
+        >
+          Home
+        </button>
+        <button type="button" id="back-btn" class="home-btn back-btn">Back</button>
+        <h2>Edit Value</h2>
       </div>
       <form id="edit-value-form">
-         <div class="dmx-channel-wrapper">
-            <label for="dmx-channel-input" class="edit-value-label">DMX Channel:</label>
-            <input type="number" id="dmx-channel-input" class="edit-value-input dmx-channel-input-small" min="0" max="512" disabled>
-         </div>
-         <label for="dmx-value-input" class="edit-value-label">DMX Value:</label>
-         <div class="dmx-value-wrapper">
-            <button type="button" id="dmx-minus-btn" class="dmx-incdec-btn">-</button>
-            <input type="number" id="dmx-value-input" name="dmx-value" min="0" max="255" class="edit-value-input" value="" required>
-            <button type="button" id="dmx-plus-btn" class="dmx-incdec-btn">+</button>
-         </div>
-         <div class="keypad-container"></div>
-         <div class="keypad-row">
-            <button type="button" class="keypad-btn" data-digit="7">7</button>
-            <button type="button" class="keypad-btn" data-digit="8">8</button>
-            <button type="button" class="keypad-btn" data-digit="9">9</button>
-         </div>
-         <div class="keypad-row">
-            <button type="button" class="keypad-btn" data-digit="4">4</button>
-            <button type="button" class="keypad-btn" data-digit="5">5</button>
-            <button type="button" class="keypad-btn" data-digit="6">6</button>
-         </div>
-         <div class="keypad-row">
-            <button type="button" class="keypad-btn" data-digit="1">1</button>
-            <button type="button" class="keypad-btn" data-digit="2">2</button>
-            <button type="button" class="keypad-btn" data-digit="3">3</button>
-         </div>
-         <div class="keypad-row">
-            <button type="button" class="keypad-btn" id="keypad-back">&larr;</button>
-            <button type="button" class="keypad-btn" data-digit="0">0</button>
-            <button type="submit" class="keypad-btn keypad-enter" id="keypad-enter">Enter</button>
-         </div>
+        <div class="dmx-channel-wrapper">
+          <label for="dmx-channel-input" class="edit-value-label">DMX Channel:</label>
+          <input
+            type="number"
+            id="dmx-channel-input"
+            class="edit-value-input dmx-channel-input-small"
+            min="0"
+            max="512"
+            disabled
+          />
+        </div>
+        <label for="dmx-value-input" class="edit-value-label">DMX Value:</label>
+        <div class="dmx-value-wrapper">
+          <button type="button" id="dmx-minus-btn" class="dmx-incdec-btn">-</button>
+          <input
+            type="number"
+            id="dmx-value-input"
+            name="dmx-value"
+            min="0"
+            max="255"
+            class="edit-value-input"
+            value=""
+            required
+          />
+          <button type="button" id="dmx-plus-btn" class="dmx-incdec-btn">+</button>
+        </div>
+        <div class="keypad-container"></div>
+        <div class="keypad-row">
+          <button type="button" class="keypad-btn" data-digit="7">7</button>
+          <button type="button" class="keypad-btn" data-digit="8">8</button>
+          <button type="button" class="keypad-btn" data-digit="9">9</button>
+        </div>
+        <div class="keypad-row">
+          <button type="button" class="keypad-btn" data-digit="4">4</button>
+          <button type="button" class="keypad-btn" data-digit="5">5</button>
+          <button type="button" class="keypad-btn" data-digit="6">6</button>
+        </div>
+        <div class="keypad-row">
+          <button type="button" class="keypad-btn" data-digit="1">1</button>
+          <button type="button" class="keypad-btn" data-digit="2">2</button>
+          <button type="button" class="keypad-btn" data-digit="3">3</button>
+        </div>
+        <div class="keypad-row">
+          <button type="button" class="keypad-btn" id="keypad-back">&larr;</button>
+          <button type="button" class="keypad-btn" data-digit="0">0</button>
+          <button type="submit" class="keypad-btn keypad-enter" id="keypad-enter">Enter</button>
+        </div>
       </form>
       <script>
-         // Get query string parameter
-         function getQueryParam(name) {
-            const url = new URL(window.location.href);
-            return url.searchParams.get(name);
-         }
-         function updateKeypadButtons(val) {
-            // Disable digit buttons that would make the value > 255
-            document.querySelectorAll('.keypad-btn[data-digit]').forEach(btn => {
-               const digit = btn.getAttribute('data-digit');
-               let newVal = val === '0' ? digit : val + digit;
-               if (newVal.length > 3 || parseInt(newVal, 10) > 255) {
-                  btn.disabled = true;
-               } else {
-                  btn.disabled = false;
-               }
-            });
-            // Enable/disable + and - buttons
-            const plusBtn = document.getElementById('dmx-plus-btn');
-            const minusBtn = document.getElementById('dmx-minus-btn');
-            const numVal = parseInt(val, 10);
-            if (!isNaN(numVal)) {
-               plusBtn.disabled = numVal >= 255;
-               minusBtn.disabled = numVal <= 0;
+        // Get query string parameter
+        function getQueryParam(name) {
+          const url = new URL(window.location.href);
+          return url.searchParams.get(name);
+        }
+        function updateKeypadButtons(val) {
+          // Disable digit buttons that would make the value > 255
+          document.querySelectorAll('.keypad-btn[data-digit]').forEach((btn) => {
+            const digit = btn.getAttribute('data-digit');
+            let newVal = val === '0' ? digit : val + digit;
+            if (newVal.length > 3 || parseInt(newVal, 10) > 255) {
+              btn.disabled = true;
             } else {
-               plusBtn.disabled = false;
-               minusBtn.disabled = false;
+              btn.disabled = false;
             }
-         }
-         document.addEventListener('DOMContentLoaded', () => {
-            const value = getQueryParam('value');
-            const input = document.getElementById('dmx-value-input');
+          });
+          // Enable/disable + and - buttons
+          const plusBtn = document.getElementById('dmx-plus-btn');
+          const minusBtn = document.getElementById('dmx-minus-btn');
+          const numVal = parseInt(val, 10);
+          if (!isNaN(numVal)) {
+            plusBtn.disabled = numVal >= 255;
+            minusBtn.disabled = numVal <= 0;
+          } else {
+            plusBtn.disabled = false;
+            minusBtn.disabled = false;
+          }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+          const value = getQueryParam('value');
+          const input = document.getElementById('dmx-value-input');
 
-            const dmxChannelInput = document.getElementById('dmx-channel-input');
-            const dmxIndex = getQueryParam('index');
-            if (dmxChannelInput && dmxIndex !== null) {
-               dmxChannelInput.value = dmxIndex;
+          const dmxChannelInput = document.getElementById('dmx-channel-input');
+          const dmxIndex = getQueryParam('index');
+          if (dmxChannelInput && dmxIndex !== null) {
+            dmxChannelInput.value = dmxIndex;
+          }
+          if (value !== null) input.value = value;
+          updateKeypadButtons(input.value || '');
+          // Allow manual typing and keep keypad logic in sync
+          // Prevent typing numbers outside 0-255
+          // Plus button logic
+          document.getElementById('dmx-plus-btn').addEventListener('click', function () {
+            let val = parseInt(input.value, 10) || 0;
+            if (val < 255) {
+              input.value = val + 1;
+              updateKeypadButtons(input.value);
             }
-            if (value !== null) input.value = value;
-            updateKeypadButtons(input.value || '');
-            // Allow manual typing and keep keypad logic in sync
-            // Prevent typing numbers outside 0-255
-            // Plus button logic
-            document.getElementById('dmx-plus-btn').addEventListener('click', function () {
-               let val = parseInt(input.value, 10) || 0;
-               if (val < 255) {
-                  input.value = val + 1;
-                  updateKeypadButtons(input.value);
-               }
-            });
-            // Minus button logic
-            document.getElementById('dmx-minus-btn').addEventListener('click', function () {
-               let val = parseInt(input.value, 10) || 0;
-               if (val > 0) {
-                  input.value = val - 1;
-                  updateKeypadButtons(input.value);
-               }
-            });
-            input.addEventListener('keydown', function (e) {
-               // Allow navigation keys, backspace, delete, tab, etc.
-               if (["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
-               // Allow Ctrl/Cmd+A/C/V/X/Z/Y
-               if ((e.ctrlKey || e.metaKey) && ["a", "c", "v", "x", "z", "y"].includes(e.key.toLowerCase())) return;
-               // Only allow digits
-               if (!/^[0-9]$/.test(e.key)) {
-                  e.preventDefault();
-                  return;
-               }
-               // Predict the new value
-               const selStart = input.selectionStart;
-               const selEnd = input.selectionEnd;
-               let val = input.value;
-               let newVal = val.slice(0, selStart) + e.key + val.slice(selEnd);
-               if (newVal.length > 3 || parseInt(newVal, 10) > 255) {
-                  e.preventDefault();
-               }
-            });
-            // Prevent pasting invalid values
-            input.addEventListener('paste', function (e) {
-               const paste = (e.clipboardData || window.clipboardData).getData('text');
-               if (!/^([0-9]{1,3})$/.test(paste)) {
-                  e.preventDefault();
-                  return;
-               }
-               if (parseInt(paste, 10) > 255) {
-                  e.preventDefault();
-               }
-            });
-            // Remove leading zeros and update keypad on input
-            input.addEventListener('input', function () {
-               let val = input.value;
-               if (val.length > 1 && val.startsWith('0')) {
-                  input.value = String(parseInt(val, 10));
-               }
-               updateKeypadButtons(input.value);
-            });
-            // Back button returns to edit_preset.html with preset number and name
-            const presetNumber = getQueryParam('number');
-            const presetName = getQueryParam('preset_name') || getQueryParam('name');
-            document.getElementById('back-btn').onclick = function () {
-               let url = 'edit_preset.html';
-               if (presetNumber) {
-                  url += `?number=${encodeURIComponent(presetNumber)}`;
-                  if (presetName) url += `&name=${encodeURIComponent(presetName)}`;
-               }
-               window.location.href = url;
-               return false;
-            };
-            // Keypad logic
-            document.querySelectorAll('.keypad-btn[data-digit]').forEach(btn => {
-               btn.addEventListener('click', function () {
-                  let val = input.value || '';
-                  if (val === '0') val = '';
-                  let newVal = val + this.getAttribute('data-digit');
-                  if (newVal.length > 3 || parseInt(newVal, 10) > 255) return;
-                  input.value = String(parseInt(newVal, 10));
-                  updateKeypadButtons(input.value);
-               });
-            });
-            document.getElementById('keypad-back').addEventListener('click', function () {
-               let val = input.value || '';
-               val = val.slice(0, -1);
-               input.value = val || '0';
-               updateKeypadButtons(input.value);
-            });
-            // Enter button
-            async function submitDMXValue() {
-               const idx = getQueryParam('index');
-               const val = input.value;
-               if (!presetNumber || !idx || val === '' || isNaN(val) || val < 0 || val > 255) return;
-               await fetch(`/api/v1/preset_value/${presetNumber}/${idx}/${val}`, { method: 'PUT' });
-               let url = 'edit_preset.html';
-               url += `?number=${encodeURIComponent(presetNumber)}`;
-               if (presetName) url += `&name=${encodeURIComponent(presetName)}`;
-               window.location.href = url;
+          });
+          // Minus button logic
+          document.getElementById('dmx-minus-btn').addEventListener('click', function () {
+            let val = parseInt(input.value, 10) || 0;
+            if (val > 0) {
+              input.value = val - 1;
+              updateKeypadButtons(input.value);
             }
-            document.getElementById('keypad-enter').addEventListener('click', submitDMXValue);
-            // Keyboard Enter support
-            input.addEventListener('keydown', function (e) {
-               if (e.key === 'Enter') {
-                  e.preventDefault();
-                  submitDMXValue();
-               }
+          });
+          input.addEventListener('keydown', function (e) {
+            // Allow navigation keys, backspace, delete, tab, etc.
+            if (
+              ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(
+                e.key,
+              )
+            )
+              return;
+            // Allow Ctrl/Cmd+A/C/V/X/Z/Y
+            if (
+              (e.ctrlKey || e.metaKey) &&
+              ['a', 'c', 'v', 'x', 'z', 'y'].includes(e.key.toLowerCase())
+            )
+              return;
+            // Only allow digits
+            if (!/^[0-9]$/.test(e.key)) {
+              e.preventDefault();
+              return;
+            }
+            // Predict the new value
+            const selStart = input.selectionStart;
+            const selEnd = input.selectionEnd;
+            let val = input.value;
+            let newVal = val.slice(0, selStart) + e.key + val.slice(selEnd);
+            if (newVal.length > 3 || parseInt(newVal, 10) > 255) {
+              e.preventDefault();
+            }
+          });
+          // Prevent pasting invalid values
+          input.addEventListener('paste', function (e) {
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            if (!/^([0-9]{1,3})$/.test(paste)) {
+              e.preventDefault();
+              return;
+            }
+            if (parseInt(paste, 10) > 255) {
+              e.preventDefault();
+            }
+          });
+          // Remove leading zeros and update keypad on input
+          input.addEventListener('input', function () {
+            let val = input.value;
+            if (val.length > 1 && val.startsWith('0')) {
+              input.value = String(parseInt(val, 10));
+            }
+            updateKeypadButtons(input.value);
+          });
+          // Back button returns to edit_preset.html with preset number and name
+          const presetNumber = getQueryParam('number');
+          const presetName = getQueryParam('preset_name') || getQueryParam('name');
+          document.getElementById('back-btn').onclick = function () {
+            let url = 'edit_preset.html';
+            if (presetNumber) {
+              url += `?number=${encodeURIComponent(presetNumber)}`;
+              if (presetName) url += `&name=${encodeURIComponent(presetName)}`;
+            }
+            window.location.href = url;
+            return false;
+          };
+          // Keypad logic
+          document.querySelectorAll('.keypad-btn[data-digit]').forEach((btn) => {
+            btn.addEventListener('click', function () {
+              let val = input.value || '';
+              if (val === '0') val = '';
+              let newVal = val + this.getAttribute('data-digit');
+              if (newVal.length > 3 || parseInt(newVal, 10) > 255) return;
+              input.value = String(parseInt(newVal, 10));
+              updateKeypadButtons(input.value);
             });
-         });
+          });
+          document.getElementById('keypad-back').addEventListener('click', function () {
+            let val = input.value || '';
+            val = val.slice(0, -1);
+            input.value = val || '0';
+            updateKeypadButtons(input.value);
+          });
+          // Enter button
+          async function submitDMXValue() {
+            const idx = getQueryParam('index');
+            const val = input.value;
+            if (!presetNumber || !idx || val === '' || isNaN(val) || val < 0 || val > 255) return;
+            await fetch(`/api/v1/preset_value/${presetNumber}/${idx}/${val}`, { method: 'PUT' });
+            let url = 'edit_preset.html';
+            url += `?number=${encodeURIComponent(presetNumber)}`;
+            if (presetName) url += `&name=${encodeURIComponent(presetName)}`;
+            window.location.href = url;
+          }
+          document.getElementById('keypad-enter').addEventListener('click', submitDMXValue);
+          // Keyboard Enter support
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              submitDMXValue();
+            }
+          });
+        });
       </script>
       <script>
-         // Get query string parameter
-         function getQueryParam(name) {
-            const url = new URL(window.location.href);
-            return url.searchParams.get(name);
-         }
-         document.addEventListener('DOMContentLoaded', () => {
-            const value = getQueryParam('value');
-            if (value !== null) {
-               document.getElementById('dmx-value-input').value = value;
-            }
-         });
+        // Get query string parameter
+        function getQueryParam(name) {
+          const url = new URL(window.location.href);
+          return url.searchParams.get(name);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+          const value = getQueryParam('value');
+          if (value !== null) {
+            document.getElementById('dmx-value-input').value = value;
+          }
+        });
       </script>
-   </main>
-</body>
-
+    </main>
+  </body>
 </html>
-

@@ -1,147 +1,189 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Edit Preset</title>
-   <link rel="stylesheet" href="pico.min.css">
-   <link rel="stylesheet" href="dmx_controller_custom.css">
-   <script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Preset</title>
+    <link rel="stylesheet" href="pico.min.css" />
+    <link rel="stylesheet" href="dmx_controller_custom.css" />
+    <script>
       // Define this early so all scripts can use it
       function getQueryParam(name) {
-         const url = new URL(window.location.href);
-         return url.searchParams.get(name);
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
       }
-   </script>
-   <style>
-      .subtitle-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.7rem; }
-      .subtitle-row .home-btn.home { position: relative; left: -5rem; }
-      .subtitle-row .home-btn.back { position: relative; left: -4rem; }
-      .subtitle-row h2 { text-align: center; display: flex; justify-content: center; position: relative; left: 4rem; }
-      #edit-preset-form { max-width: 500px; margin: 2rem auto 0 auto; }
-      .preset-row { display: flex; align-items: center; gap: 1rem; margin-left: -5.5rem; }
-      #save-preset-btn { margin-left: 0.5rem; width: 80px; background: #080; color: #fff; }
-   </style>
-</head>
+    </script>
+    <style>
+      .subtitle-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.7rem;
+      }
+      .subtitle-row .home-btn.home {
+        position: relative;
+        left: -5rem;
+      }
+      .subtitle-row .home-btn.back {
+        position: relative;
+        left: -4rem;
+      }
+      .subtitle-row h2 {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        left: 4rem;
+      }
+      #edit-preset-form {
+        max-width: 500px;
+        margin: 2rem auto 0 auto;
+      }
+      .preset-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: -5.5rem;
+      }
+      #save-preset-btn {
+        margin-left: 0.5rem;
+        width: 80px;
+        background: #080;
+        color: #fff;
+      }
+    </style>
+  </head>
 
-<body>
-   <main class="container">
+  <body>
+    <main class="container">
       <div class="header-flex">
-         <h1 class="title-colored no-margin">DMX Controller</h1>
+        <h1 class="title-colored no-margin">DMX Controller</h1>
       </div>
       <div class="subtitle-row">
-         <button type="button" onclick="window.location.href='../index.html'" class="home-btn home">Home</button>
-         <button type="button" onclick="window.location.href='presets.html'" class="home-btn back">Back</button>
-         <h2>Edit Preset</h2>
+        <button
+          type="button"
+          onclick="window.location.href = '../index.html'"
+          class="home-btn home"
+        >
+          Home
+        </button>
+        <button type="button" onclick="window.location.href = 'presets.html'" class="home-btn back">
+          Back
+        </button>
+        <h2>Edit Preset</h2>
       </div>
 
       <form id="edit-preset-form">
-         <div class="preset-row">
-            <label for="preset-name-input" class="preset-label" id="preset-label">Preset Name:</label>
-            <input type="text" id="preset-name-input" name="preset-name" value="" required class="preset-name-input" autocomplete="off">
-            <button id="save-preset-btn" type="submit">Save</button>
-         </div>
-            <script>
-               document.getElementById('save-preset-btn').onclick = async function () {
-                  const presetNumber = getQueryParam('number');
-                  const presetName = document.getElementById('preset-name-input').value;
-                  // Collect DMX values from grid (if available)
-                  let dmxValues = [];
-                  const grid = document.getElementById('dmx-grid');
-                  if (grid) {
-                     const spans = grid.querySelectorAll('.dmx-val');
-                     for (let i = 0; i < spans.length; ++i) {
-                        dmxValues.push(parseInt(spans[i].textContent, 10) || 0);
-                     }
-                  }
-                  const btn = document.getElementById('save-preset-btn');
-                  try {
-                     const resp = await fetch(`/api/v1/save_preset/${presetNumber}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: presetName, dmx_values: dmxValues })
-                     });
-                     if (!resp.ok) throw new Error('Request failed');
-                     const result = await resp.json();
-                     if (result.ack === 'ok') {
-                        btn.textContent = 'Saved!';
-                        btn.style.background = '#080';
-                        btn.style.color = '#fff';
-                        setTimeout(() => {
-                           btn.textContent = 'Save';
-                           btn.style.background = '';
-                           btn.style.color = '';
-                        }, 1200);
-                     } else throw new Error('Server error');
-                  } catch (e) {
-                     btn.textContent = 'Error!';
-                     btn.style.background = '#a00';
-                     btn.style.color = '#fff';
-                     setTimeout(() => {
-                        btn.textContent = 'Save';
-                        btn.style.background = '';
-                        btn.style.color = '';
-                     }, 1200);
-                  }
-               };
-               
-            </script>
+        <div class="preset-row">
+          <label for="preset-name-input" class="preset-label" id="preset-label">Preset Name:</label>
+          <input
+            type="text"
+            id="preset-name-input"
+            name="preset-name"
+            value=""
+            required
+            class="preset-name-input"
+            autocomplete="off"
+          />
+          <button id="save-preset-btn" type="submit">Save</button>
+        </div>
+        <script>
+          document.getElementById('save-preset-btn').onclick = async function () {
+            const presetNumber = getQueryParam('number');
+            const presetName = document.getElementById('preset-name-input').value;
+            // Collect DMX values from grid (if available)
+            let dmxValues = [];
+            const grid = document.getElementById('dmx-grid');
+            if (grid) {
+              const spans = grid.querySelectorAll('.dmx-val');
+              for (let i = 0; i < spans.length; ++i) {
+                dmxValues.push(parseInt(spans[i].textContent, 10) || 0);
+              }
+            }
+            const btn = document.getElementById('save-preset-btn');
+            try {
+              const resp = await fetch(`/api/v1/save_preset/${presetNumber}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: presetName, dmx_values: dmxValues }),
+              });
+              if (!resp.ok) throw new Error('Request failed');
+              const result = await resp.json();
+              if (result.ack === 'ok') {
+                btn.textContent = 'Saved!';
+                btn.style.background = '#080';
+                btn.style.color = '#fff';
+                setTimeout(() => {
+                  btn.textContent = 'Save';
+                  btn.style.background = '';
+                  btn.style.color = '';
+                }, 1200);
+              } else throw new Error('Server error');
+            } catch (e) {
+              btn.textContent = 'Error!';
+              btn.style.background = '#a00';
+              btn.style.color = '#fff';
+              setTimeout(() => {
+                btn.textContent = 'Save';
+                btn.style.background = '';
+                btn.style.color = '';
+              }, 1200);
+            }
+          };
+        </script>
       </form>
 
       <div id="dmx-grid" class="dmx-grid"></div>
       <script>
-         document.addEventListener('DOMContentLoaded', () => {
-            const presetName = getQueryParam('name');
-            const presetNumber = getQueryParam('number');
-            if (presetName) {
-               document.getElementById('preset-name-input').value = presetName;
-            }
-            if (presetNumber) {
-               document.getElementById('preset-label').textContent = `${presetNumber}: Preset Name:`;
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+          const presetName = getQueryParam('name');
+          const presetNumber = getQueryParam('number');
+          if (presetName) {
+            document.getElementById('preset-name-input').value = presetName;
+          }
+          if (presetNumber) {
+            document.getElementById('preset-label').textContent = `${presetNumber}: Preset Name:`;
+          }
 
-            // Fetch DMX values from backend
-            async function renderDMXGrid(presetNumber) {
-               const grid = document.getElementById('dmx-grid');
-               grid.innerHTML = '<div style="color:#888;">Loading DMX values...</div>';
-               try {
-                  const resp = await fetch(`/api/v1/preset_values/${presetNumber}`);
-                  if (!resp.ok) throw new Error('Failed to fetch DMX values');
-                  const dmxValues = await resp.json();
-                  let html = '<div class="dmx-grid-table">';
-                  for (let row = 0; row < 128; row++) {
-                     html += '<div class="dmx-grid-row">';
-                     for (let col = 0; col < 4; col++) {
-                        const idx = row * 4 + col;
-                        const val = dmxValues[idx];
-                        html += `<span class="dmx-pair"><span class="dmx-idx">[${idx}]</span> <span class="dmx-val${val ? ' dmx-nonzero' : ''}" data-idx="${idx}" data-val="${val}" style="cursor:pointer;">${val}</span></span>`;
-                     }
-                     html += '</div>';
-                  }
-                  html += '</div>';
-                  grid.innerHTML = html;
-                  // Add click listeners to all DMX value spans
-                  grid.querySelectorAll('.dmx-val').forEach(span => {
-                     span.addEventListener('click', function () {
-                        const idx = this.getAttribute('data-idx');
-                        const val = this.getAttribute('data-val');
-                        const presetNumber = getQueryParam('number');
-                        const presetName = getQueryParam('name');
-                        window.location.href = `edit_value.html?number=${presetNumber}&index=${idx}&value=${val}${presetName ? `&name=${encodeURIComponent(presetName)}` : ''}`;
-                     });
-                  });
-               } catch (err) {
-                  grid.innerHTML = '<div style="color:#f33;">Failed to load DMX values.</div>';
-               }
+          // Fetch DMX values from backend
+          async function renderDMXGrid(presetNumber) {
+            const grid = document.getElementById('dmx-grid');
+            grid.innerHTML = '<div style="color:#888;">Loading DMX values...</div>';
+            try {
+              const resp = await fetch(`/api/v1/preset_values/${presetNumber}`);
+              if (!resp.ok) throw new Error('Failed to fetch DMX values');
+              const dmxValues = await resp.json();
+              let html = '<div class="dmx-grid-table">';
+              for (let row = 0; row < 128; row++) {
+                html += '<div class="dmx-grid-row">';
+                for (let col = 0; col < 4; col++) {
+                  const idx = row * 4 + col;
+                  const val = dmxValues[idx];
+                  html += `<span class="dmx-pair"><span class="dmx-idx">[${idx}]</span> <span class="dmx-val${val ? ' dmx-nonzero' : ''}" data-idx="${idx}" data-val="${val}" style="cursor:pointer;">${val}</span></span>`;
+                }
+                html += '</div>';
+              }
+              html += '</div>';
+              grid.innerHTML = html;
+              // Add click listeners to all DMX value spans
+              grid.querySelectorAll('.dmx-val').forEach((span) => {
+                span.addEventListener('click', function () {
+                  const idx = this.getAttribute('data-idx');
+                  const val = this.getAttribute('data-val');
+                  const presetNumber = getQueryParam('number');
+                  const presetName = getQueryParam('name');
+                  window.location.href = `edit_value.html?number=${presetNumber}&index=${idx}&value=${val}${presetName ? `&name=${encodeURIComponent(presetName)}` : ''}`;
+                });
+              });
+            } catch (err) {
+              grid.innerHTML = '<div style="color:#f33;">Failed to load DMX values.</div>';
             }
-            if (presetNumber) {
-               renderDMXGrid(presetNumber);
-            }
-         });
+          }
+          if (presetNumber) {
+            renderDMXGrid(presetNumber);
+          }
+        });
       </script>
-   </main>
-</body>
-
+    </main>
+  </body>
 </html>
-

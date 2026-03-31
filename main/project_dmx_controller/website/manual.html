@@ -1,87 +1,102 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manual</title>
+    <link rel="stylesheet" href="pico.min.css" />
+    <link rel="stylesheet" href="dmx_controller_custom.css" />
+    <style>
+      .subtitle-row h2 {
+        margin: 0;
+      }
+      .manual-container {
+        margin: 10px;
+        background-color: #000;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .manual-img {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
 
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Manual</title>
-   <link rel="stylesheet" href="pico.min.css">
-   <link rel="stylesheet" href="dmx_controller_custom.css">
-   <style>
-      .subtitle-row h2 { margin: 0; }
-      .manual-container { margin: 10px; background-color: #000; padding: 20px; border-radius: 8px; }
-      .manual-img { max-width: 100%; height: auto; }
-   </style>
-</head>
-
-<body>
-   <main class="container">
+  <body>
+    <main class="container">
       <div class="header-flex">
-         <h1 class="title-colored no-margin">DMX Controller</h1>
+        <h1 class="title-colored no-margin">DMX Controller</h1>
       </div>
       <div class="subtitle-row">
-         <button type="button" onclick="window.location.href='../index.html'" class="home-btn">Home</button>
-         <h2>MANUAL</h2>
+        <button type="button" onclick="window.location.href = '../index.html'" class="home-btn">
+          Home
+        </button>
+        <h2>MANUAL</h2>
       </div>
-   </main>
-   <div class="manual-container">
+    </main>
+    <div class="manual-container">
       <h1>Introduction</h1>
       <p>
-         This application can be used to define DMX universes, called DMX presets or simply presets as of now.
-         With this web application you can create, edit, and manage DMX presets, which are collections of DMX channel values that can be activated to
-         control lighting fixtures.
+        This application can be used to define DMX universes, called DMX presets or simply presets
+        as of now. With this web application you can create, edit, and manage DMX presets, which are
+        collections of DMX channel values that can be activated to control lighting fixtures.
       </p>
-<h1>Presets</h1>
-<p>
-   Presets (DMX Presets) is a set of 512 DMX channels with values, which equals to one DMX universe.
-   DMX fixtures can be set to a (start) DMX address and subsequent values decide how the DMX fixture behaves.
-   DMX values have a range from 0 to 255.
-</p>
-<p>
-   <i>Example: assume a moving head DMX fixture is set to DMX channel 40. In the manual, it can be checked that the first value (channel 40)
-      is for the DMX mode and if set to RGB Static Mode (value 3), the next channels (41, 42, 43) are for the Red, Green and Blue values.
-      To set this fixture to a full purple (red + blue to max value) color the following values have to be used:</i>
-</p>
-```
-40: 3 41: 255 (red) 42: 0 (green) 43: 255 (blue)
-```
+      <h1>Presets</h1>
+      <p>
+        Presets (DMX Presets) is a set of 512 DMX channels with values, which equals to one DMX
+        universe. DMX fixtures can be set to a (start) DMX address and subsequent values decide how
+        the DMX fixture behaves. DMX values have a range from 0 to 255.
+      </p>
+      <p>
+        <i
+          >Example: assume a moving head DMX fixture is set to DMX channel 40. In the manual, it can
+          be checked that the first value (channel 40) is for the DMX mode and if set to RGB Static
+          Mode (value 3), the next channels (41, 42, 43) are for the Red, Green and Blue values. To
+          set this fixture to a full purple (red + blue to max value) color the following values
+          have to be used:</i
+        >
+      </p>
+      ``` 40: 3 41: 255 (red) 42: 0 (green) 43: 255 (blue) ``` Multiple fixtures (with different DMX
+      addresses) can be programmed in a single preset. Make sure the range of channels for each
+      fixture does not overlap with other fixtures, otherwise they will interfere with each other.
 
-Multiple fixtures (with different DMX addresses) can be programmed in a single preset. Make sure the range of channels for each fixture does not
-overlap with other fixtures, otherwise they will interfere with each other.
+      <h1>Device Control</h1>
 
+      <h1>Website</h1>
 
+      <h1>Website Control</h1>
 
-<h1>Device Control</h1>
+      <p>
+        On the Control page of the website, the programs can be selected, see the screenshot below.
+      </p>
 
-<h1> Website</h1>
+      <img src="images/control_html.png" alt="Control Page" class="manual-img" />
 
-<h1>Website Control</h1>
+      <p>
+        The blackout button sends 512 zero (0) values to all 512 DMX values, typically turning off
+        all light of the DMX fixtures.
+      </p>
+      <p>The current selected preset is displayed in yellow.</p>
+      <p>
+        The first 20 active presets are shown on the screen which can be easily selected by pressing
+        the button.
+      </p>
 
-<p> On the Control page of the website, the programs can be selected, see the screenshot below.</p>
+      <h1>Configuration</h1>
 
-<img src="images/control_html.png" alt="Control Page" class="manual-img">
+      <h1>Nodes</h1>
 
-<p> The blackout button sends 512 zero (0) values to all 512 DMX values, typically turning off all light of the DMX fixtures.</p>
-<p> The current selected preset is displayed in yellow.</p>
-<p> The first 20 active presets are shown on the screen which can be easily selected by pressing the button. </p>
+      <h1>Security</h1>
 
+      <h1>Logging</h1>
 
-<h1>Configuration</h1>
+      <h1>Manual</h1>
+      <p>This button shows the manual which is currently displayed.</p>
 
-<h1>Nodes</h1>
+      <h1>Warnings</h1>
 
-<h1>Security</h1>
-
-<h1>Logging</h1>
-
-<h1>Manual</h1>
-<p>This button shows the manual which is currently displayed.</p>
-
-<h1>Warnings</h1>
-
-<h1>Technical Specifications</h1>
-
-   </div>
-</body>
-
+      <h1>Technical Specifications</h1>
+    </div>
+  </body>
 </html>

@@ -1,0 +1,6 @@
+dist/
+node_modules/
+.api-simulator-venv/
+.api-simulator.log
+*.min.js
+*.min.css

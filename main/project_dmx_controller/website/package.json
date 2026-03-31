@@ -6,11 +6,14 @@
     "prepare-public": "node scripts/sync-public.mjs",
     "preflight-native": "node scripts/ensure-rollup-native.mjs",
     "repair-deps": "npm ci --include=optional --no-audit --no-fund",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "dev": "npm run prepare-public && npm run preflight-native && vite --host",
     "build": "npm run prepare-public && npm run preflight-native && vite build",
     "preview": "vite preview --host"
   },
   "devDependencies": {
+    "prettier": "^3.8.1",
     "vite": "^6.3.5"
   }
 }
