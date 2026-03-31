@@ -4,7 +4,12 @@
     {
       "label": "Build (F7)",
       "type": "shell",
-      "command": "$ErrorActionPreference='Stop'; & cmd /c '\"C:\\Users\\i4studio\\esp\\v5.4.1\\esp-idf\\export.bat\" && idf.py build'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Write-Host ''; Write-Host '========== COVERAGE OUTPUT ==========' -ForegroundColor Cyan; if (Test-Path 'tests/build/coverage_html/index.html') { Write-Host 'HTML report: tests/build/coverage_html/index.html' -ForegroundColor Green } else { Write-Host 'HTML report not found at tests/build/coverage_html/index.html' -ForegroundColor Yellow }; if (Test-Path 'tests/build/coverage.xml') { Write-Host 'Cobertura XML: tests/build/coverage.xml' -ForegroundColor Green } else { Write-Host 'Cobertura XML not found at tests/build/coverage.xml' -ForegroundColor Yellow }",
+      "windows": {
+        "command": "$ErrorActionPreference='Stop'; & cmd /c '\"C:\\Users\\i4studio\\esp\\v5.4.1\\esp-idf\\export.bat\" && idf.py build'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Write-Host ''; Write-Host '========== COVERAGE OUTPUT ==========' -ForegroundColor Cyan; if (Test-Path 'tests/build/coverage_html/index.html') { Write-Host 'HTML report: tests/build/coverage_html/index.html' -ForegroundColor Green } else { Write-Host 'HTML report not found at tests/build/coverage_html/index.html' -ForegroundColor Yellow }; if (Test-Path 'tests/build/coverage.xml') { Write-Host 'Cobertura XML: tests/build/coverage.xml' -ForegroundColor Green } else { Write-Host 'Cobertura XML not found at tests/build/coverage.xml' -ForegroundColor Yellow }"
+      },
+      "linux": {
+        "command": ". $IDF_PATH/export.sh > /dev/null 2>&1 && idf.py build; echo ''; echo '========== COVERAGE OUTPUT =========='; [ -f tests/build/coverage_html/index.html ] && echo 'HTML report: tests/build/coverage_html/index.html' || echo 'HTML report not found at tests/build/coverage_html/index.html'; [ -f tests/build/coverage.xml ] && echo 'Cobertura XML: tests/build/coverage.xml' || echo 'Cobertura XML not found at tests/build/coverage.xml'"
+      },
       "group": {
         "kind": "build",
         "isDefault": true

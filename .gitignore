@@ -9,6 +9,9 @@ Thumbs.db
 !.vscode/launch.json
 .idea/
 
+# Dev Container configuration (committed — shared across machines)
+!.devcontainer/
+
 # Python caches/environments
 __pycache__/
 *.pyc

@@ -5,6 +5,15 @@ project(Esp32Framework2Tests CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ──────────────────────────────────────────────────────────────
+# GCC coverage instrumentation (Linux/container — enabled by host_coverage target)
+# ──────────────────────────────────────────────────────────────
+option(ENABLE_GCOV "Enable gcov coverage instrumentation (Linux/GCC only)" OFF)
+if(ENABLE_GCOV AND NOT MSVC)
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
+endif()
+
 if(MSVC)
     # Prevent VS/vcpkg auto-link from injecting wildcard vcpkg libs into
     # test executables. This can mix multiple gtest providers and break

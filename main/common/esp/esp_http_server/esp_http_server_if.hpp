@@ -65,10 +65,6 @@ typedef enum http_method httpd_method_t;
 
 typedef void* httpd_handle_t;
 
-#define __SIZE_TYPE__ long unsigned int
-typedef __SIZE_TYPE__ _ssize_t;
-typedef _ssize_t ssize_t;
-
 struct httpd_config_t {};
 
 inline httpd_config_t HTTPD_DEFAULT_CONFIG()

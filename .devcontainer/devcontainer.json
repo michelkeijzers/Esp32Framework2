@@ -1,0 +1,41 @@
+{
+  "name": "Esp32Framework2",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+
+  // --privileged allows USB device access on PC via usbipd-win.
+  // On laptop (no hardware attached), this is harmless.
+  "runArgs": ["--privileged"],
+
+  "remoteEnv": {
+    "IDF_PATH": "/opt/esp/idf"
+  },
+
+  "postCreateCommand": ". $IDF_PATH/export.sh > /dev/null 2>&1 || true",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "espressif.esp-idf-extension",
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ryanluker.vscode-coverage-gutters",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "idf.espIdfPath": "/opt/esp/idf",
+        "idf.toolsPath": "/opt/esp/tools",
+        "idf.openOcdConfigs": ["board/esp32c3-builtin.cfg"],
+        "idf.customExtraVars": {
+          "IDF_TARGET": "esp32c3"
+        },
+        "coverage-gutters.coverageFileNames": ["coverage.xml"],
+        "C_Cpp.errorSquiggles": "disabled",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
