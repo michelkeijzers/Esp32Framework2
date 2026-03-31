@@ -4,5 +4,6 @@
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c3"
   },
-  "coverage-gutters.coverageFileNames": ["coverage.xml"]
+  "coverage-gutters.coverageFileNames": ["coverage.xml"],
+  "C_Cpp.errorSquiggles": "disabled"
 }

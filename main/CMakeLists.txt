@@ -22,6 +22,7 @@ idf_component_register(
         "common/tasks/RtosTask.cpp"
         "common/tasks/RtosQueue.cpp"
         "common/tasks/RtosQueueSet.cpp"
+        "common/tasks/IRtosQueueSet.cpp"
         "common/webserver_task/apis/ApiFirmware.cpp"
         "common/webserver_task/apis/ApiLogging.cpp"
         "common/webserver_task/apis/ApiNodes.cpp"

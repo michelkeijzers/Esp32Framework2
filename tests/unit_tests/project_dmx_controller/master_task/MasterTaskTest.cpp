@@ -4,6 +4,9 @@
 #include "MasterTask.hpp"
 #include "MockIMasterBridge.hpp"
 #include "MockIFreeRtosFactory.hpp"
+#include "MockIRtosQueue.hpp"
+#include "MockIWebserverTask.hpp"
+#include "MockIRtosQueueSet.hpp"
 
 using ::testing::Return;
 
@@ -15,7 +18,24 @@ TEST(MasterTaskTest, InitDelegatesToMasterBridge)
 {
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
-    MasterTask task(mockRtosFactory, mockBridge, "master_task", 8192, 7);
+    MockIRtosQueue mockMasterBridgeQueue;
+    MockIWebserverTask mockWebServerTask;
+    MockIRtosQueue mockWebServerQueue;
+    MockIRtosQueueSet mockQueueSet;
+    ON_CALL(mockMasterBridgeQueue, create()).WillByDefault(Return(true));
+    ON_CALL(mockWebServerQueue, create()).WillByDefault(Return(true));
+    ON_CALL(mockQueueSet, createSet()).WillByDefault(Return(true));
+    MasterTask task(
+        mockRtosFactory,
+        mockBridge,
+        mockMasterBridgeQueue,
+        mockWebServerTask,
+        mockWebServerQueue,
+        mockQueueSet,
+        "master_task",
+        8192,
+        7
+    );
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_OK));
     EXPECT_EQ(ESP_OK, task.init());
@@ -25,7 +45,24 @@ TEST(MasterTaskTest, InitPropagatesBridgeFailure)
 {
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
-    MasterTask task(mockRtosFactory, mockBridge, "master_task", 8192, 7);
+    MockIRtosQueue mockMasterBridgeQueue;
+    MockIWebserverTask mockWebServerTask;
+    MockIRtosQueue mockWebServerQueue;
+    MockIRtosQueueSet mockQueueSet;
+    ON_CALL(mockMasterBridgeQueue, create()).WillByDefault(Return(true));
+    ON_CALL(mockWebServerQueue, create()).WillByDefault(Return(true));
+    ON_CALL(mockQueueSet, createSet()).WillByDefault(Return(true));
+    MasterTask task(
+        mockRtosFactory,
+        mockBridge,
+        mockMasterBridgeQueue,
+        mockWebServerTask,
+        mockWebServerQueue,
+        mockQueueSet,
+        "master_task",
+        8192,
+        7
+    );
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_FAIL));
     EXPECT_EQ(ESP_FAIL, task.init());
@@ -39,7 +76,27 @@ TEST(MasterTaskTest, StartReturnsOk)
 {
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
-    MasterTask task(mockRtosFactory, mockBridge, "master_task", 8192, 7);
+    MockIRtosQueue mockMasterBridgeQueue;
+    MockIWebserverTask mockWebServerTask;
+    MockIRtosQueue mockWebServerQueue;
+    MockIRtosQueueSet mockQueueSet;
+    ON_CALL(mockMasterBridgeQueue, create()).WillByDefault(Return(true));
+    ON_CALL(mockWebServerQueue, create()).WillByDefault(Return(true));
+    ON_CALL(mockQueueSet, createSet()).WillByDefault(Return(true));
+    // For start():
+    ON_CALL(mockWebServerQueue, getHandle()).WillByDefault(Return(reinterpret_cast<QueueHandle_t>(0x1)));
+    ON_CALL(mockQueueSet, addToSet(::testing::_)).WillByDefault(Return(true));
+    MasterTask task(
+        mockRtosFactory,
+        mockBridge,
+        mockMasterBridgeQueue,
+        mockWebServerTask,
+        mockWebServerQueue,
+        mockQueueSet,
+        "master_task",
+        8192,
+        7
+    );
 
     EXPECT_CALL(mockBridge, init()).WillOnce(Return(ESP_OK));
     task.init();
