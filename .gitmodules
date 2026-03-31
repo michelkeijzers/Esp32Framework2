@@ -1,0 +1,3 @@
+[submodule "main/libraries/esp_littlefs"]
+	path = main/libraries/esp_littlefs
+	url = https://github.com/joltwallet/esp_littlefs.git
