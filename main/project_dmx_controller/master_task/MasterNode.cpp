@@ -7,14 +7,14 @@ MasterNode::MasterNode(
                        IMasterTask      &masterTask,
                        IWebserverTask   &webserverTask,
                        IServiceTasks    &serviceTasks,
-                       std::vector<ISubTask *>   subTasks,
+                       std::vector<IFunctionTask *>   functionTasks,
                        std::vector<ISlaveNode *> slaveNodes)
     : rtosFactory_(rtosFactory)
     , masterBridge_(masterBridge)
     , masterTask_(masterTask)
     , webserverTask_(webserverTask)
     , serviceTasks_(serviceTasks)
-    , subTasks_(std::move(subTasks))
+    , functionTasks_(std::move(functionTasks))
     , slaveNodes_(std::move(slaveNodes))
 {
 }
@@ -30,9 +30,9 @@ esp_err_t MasterNode::init()
     ret = serviceTasks_.init();
     if (ret != ESP_OK) return ret;
 
-    for (auto *subTask : subTasks_)
+    for (auto *functionTask : functionTasks_)
     {
-        ret = subTask->init();
+        ret = functionTask->init();
         if (ret != ESP_OK) return ret;
     }
 
@@ -56,9 +56,9 @@ esp_err_t MasterNode::start()
     ret = serviceTasks_.start();
     if (ret != ESP_OK) return ret;
 
-    for (auto *subTask : subTasks_)
+    for (auto *functionTask : functionTasks_)
     {
-        ret = subTask->start();
+        ret = functionTask->start();
         if (ret != ESP_OK) return ret;
     }
 

@@ -5,7 +5,7 @@ static constexpr uint32_t    BUTTON_TASK_STACK_SIZE  = 2048;
 static constexpr UBaseType_t BUTTON_TASK_PRIORITY    = 5;
 
 ButtonTask::ButtonTask(IFreeRtosFactory &freeRtosFactory, int gpioPin)
-    : SubTask(freeRtosFactory, BUTTON_TASK_NAME, BUTTON_TASK_STACK_SIZE, BUTTON_TASK_PRIORITY)
+    : FunctionTask(freeRtosFactory, BUTTON_TASK_NAME, BUTTON_TASK_STACK_SIZE, BUTTON_TASK_PRIORITY)
     , gpioPin_(gpioPin)
 {
 }

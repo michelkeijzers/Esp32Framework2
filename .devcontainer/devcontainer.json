@@ -14,7 +14,7 @@
     "IDF_PATH": "/opt/esp/idf"
   },
 
-  "postCreateCommand": ". $IDF_PATH/export.sh > /dev/null 2>&1 || true",
+  "postCreateCommand": ". $IDF_PATH/export.sh > /dev/null 2>&1 || true && bash .devcontainer/setup-plantuml.sh",
 
   "customizations": {
     "vscode": {
@@ -23,7 +23,8 @@
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "ryanluker.vscode-coverage-gutters",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "jebbs.plantuml"
       ],
       "settings": {
         "idf.espIdfPath": "/opt/esp/idf",
@@ -32,6 +33,7 @@
         "idf.customExtraVars": {
           "IDF_TARGET": "esp32c3"
         },
+        "plantuml.java": "/usr/bin/java",
         "coverage-gutters.coverageFileNames": ["coverage.xml"],
         "C_Cpp.errorSquiggles": "disabled",
         "terminal.integrated.defaultProfile.linux": "bash"

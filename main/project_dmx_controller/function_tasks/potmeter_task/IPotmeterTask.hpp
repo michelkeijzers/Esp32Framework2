@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../../common/sub_tasks/ISubTask.hpp"
+#include "../../../common/function_tasks/IFunctionTask.hpp"
 
 /**
- * Interface for the potentiometer (ADC) input sub task.
+ * Interface for the potentiometer (ADC) input function task.
  */
-class IPotmeterTask : public ISubTask
+class IPotmeterTask : public IFunctionTask
 {
 public:
     virtual ~IPotmeterTask() = default;

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "IPotmeterTask.hpp"
-#include "../../../common/sub_tasks/SubTask.hpp"
+#include "../../../common/function_tasks/FunctionTask.hpp"
 
 /**
- * Concrete potentiometer (ADC) input sub task.
+ * Concrete potentiometer (ADC) input function task.
  *
  * Periodically samples an ADC channel connected to a potentiometer and
  * reports value changes.
  */
-class PotmeterTask : public SubTask, public IPotmeterTask
+class PotmeterTask : public FunctionTask, public IPotmeterTask
 {
 public:
     PotmeterTask(IFreeRtosFactory &freeRtosFactory, int adcChannel);

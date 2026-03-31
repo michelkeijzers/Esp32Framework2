@@ -56,3 +56,6 @@ tests/build/
 node_modules/
 dist/
 main/project_dmx_controller/website/public/
+
+# PlantUML runtime (downloaded locally, not committed)
+.tools/plantuml/*.jar

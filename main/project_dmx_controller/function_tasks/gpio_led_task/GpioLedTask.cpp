@@ -5,7 +5,7 @@ static constexpr uint32_t    GPIO_LED_TASK_STACK_SIZE  = 2048;
 static constexpr UBaseType_t GPIO_LED_TASK_PRIORITY    = 4;
 
 GpioLedTask::GpioLedTask(IFreeRtosFactory &freeRtosFactory, int gpioPin)
-    : SubTask(freeRtosFactory, GPIO_LED_TASK_NAME, GPIO_LED_TASK_STACK_SIZE, GPIO_LED_TASK_PRIORITY)
+    : FunctionTask(freeRtosFactory, GPIO_LED_TASK_NAME, GPIO_LED_TASK_STACK_SIZE, GPIO_LED_TASK_PRIORITY)
     , gpioPin_(gpioPin)
 {
 }

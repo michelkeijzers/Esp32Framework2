@@ -1,8 +1,8 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "ISubTask.hpp"
+#include "IFunctionTask.hpp"
 
-class MockISubTask : public ISubTask
+class MockIFunctionTask : public IFunctionTask
 {
 public:
     MOCK_METHOD(esp_err_t, init, (), (override));

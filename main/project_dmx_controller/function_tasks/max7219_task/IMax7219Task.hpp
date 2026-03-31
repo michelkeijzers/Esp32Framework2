@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../../common/sub_tasks/ISubTask.hpp"
+#include "../../../common/function_tasks/IFunctionTask.hpp"
 
 /**
- * Interface for the MAX7219 LED matrix / 7-segment display sub task.
+ * Interface for the MAX7219 LED matrix / 7-segment display function task.
  */
-class IMax7219Task : public ISubTask
+class IMax7219Task : public IFunctionTask
 {
 public:
     virtual ~IMax7219Task() = default;

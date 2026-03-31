@@ -8,7 +8,7 @@
 #include "MockIMasterTask.hpp"
 #include "MockIWebserverTask.hpp"
 #include "MockIServiceTasks.hpp"
-#include "MockISubTask.hpp"
+#include "MockIFunctionTask.hpp"
 #include "MockISlaveNode.hpp"
 
 using ::testing::InSequence;
@@ -22,20 +22,20 @@ TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
     MockIServiceTasks serviceTasks;
-    MockISubTask subTask1;
-    MockISubTask subTask2;
+    MockIFunctionTask functionTask1;
+    MockIFunctionTask functionTask2;
     MockISlaveNode slaveNode1;
     MockISlaveNode slaveNode2;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
-                    {&subTask1, &subTask2}, {&slaveNode1, &slaveNode2});
+                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2});
 
     InSequence seq;
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(webserverTask, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(serviceTasks, init()).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(subTask1, init()).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(subTask2, init()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(functionTask1, init()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(functionTask2, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(slaveNode1, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(slaveNode2, init()).WillOnce(Return(ESP_OK));
 
@@ -49,41 +49,41 @@ TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
     MockIServiceTasks serviceTasks;
-    MockISubTask subTask;
+    MockIFunctionTask functionTask;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
-                    {&subTask}, {&slaveNode});
+                    {&functionTask}, {&slaveNode});
 
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_FAIL));
     EXPECT_CALL(webserverTask, init()).Times(0);
     EXPECT_CALL(serviceTasks, init()).Times(0);
-    EXPECT_CALL(subTask, init()).Times(0);
+    EXPECT_CALL(functionTask, init()).Times(0);
     EXPECT_CALL(slaveNode, init()).Times(0);
 
     EXPECT_EQ(ESP_FAIL, node.init());
 }
 
-TEST(MasterNodeTest, InitStopsOnSubTaskFailure)
+TEST(MasterNodeTest, InitStopsOnFunctionTaskFailure)
 {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
     MockIServiceTasks serviceTasks;
-    MockISubTask subTask1;
-    MockISubTask subTask2;
+    MockIFunctionTask functionTask1;
+    MockIFunctionTask functionTask2;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
-                    {&subTask1, &subTask2}, {&slaveNode});
+                    {&functionTask1, &functionTask2}, {&slaveNode});
 
     InSequence seq;
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(webserverTask, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(serviceTasks, init()).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(subTask1, init()).WillOnce(Return(ESP_FAIL));
-    EXPECT_CALL(subTask2, init()).Times(0);
+    EXPECT_CALL(functionTask1, init()).WillOnce(Return(ESP_FAIL));
+    EXPECT_CALL(functionTask2, init()).Times(0);
     EXPECT_CALL(slaveNode, init()).Times(0);
 
     EXPECT_EQ(ESP_FAIL, node.init());
@@ -96,20 +96,20 @@ TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
     MockIServiceTasks serviceTasks;
-    MockISubTask subTask1;
-    MockISubTask subTask2;
+    MockIFunctionTask functionTask1;
+    MockIFunctionTask functionTask2;
     MockISlaveNode slaveNode1;
     MockISlaveNode slaveNode2;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
-                    {&subTask1, &subTask2}, {&slaveNode1, &slaveNode2});
+                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2});
 
     InSequence seq;
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(webserverTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(serviceTasks, start()).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(subTask1, start()).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(subTask2, start()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(functionTask1, start()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(functionTask2, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(slaveNode1, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(slaveNode2, start()).WillOnce(Return(ESP_OK));
 
@@ -123,16 +123,16 @@ TEST(MasterNodeTest, StartStopsOnWebserverFailure)
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
     MockIServiceTasks serviceTasks;
-    MockISubTask subTask;
+    MockIFunctionTask functionTask;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
-                    {&subTask}, {&slaveNode});
+                    {&functionTask}, {&slaveNode});
 
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(webserverTask, start()).WillOnce(Return(ESP_FAIL));
     EXPECT_CALL(serviceTasks, start()).Times(0);
-    EXPECT_CALL(subTask, start()).Times(0);
+    EXPECT_CALL(functionTask, start()).Times(0);
     EXPECT_CALL(slaveNode, start()).Times(0);
 
     EXPECT_EQ(ESP_FAIL, node.start());
@@ -145,17 +145,17 @@ TEST(MasterNodeTest, StartStopsOnSlaveNodeFailure)
     MockIMasterTask masterTask;
     MockIWebserverTask webserverTask;
     MockIServiceTasks serviceTasks;
-    MockISubTask subTask;
+    MockIFunctionTask functionTask;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks,
-                    {&subTask}, {&slaveNode});
+                    {&functionTask}, {&slaveNode});
 
     InSequence seq;
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(webserverTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(serviceTasks, start()).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(subTask, start()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(functionTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(slaveNode, start()).WillOnce(Return(ESP_FAIL));
 
     EXPECT_EQ(ESP_FAIL, node.start());

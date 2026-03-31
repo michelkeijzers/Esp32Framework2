@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../../common/sub_tasks/ISubTask.hpp"
+#include "../../../common/function_tasks/IFunctionTask.hpp"
 
 /**
- * Interface for the GPIO LED output sub task.
+ * Interface for the GPIO LED output function task.
  */
-class IGpioLedTask : public ISubTask
+class IGpioLedTask : public IFunctionTask
 {
 public:
     virtual ~IGpioLedTask() = default;

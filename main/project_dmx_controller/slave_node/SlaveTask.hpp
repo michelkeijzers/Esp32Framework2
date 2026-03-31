@@ -9,7 +9,7 @@
  *
  * Runs as a FreeRTOS task and handles incoming commands from the master
  * node (received via SlaveBridge), dispatching them to the appropriate
- * sub tasks.
+ * function tasks.
  */
 class SlaveTask : public RtosTask, public ISlaveTask
 {

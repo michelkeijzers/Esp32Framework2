@@ -18,6 +18,6 @@ esp_err_t SlaveTask::init()
 esp_err_t SlaveTask::start()
 {
     // TODO: create FreeRTOS task that processes commands received by the
-    //       SlaveBridge and dispatches them to the appropriate sub tasks
+    //       SlaveBridge and dispatches them to the appropriate function tasks
     return ESP_OK;
 }

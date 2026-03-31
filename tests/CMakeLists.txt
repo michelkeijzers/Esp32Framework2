@@ -61,7 +61,7 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/service_tasks/ota_task/OtaTask.cpp
     ${MAIN_DIR}/common/service_tasks/ServiceTasks.cpp
     ${MAIN_DIR}/common/service_tasks/status_task/StatusTask.cpp
-    ${MAIN_DIR}/common/sub_tasks/SubTask.cpp
+    ${MAIN_DIR}/common/function_tasks/FunctionTask.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiFirmware.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiLogging.cpp
     ${MAIN_DIR}/common/webserver_task/apis/ApiNodes.cpp
@@ -76,11 +76,11 @@ set(PROD_SOURCES
     ${MAIN_DIR}/project_dmx_controller/presets_task/PresetManager.cpp
     ${MAIN_DIR}/project_dmx_controller/slave_node/SlaveNode.cpp
     ${MAIN_DIR}/project_dmx_controller/slave_node/SlaveTask.cpp
-    ${MAIN_DIR}/project_dmx_controller/sub_tasks/button_task/ButtonTask.cpp
-    ${MAIN_DIR}/project_dmx_controller/sub_tasks/dmx_max3485_sender_task/DmxMax3485SenderTask.cpp
-    ${MAIN_DIR}/project_dmx_controller/sub_tasks/gpio_led_task/GpioLedTask.cpp
-    ${MAIN_DIR}/project_dmx_controller/sub_tasks/max7219_task/Max7219Task.cpp
-    ${MAIN_DIR}/project_dmx_controller/sub_tasks/potmeter_task/PotmeterTask.cpp
+    ${MAIN_DIR}/project_dmx_controller/function_tasks/button_task/ButtonTask.cpp
+    ${MAIN_DIR}/project_dmx_controller/function_tasks/dmx_max3485_sender_task/DmxMax3485SenderTask.cpp
+    ${MAIN_DIR}/project_dmx_controller/function_tasks/gpio_led_task/GpioLedTask.cpp
+    ${MAIN_DIR}/project_dmx_controller/function_tasks/max7219_task/Max7219Task.cpp
+    ${MAIN_DIR}/project_dmx_controller/function_tasks/potmeter_task/PotmeterTask.cpp
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiConfig.cpp
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiConfiguration.cpp
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiPresets.cpp
@@ -116,7 +116,7 @@ target_include_directories(production_lib PUBLIC
     ${MAIN_DIR}/common/service_tasks/logging_task
     ${MAIN_DIR}/common/service_tasks/ota_task
     ${MAIN_DIR}/common/service_tasks/status_task
-    ${MAIN_DIR}/common/sub_tasks
+    ${MAIN_DIR}/common/function_tasks
     ${MAIN_DIR}/common/webserver_task
     # Resolves bare #include "ApiResponse.hpp", "ApiValidator.hpp"
     ${MAIN_DIR}/common/webserver_task/apis
@@ -125,7 +125,7 @@ target_include_directories(production_lib PUBLIC
     ${MAIN_DIR}/project_dmx_controller/master_task
     # Resolves bare #include "IEspHttpServer.hpp" in ApiPresets/ApiConfig/etc.
     ${MAIN_DIR}/project_dmx_controller/slave_node
-    ${MAIN_DIR}/project_dmx_controller/sub_tasks/dmx_max3485_sender_task
+    ${MAIN_DIR}/project_dmx_controller/function_tasks/dmx_max3485_sender_task
     ${MAIN_DIR}/project_dmx_controller/webserver_task/apis
     ${MAIN_DIR}/project_dmx_controller/presets_task
     # Mock headers directory

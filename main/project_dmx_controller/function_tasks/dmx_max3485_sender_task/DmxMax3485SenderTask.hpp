@@ -1,17 +1,17 @@
 #pragma once
 
 #include "IDmxMax3485SenderTask.hpp"
-#include "../../../common/sub_tasks/SubTask.hpp"
+#include "../../../common/function_tasks/FunctionTask.hpp"
 
 #include <cstdint>
 
 /**
- * Concrete DMX MAX3485 sender sub task.
+ * Concrete DMX MAX3485 sender function task.
  *
  * Continuously transmits DMX512 frames at the required 44Hz cadence over
  * the UART->MAX3485 RS-485 interface.
  */
-class DmxMax3485SenderTask : public SubTask, public IDmxMax3485SenderTask
+class DmxMax3485SenderTask : public FunctionTask, public IDmxMax3485SenderTask
 {
 public:
     explicit DmxMax3485SenderTask(IFreeRtosFactory &freeRtosFactory);

@@ -6,38 +6,121 @@ legend
 |<back:lightgreen>           | Common       | Generic, reusable components across different applications.|
 endlegend
 
-class MainCpp #lightblue {}
-class RtosTask<<abstract>> #lightgreen {}
-class Node<<abstract>> #lightgreen {}
-
-'Master Node 
-package MasterNode_Package 
+package Project_Package
 {
-    class MasterNode <<Node>> #lightblue {}
-    
-    class MasterBridge <<RtosTask>> #lightgreen {}
-    MasterNode *-- MasterBridge
+    class MainCpp #lightblue {}
+    class RtosTask<<abstract>> #lightgreen {}
+    class Node<<abstract>> #lightgreen {}
 
-    note bottom of MasterBridge
-        Remote Proxy
-        Design Pattern 
-    end note
+    'Master Node 
+    package MasterNode_Package 
+    {
+        class MasterNode <<Node>> #lightblue {}
+        
+        class MasterBridge <<RtosTask>> #lightgreen {}
+        MasterNode *-- MasterBridge
 
-    class MasterTask <<RtosTask>> #lightblue {}
+        note bottom of MasterBridge
+            Remote Proxy
+            Design Pattern 
+        end note
 
-    MasterNode *-- MasterTask
+        class MasterTask <<RtosTask>> #lightblue {}
 
-    MasterNode *-- WebserverTask
+        MasterNode *-- MasterTask
 
-    class WebserverTask <<RtosTask>> #lightblue {}
-    MasterTask <--> WebserverTask
+        MasterNode *-- WebServerTask
 
-    class PresetsTask <<RtosTask>> #lightblue {}
-    MasterNode *-- PresetsTask
-    MasterTask <--> PresetsTask
-    
+        class WebServerTask <<RtosTask>> #lightblue {}
+        MasterTask <--> WebServerTask
+
+        class _Application_Task <<RtosTask>> #lightblue {}
+        note bottom of _Application_Task
+            Placeholder for 
+            application 
+            specific 
+            task(s)
+        end note
+        MasterNode *-- _Application_Task
+        MasterTask <--> _Application_Task
+        
+        class ApiServer #lightblue {}
+        WebServerTask *-- ApiServer
+    }
+
+    MainCpp *-- MasterNode
+
+    'Slave Node
+    package SlaveNode_Package
+    {
+        class SlaveBridge <<RtosTask>> #lightgreen {}
+        note bottom of SlaveBridge
+            Remote Proxy
+            Design Pattern 
+        end note
+
+        class SlaveNode <<Node>> #lightgreen {}
+
+        SlaveNode *-- SlaveBridge
+
+        ' Slave Task
+        class SlaveTask <<RtosTask>> #lightgreen {}
+        SlaveNode *-- SlaveTask
+    }
+
+    MainCpp *-- "0..*"SlaveNode
+
+    MasterBridge .. SlaveBridge : Direct or \n ESP-NOW
+
+    package ServiceTasks_Package 
+    {
+        class ServiceTask <<abstract, RtosTask>> #lightgreen {}
+
+        class ServiceTasks #lightgreen {}
+        
+        class LoggingTask <<ServiceTask>> #lightgreen {}
+        class StatusTask <<ServiceTask>> #lightgreen {}
+        class OtaTask <<ServiceTask>> #lightgreen {}
+
+        LoggingTask --|> ServiceTask
+        StatusTask --|> ServiceTask
+        OtaTask --|> ServiceTask
+
+        ServiceTasks *-- LoggingTask
+        ServiceTasks *-- StatusTask
+        ServiceTasks *-- OtaTask
+    }
+
+    package FunctionTasks_Package
+    {
+        class FunctionTasks #lightgreen {}
+    }
+
+    MasterNode *-- FunctionTasks
+    SlaveNode  *-- FunctionTasks
+    MasterTask <-> MasterBridge
+
+    MasterNode *---- ServiceTasks
+    SlaveNode *---- ServiceTasks
+    SlaveTask <-> SlaveBridge
+}
+
+@enduml
+
+@startuml 
+
+legend
+|= Color |= Type |= Meaning |
+|<back:lightblue>           | App Specific | Components specific to the application, containing the main logic.|
+|<back:lightgreen>           | Common       | Generic, reusable components across different applications.|
+endlegend
+
+title Api 
+
+package MasterNode_Package
+{
     class ApiServer #lightblue {}
-    WebserverTask *-- ApiServer
+    WebServerTask *-- ApiServer
 
     class ControlApi #lightblue {}
     ApiServer *-- ControlApi
@@ -59,74 +142,104 @@ package MasterNode_Package
     ServiceApiServer *-- LoggingApi
 }
 
-MainCpp *-- MasterNode
+@enduml 
 
-'Slave Node
-package SlaveNode_Package
+@startuml 
+
+legend
+|= Color |= Type |= Meaning |
+|<back:lightblue>           | App Specific | Components specific to the application, containing the main logic.|
+|<back:lightgreen>           | Common       | Generic, reusable components across different applications.|
+endlegend
+
+title Function Tasks
+
+package FunctionTasks_Package
 {
-    class SlaveBridge <<RtosTask>> #lightgreen {}
-    note bottom of SlaveBridge
-        Remote Proxy
-        Design Pattern 
-    end note
+    class FunctionTask<<abstract, RtosTask>> #lightgreen {}
 
-    class SlaveNode <<Node>> #lightgreen {}
-
-    SlaveNode *-- SlaveBridge
-
-    ' Slave Task
-    class SlaveTask <<RtosTask>> #lightgreen {}
-    SlaveNode *-- SlaveTask
-}
-
-MainCpp *-- SlaveNode
-
-MasterBridge .. SlaveBridge : Direct or \n ESP-NOW
-
-package ServiceTasksPackage 
-{
-    class ServiceTasks #lightgreen {}
+    class FunctionTasks #lightgreen {}
     
-    class LoggingTask <<RtosTask>> #lightgreen {}
-    class StatusTask <<RtosTask>> #lightgreen {}
-    class OtaTask <<RtosTask>> #lightgreen {}
+    class InputPinsTask #lightgreen {}
+    InputPinsTask --|> FunctionTask
+    
+    class AnalogInputPinsTask #lightgreen {}
+    AnalogInputPinsTask --|> InputPinsTask
+    class SingleAnalogInputPinTask #lightgreen {}
+    SingleAnalogInputPinTask --|> AnalogInputPinsTask
+    class AnalogInputChannel #lightgreen {}
+    SingleAnalogInputPinTask *-- "0..*" AnalogInputChannel
 
-    ServiceTasks *-- LoggingTask
-    ServiceTasks *-- StatusTask
-    ServiceTasks *-- OtaTask
+    class DigitalInputPinsTask #lightgreen {}
+    DigitalInputPinsTask --|> InputPinsTask
+    class SingleDigitalInputPinTask #lightgreen {}
+    SingleDigitalInputPinTask --|> DigitalInputPinsTask
+    class ShiftRegisterInputPinsTask #lightgreen {}
+    ShiftRegisterInputPinsTask --|> DigitalInputPinsTask
+    class DigitalInputChannel #lightgreen {}
+    SingleDigitalInputPinTask *-- "1" DigitalInputChannel
+    ShiftRegisterInputPinsTask *-- "0..64" DigitalInputChannel
+
+    class DigitalOutputPinsTask #lightgreen {}
+    DigitalOutputPinsTask --|> FunctionTask
+    class SingleDigitalOutputPinTask #lightgreen {}
+    SingleDigitalOutputPinTask --|> DigitalOutputPinsTask
+    class ShiftRegisterOutputPinsTask #lightgreen {}
+    ShiftRegisterOutputPinsTask --|> DigitalOutputPinsTask
+    class DigitalOutputChannel #lightgreen {}
+    SingleDigitalOutputPinTask *-- "1" DigitalOutputChannel
+    ShiftRegisterOutputPinsTask *-- "0..64" DigitalOutputChannel
+    
+    class InputOutputPinsTask #lightgreen {}
+    InputOutputPinsTask --|> FunctionTask
+    class ShiftRegisterInputOutputPinsTask #lightgreen {}
+    ShiftRegisterInputOutputPinsTask --|> InputOutputPinsTask
+    class Mcp23017InputOutputPinsTask #lightgreen {}
+    Mcp23017InputOutputPinsTask --|> InputOutputPinsTask
+    DigitalInputChannel *-- "0..64" ShiftRegisterInputOutputPinsTask
+    DigitalOutputChannel *-- "0..64" ShiftRegisterInputOutputPinsTask
+    DigitalInputChannel *-- "0..64" Mcp23017InputOutputPinsTask
+    DigitalOutputChannel *-- "0..64" Mcp23017InputOutputPinsTask
+
+    class LedSegmentsTask #lightgreen {}
+    LedSegmentsTask --|> FunctionTask
+    class IcLessSegmentsTask #lightgreen {}
+    IcLessSegmentsTask --|> LedSegmentsTask
+    class Tm1637SegmentTask #lightgreen {}
+    Tm1637SegmentTask --|> LedSegmentsTask
+    class Max7219SegmentTask #lightgreen {}
+    Max7219SegmentTask --|> LedSegmentsTask
+    IcLessSegmentsTask *-- "0..64" DigitalOutputChannel
+    Tm1637SegmentTask *-- "0..64" DigitalOutputChannel
+    Max7219SegmentTask *-- "0..64" DigitalOutputChannel
+    
+    class LedStripsTask #lightgreen {}
+    LedStripsTask --|> FunctionTask
+    class Ws2811StripTask #lightgreen {}
+    Ws2811StripTask --|> LedStripsTask
+    class Ws2812bStripTask #lightgreen {}
+    Ws2812bStripTask --|> LedStripsTask
+    class Ws2813StripTask #lightgreen {}
+    Ws2813StripTask --|> LedStripsTask
+
+    class DmxMax3485Task #lightgreen {}
+    DmxMax3485Task --|> FunctionTask
+
+    class MidiTask #lightgreen {}
+    MidiTask --|> FunctionTask
+
+    class RelaisTask #lightgreen {}
+    RelaisTask --|> FunctionTask
+    class RelaisChannel #lightgreen {}
+    RelaisTask *-- "0..8" RelaisChannel
+
+    class GasSensorTask #lightgreen {}
+    GasSensorTask --|> FunctionTask
+    
+    FunctionTasks *- "0..*"FunctionTask
 }
 
-
-package SubTasksPackage
-{
-    class SubTask<<abstract, RtosTask>> #lightgreen {}
-
-    class ButtonTask #lightgreen {}
-    class GpioLedTask #lightgreen {}
-    class Max7219Task #lightgreen {}
-    class PotmeterTask #lightgreen {}
-    class DmxMax3485SenderTask #lightgreen {}
-
-    ButtonTask --|> SubTask
-    GpioLedTask --|> SubTask
-    Max7219Task ---|> SubTask
-    PotmeterTask --|> SubTask
-    DmxMax3485SenderTask ---|> SubTask
-}
-
-MasterNode "1" *-- "0..*" SubTask
-SlaveNode  "1" *-- "0..*" SubTask
-MasterTask <-> MasterBridge
-
-MasterNode *--- ServiceTasks
-SlaveNode *--- ServiceTasks
-SlaveTask <-> SlaveBridge
-
-'Layout
-
-MasterNode_Package -[hidden]-> ServiceTasksPackage
-
-@enduml
+@enduml 
 
 @startuml 
 
@@ -135,8 +248,8 @@ MasterNode_Package -[hidden]-> ServiceTasksPackage
 actor User 
 
 User -> Website : Access website
-Website -> WebserverTask: HTTP Request
-WebserverTask -> ApiServer: Handle HTTP Request 
+Website -> WebServerTask: HTTP Request
+WebServerTask -> ApiServer: Handle HTTP Request 
 ApiServer ->    XXXApi: Handle control API request
 XXXApi -> MasterTask: Request action
 MasterTask -> MasterBridge: Send message
@@ -146,9 +259,9 @@ MasterTask -> MasterBridge: Return result
 else local message, service task 
 MasterBridge -> ServiceTasks: Handle message
 ServiceTasks -> MasterBridge: Return result
-else local message, sub task 
-MasterBridge -> SubTask: Handle message
-SubTask -> MasterBridge: Return result
+else local message, function task 
+MasterBridge -> FunctionTask: Handle message
+FunctionTask -> MasterBridge: Return result
 else remote message
 MasterBridge -> SlaveBridge: Send message via ESP-NOW
 alt message for slave task
@@ -157,15 +270,15 @@ SlaveTask -> SlaveBridge: Return result
 else message for service task
 SlaveBridge -> ServiceTasks: Handle message
 ServiceTasks -> SlaveBridge: Return result
-else message for sub task   
-SlaveBridge -> SubTask: Handle message
-SubTask -> SlaveBridge: Return result
+else message for function task   
+SlaveBridge -> FunctionTask: Handle message
+FunctionTask -> SlaveBridge: Return result
 end
 else error message
 SlaveBridge -> MasterBridge: Return 
 end
 MasterBridge -> MasterTask: Return result
-MasterTask -> WebserverTask: Return HTTP Response
-WebserverTask -> Website: Show
+MasterTask -> WebServerTask: Return HTTP Response
+WebServerTask -> Website: Show
 
 @enduml

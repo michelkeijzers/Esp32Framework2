@@ -6,7 +6,7 @@
  * Interface for the master node.
  *
  * The master node is the top-level coordinator. It owns the bridge,
- * master task, webserver task, service tasks, sub tasks, and slave nodes.
+ * master task, webserver task, service tasks, function tasks, and slave nodes.
  */
 class IMasterNode
 {

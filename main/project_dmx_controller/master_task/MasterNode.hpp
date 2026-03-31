@@ -6,7 +6,7 @@
 #include "../../common/bridge/master_bridge/IMasterBridge.hpp"
 #include "../webserver_task/IWebserverTask.hpp"
 #include "../../common/service_tasks/IServiceTasks.hpp"
-#include "../../common/sub_tasks/ISubTask.hpp"
+#include "../../common/function_tasks/IFunctionTask.hpp"
 
 #include <vector>
 #include "../../common/esp/free_rtos/IFreeRtosFactory.hpp"
@@ -30,7 +30,7 @@ public:
                IMasterTask      &masterTask,
                IWebserverTask   &webserverTask,
                IServiceTasks    &serviceTasks,
-               std::vector<ISubTask *>   subTasks,
+               std::vector<IFunctionTask *>   functionTasks,
                std::vector<ISlaveNode *> slaveNodes);
 
     ~MasterNode() override = default;
@@ -44,6 +44,6 @@ private:
     IMasterTask    &masterTask_;
     IWebserverTask &webserverTask_;
     IServiceTasks  &serviceTasks_;
-    std::vector<ISubTask *>   subTasks_;
+    std::vector<IFunctionTask *>   functionTasks_;
     std::vector<ISlaveNode *> slaveNodes_;
 };

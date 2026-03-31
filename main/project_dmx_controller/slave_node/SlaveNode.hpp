@@ -5,7 +5,7 @@
 #include "../../common/node/Node.hpp"
 #include "../../common/bridge/slave_bridge/ISlaveBridge.hpp"
 #include "../../common/service_tasks/IServiceTasks.hpp"
-#include "../../common/sub_tasks/ISubTask.hpp"
+#include "../../common/function_tasks/IFunctionTask.hpp"
 
 #include <vector>
 
@@ -21,7 +21,7 @@ public:
     SlaveNode(ISlaveBridge   &slaveBridge,
               ISlaveTask     &slaveTask,
               IServiceTasks  &serviceTasks,
-              std::vector<ISubTask *> subTasks);
+              std::vector<IFunctionTask *> functionTasks);
 
     ~SlaveNode() override = default;
 
@@ -32,5 +32,5 @@ private:
     ISlaveBridge  &slaveBridge_;
     ISlaveTask    &slaveTask_;
     IServiceTasks &serviceTasks_;
-    std::vector<ISubTask *> subTasks_;
+    std::vector<IFunctionTask *> functionTasks_;
 };

@@ -6,7 +6,7 @@
  * Interface for a slave node.
  *
  * A slave node runs on a remote ESP32 unit and manages one or more
- * hardware sub tasks. It communicates with the master node over ESP-NOW
+ * hardware function tasks. It communicates with the master node over ESP-NOW
  * via a SlaveBridge.
  */
 class ISlaveNode

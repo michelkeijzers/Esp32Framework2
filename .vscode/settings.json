@@ -4,6 +4,8 @@
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c3"
   },
+  "plantuml.render": "Local",
+  "plantuml.jar": "${workspaceFolder}/.tools/plantuml/plantuml-1.2025.10.jar",
   "coverage-gutters.coverageFileNames": ["coverage.xml"],
   "C_Cpp.errorSquiggles": "disabled"
 }

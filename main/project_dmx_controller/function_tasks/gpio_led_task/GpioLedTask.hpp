@@ -1,14 +1,14 @@
 #pragma once
 
 #include "IGpioLedTask.hpp"
-#include "../../../common/sub_tasks/SubTask.hpp"
+#include "../../../common/function_tasks/FunctionTask.hpp"
 
 /**
- * Concrete GPIO LED output sub task.
+ * Concrete GPIO LED output function task.
  *
  * Controls an LED (or simple GPIO output) connected to a GPIO pin.
  */
-class GpioLedTask : public SubTask, public IGpioLedTask
+class GpioLedTask : public FunctionTask, public IGpioLedTask
 {
 public:
     GpioLedTask(IFreeRtosFactory &freeRtosFactory, int gpioPin);
