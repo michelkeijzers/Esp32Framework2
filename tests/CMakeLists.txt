@@ -50,7 +50,7 @@ set(MAIN_DIR "${CMAKE_CURRENT_LIST_DIR}/../main")
 #   Excluded:
 #     - EspNow/EspNvs/EspHttpServer/EspLittleFs/EspLogger.cpp
 #       (concrete ESP-IDF hardware drivers, replaced by GMock in tests)
-#     - Webserver.cpp (project_dmx_controller) – broken ../http_task/ paths
+#     - WebServer.cpp (project_dmx_controller) – broken ../http_task/ paths
 #     - ApiServer.cpp – complex integration class not directly unit-tested
 # ──────────────────────────────────────────────────────────────
 set(PROD_SOURCES
@@ -62,15 +62,15 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/service_tasks/ServiceTasks.cpp
     ${MAIN_DIR}/common/service_tasks/status_task/StatusTask.cpp
     ${MAIN_DIR}/common/function_tasks/FunctionTask.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiFirmware.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiLogging.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiNodes.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiResponse.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiSecurity.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiStatus.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiSystem.cpp
-    ${MAIN_DIR}/common/webserver_task/apis/ApiValidator.cpp
-    ${MAIN_DIR}/project_dmx_controller/webserver_task/WebserverTask.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiFirmware.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiLogging.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiNodes.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiResponse.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiSecurity.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiStatus.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiSystem.cpp
+    ${MAIN_DIR}/common/web_server_task/apis/ApiValidator.cpp
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/WebServerTask.cpp
     ${MAIN_DIR}/project_dmx_controller/master_task/MasterNode.cpp
     ${MAIN_DIR}/project_dmx_controller/master_task/MasterTask.cpp
     ${MAIN_DIR}/project_dmx_controller/presets_task/PresetManager.cpp
@@ -81,10 +81,10 @@ set(PROD_SOURCES
     ${MAIN_DIR}/project_dmx_controller/function_tasks/gpio_led_task/GpioLedTask.cpp
     ${MAIN_DIR}/project_dmx_controller/function_tasks/max7219_task/Max7219Task.cpp
     ${MAIN_DIR}/project_dmx_controller/function_tasks/potmeter_task/PotmeterTask.cpp
-    ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiConfig.cpp
-    ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiConfiguration.cpp
-    ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiPresets.cpp
-    ${MAIN_DIR}/project_dmx_controller/webserver_task/apis/ApiPresetValues.cpp
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/apis/ApiConfig.cpp
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/apis/ApiConfiguration.cpp
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/apis/ApiPresets.cpp
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/apis/ApiPresetValues.cpp
     # Use real RtosTask (now host-safe — no FreeRTOS headers) and queue stubs
     ${MAIN_DIR}/common/tasks/RtosTask.cpp
     ${MAIN_DIR}/common/tasks/IRtosQueueSet.cpp
@@ -110,23 +110,23 @@ target_include_directories(production_lib PUBLIC
     ${MAIN_DIR}/common/esp/esp_error
     ${MAIN_DIR}/common/esp/free_rtos
     ${MAIN_DIR}/common/esp/esp_file_systems
-    # Context and webserver
+    # Context and web server
     ${MAIN_DIR}/common/context
     ${MAIN_DIR}/common/service_tasks
     ${MAIN_DIR}/common/service_tasks/logging_task
     ${MAIN_DIR}/common/service_tasks/ota_task
     ${MAIN_DIR}/common/service_tasks/status_task
     ${MAIN_DIR}/common/function_tasks
-    ${MAIN_DIR}/common/webserver_task
+    ${MAIN_DIR}/common/web_server_task
     # Resolves bare #include "ApiResponse.hpp", "ApiValidator.hpp"
-    ${MAIN_DIR}/common/webserver_task/apis
+    ${MAIN_DIR}/common/web_server_task/apis
     # Project-specific directories
     ${MAIN_DIR}/project_dmx_controller
     ${MAIN_DIR}/project_dmx_controller/master_task
     # Resolves bare #include "IEspHttpServer.hpp" in ApiPresets/ApiConfig/etc.
     ${MAIN_DIR}/project_dmx_controller/slave_node
     ${MAIN_DIR}/project_dmx_controller/function_tasks/dmx_max3485_sender_task
-    ${MAIN_DIR}/project_dmx_controller/webserver_task/apis
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/apis
     ${MAIN_DIR}/project_dmx_controller/presets_task
     # Mock headers directory
     ${CMAKE_CURRENT_LIST_DIR}/mocks

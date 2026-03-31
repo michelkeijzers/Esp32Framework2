@@ -1,11 +1,11 @@
 #include "ApiServer.hpp"
-#include "../../../common/webserver_task/apis/ApiStatus.hpp"
-#include "../../../common/webserver_task/apis/ApiNodes.hpp"
-#include "../../../common/webserver_task/apis/ApiSystem.hpp"
-#include "../../../common/webserver_task/apis/ApiFirmware.hpp"
-#include "../../../common/webserver_task/apis/ApiSecurity.hpp"
-#include "../../../common/webserver_task/apis/ApiLogging.hpp"
-#include "../../../common/webserver_task/apis/StaticFileHandler.hpp"
+#include "../../../common/web_server_task/apis/ApiStatus.hpp"
+#include "../../../common/web_server_task/apis/ApiNodes.hpp"
+#include "../../../common/web_server_task/apis/ApiSystem.hpp"
+#include "../../../common/web_server_task/apis/ApiFirmware.hpp"
+#include "../../../common/web_server_task/apis/ApiSecurity.hpp"
+#include "../../../common/web_server_task/apis/ApiLogging.hpp"
+#include "../../../common/web_server_task/apis/StaticFileHandler.hpp"
 #include "../../../common/esp/esp_logger/IEspLogger.hpp"
 #include "../../../common/esp/esp_http_server/IEspHttpServer.hpp"
 #include "../../../common/esp/esp_file_systems/IEspLittleFs.hpp"
@@ -13,16 +13,7 @@
 #include <cstring>
 
 ApiServer::ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory)
-    : espLittleFs_(espFactory.getLittleFs())
-    , espHttpServer_(espFactory.getHttpServer())
-    , logger_(espFactory.getLogger())
-    , apiStatus_(commonApiFactory.getApiStatus())
-    , apiNodes_(commonApiFactory.getApiNodes())
-    , apiSystem_(commonApiFactory.getApiSystem())
-    , apiFirmware_(commonApiFactory.getApiFirmware())
-    , apiSecurity_(commonApiFactory.getApiSecurity())
-    , apiLogging_(commonApiFactory.getApiLogging())
-    , server(nullptr)
+    : espLittleFs_(espFactory.getLittleFs()), espHttpServer_(espFactory.getHttpServer()), logger_(espFactory.getLogger()), apiStatus_(commonApiFactory.getApiStatus()), apiNodes_(commonApiFactory.getApiNodes()), apiSystem_(commonApiFactory.getApiSystem()), apiFirmware_(commonApiFactory.getApiFirmware()), apiSecurity_(commonApiFactory.getApiSecurity()), apiLogging_(commonApiFactory.getApiLogging()), server(nullptr)
 {
     server = nullptr;
 }

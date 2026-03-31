@@ -1,6 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "common/webserver_task/apis/IApiStatus.hpp"
+#include "common/web_server_task/apis/IApiStatus.hpp"
 
 class MockIApiStatus : public IApiStatus
 {

@@ -40,8 +40,8 @@ if (fs.existsSync(customCssSrc)) {
     fs.copyFileSync(customCssSrc, customCssAlias);
 }
 
-// Copy shared pages that live in main/common/webserver_task/website.
-const commonWebsiteDir = path.resolve(websiteRoot, "../..", "common", "webserver_task", "website");
+// Copy shared pages that live in main/common/web_server_task/website.
+const commonWebsiteDir = path.resolve(websiteRoot, "../..", "common", "web_server_task", "website");
 if (fs.existsSync(commonWebsiteDir)) {
     const commonPages = ["nodes.html", "security.html", "logging.html"];
     for (const page of commonPages) {

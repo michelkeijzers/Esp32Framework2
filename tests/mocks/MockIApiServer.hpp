@@ -1,6 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "project_dmx_controller/webserver_task/IApiServer.hpp"
+#include "project_dmx_controller/web_server_task/IApiServer.hpp"
 
 class MockIApiServer : public IApiServer
 {

@@ -1,10 +1,10 @@
 #pragma once
 #include "IDmxApiFactory.hpp"
 #include "../../presets_task/PresetManager.hpp"
-#include "../webserver_task/apis/ApiConfig.hpp"
-#include "../webserver_task/apis/ApiPresets.hpp"
-#include "../webserver_task/apis/ApiPresetValues.hpp"
-#include "../webserver_task/apis/ApiConfiguration.hpp"
+#include "../web_server_task/apis/ApiConfig.hpp"
+#include "../web_server_task/apis/ApiPresets.hpp"
+#include "../web_server_task/apis/ApiPresetValues.hpp"
+#include "../web_server_task/apis/ApiConfiguration.hpp"
 
 class IEspHttpServer;
 class IEspNvs;

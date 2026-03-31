@@ -5,7 +5,7 @@
 #include "MockIMasterBridge.hpp"
 #include "MockIFreeRtosFactory.hpp"
 #include "MockIRtosQueue.hpp"
-#include "MockIWebserverTask.hpp"
+#include "MockIWebServerTask.hpp"
 #include "MockIRtosQueueSet.hpp"
 
 using ::testing::Return;
@@ -19,7 +19,7 @@ TEST(MasterTaskTest, InitDelegatesToMasterBridge)
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
     MockIRtosQueue mockMasterBridgeQueue;
-    MockIWebserverTask mockWebServerTask;
+    MockIWebServerTask mockWebServerTask;
     MockIRtosQueue mockWebServerQueue;
     MockIRtosQueueSet mockQueueSet;
     ON_CALL(mockMasterBridgeQueue, create()).WillByDefault(Return(true));
@@ -46,7 +46,7 @@ TEST(MasterTaskTest, InitPropagatesBridgeFailure)
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
     MockIRtosQueue mockMasterBridgeQueue;
-    MockIWebserverTask mockWebServerTask;
+    MockIWebServerTask mockWebServerTask;
     MockIRtosQueue mockWebServerQueue;
     MockIRtosQueueSet mockQueueSet;
     ON_CALL(mockMasterBridgeQueue, create()).WillByDefault(Return(true));
@@ -77,7 +77,7 @@ TEST(MasterTaskTest, StartReturnsOk)
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockIMasterBridge mockBridge;
     MockIRtosQueue mockMasterBridgeQueue;
-    MockIWebserverTask mockWebServerTask;
+    MockIWebServerTask mockWebServerTask;
     MockIRtosQueue mockWebServerQueue;
     MockIRtosQueueSet mockQueueSet;
     ON_CALL(mockMasterBridgeQueue, create()).WillByDefault(Return(true));

@@ -3,7 +3,7 @@
 #include "IMasterTask.hpp"
 #include "../../common/tasks/RtosTask.hpp"
 
-class IWebserverTask; // Forward declaration
+class IWebServerTask; // Forward declaration
 class IMasterBridge; // Forward declaration
 class IRtosQueueSet; // Forward declaration
 class IRtosQueue; // Forward declaration
@@ -17,8 +17,8 @@ class IRtosQueue; // Forward declaration
 class MasterTask : public RtosTask, public IMasterTask
 {
 public:
-    MasterTask(IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterBridge, IRtosQueue& masterBridgeQueue, IWebserverTask& webServerTask, 
-        IRtosQueue& webServerQueue, IRtosQueueSet& queueSet, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
+    MasterTask(IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterBridge, IRtosQueue &masterBridgeQueue, IWebServerTask &webServerTask,
+               IRtosQueue &webServerQueue, IRtosQueueSet &queueSet, const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
     ~MasterTask() override = default;
 
     esp_err_t init()  override;
@@ -27,7 +27,7 @@ public:
 private:
     IMasterBridge& masterBridge_;
     IRtosQueue& masterBridgeQueue_;
-    IWebserverTask& webServerTask;
+    IWebServerTask &webServerTask;
     IRtosQueue& webServerQueue_;
     IRtosQueueSet& queueSet_;
 };

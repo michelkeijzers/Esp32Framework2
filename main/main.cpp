@@ -13,11 +13,11 @@
         #include "project_dmx_controller/master_task/MasterNode.hpp"
         #include "project_dmx_controller/master_task/MasterTask.hpp"
         #include "project_dmx_controller/master_task/DmxContextFactory.hpp"
-        #include "project_dmx_controller/webserver_task/ApiServer.hpp"
-        #include "project_dmx_controller/webserver_task/WebserverTask.hpp"
-        #include "common/tasks/RtosQueue.hpp"
-        #include "common/tasks/RtosQueueSet.hpp"
-    #endif
+#include "project_dmx_controller/web_server_task/ApiServer.hpp"
+#include "project_dmx_controller/web_server_task/WebServerTask.hpp"
+#include "common/tasks/RtosQueue.hpp"
+#include "common/tasks/RtosQueueSet.hpp"
+#endif
 #endif
 
 extern "C" void app_main(void)
@@ -34,13 +34,13 @@ extern "C" void app_main(void)
             MasterBridge masterBridge = MasterBridge(espNowFactory.getEspNow());
             RtosQueue masterBridgeQueue = RtosQueue(64, 8); //TODO
             ApiServer apiServer = ApiServer(espFactory, commonApiFactory); //TODO
-            WebserverTask webserverTask = WebserverTask(espFactory.getFreeRtosFactory(), apiServer, "webserver_task", 8192, 6);   
-            RtosQueue webserverQueue = RtosQueue(64, 8); //TODO
+            WebServerTask webServerTask = WebServerTask(espFactory.getFreeRtosFactory(), apiServer, "web_server_task", 8192, 6);
+            RtosQueue webServerQueue = RtosQueue(64, 8);   // TODO
             RtosQueueSet queueSet = RtosQueueSet(64 + 64); //TODO
             IFreeRtosFactory &rtosFactory = espFactory.getFreeRtosFactory();
-            MasterTask masterTask(rtosFactory, masterBridge, masterBridgeQueue, webserverTask, webserverQueue, queueSet, "master_task", 8192, 5);
+            MasterTask masterTask(rtosFactory, masterBridge, masterBridgeQueue, webServerTask, webServerQueue, queueSet, "master_task", 8192, 5);
             ServiceTasks serviceTasks(rtosFactory);
-            MasterNode masterNode(rtosFactory, masterBridge, masterTask, webserverTask, serviceTasks, {}, {});
+            MasterNode masterNode(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks, {}, {});
             masterNode.init();
             masterNode.start();
         #elif defined(BUILD_SLAVE_NODE)

@@ -6,15 +6,10 @@ constexpr size_t webServerQueueLen = 8;
 constexpr size_t masterBridgeItemSize = 64;
 constexpr size_t masterBridgeQueueLen = 8;
 
-MasterTask::MasterTask( IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterBridge, IRtosQueue& masterBridgeQueue, IWebserverTask& webServerTask, 
-    IRtosQueue& webServerQueue, IRtosQueueSet& queueSet,
-    const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
-    : RtosTask(freeRtosFactory, taskName, stackSize, taskPriority)
-    , masterBridge_(masterBridge)
-    , masterBridgeQueue_(masterBridgeQueue)
-    , webServerTask(webServerTask)
-    , webServerQueue_(webServerQueue)
-    , queueSet_(queueSet)
+MasterTask::MasterTask(IFreeRtosFactory &freeRtosFactory, IMasterBridge &masterBridge, IRtosQueue &masterBridgeQueue, IWebServerTask &webServerTask,
+                       IRtosQueue &webServerQueue, IRtosQueueSet &queueSet,
+                       const char *taskName, uint32_t stackSize, UBaseType_t taskPriority)
+    : RtosTask(freeRtosFactory, taskName, stackSize, taskPriority), masterBridge_(masterBridge), masterBridgeQueue_(masterBridgeQueue), webServerTask(webServerTask), webServerQueue_(webServerQueue), queueSet_(queueSet)
 {
 }
 

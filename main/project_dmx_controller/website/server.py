@@ -30,7 +30,7 @@ def event_stream():
                 {
                     "name": "Master",
                     "role": "Master",
-                    "node_type": "Webserver",
+                    "node_type": "WebServer",
                     "node_sequence": 1,
                     "status_watchdog": "OK",
                     "last_communication": master_last_comm,
@@ -43,7 +43,7 @@ def event_stream():
                 {
                     "name": "Node",
                     "role": "Node",
-                    "node_type": "Webserver",
+                    "node_type": "WebServer",
                     "node_sequence": 2,
                     "status_watchdog": "ERROR",
                     "last_communication": "2026-03-11 14:25:10",
@@ -88,7 +88,7 @@ def api_status():
         {
             "name": "Master",
             "role": "Master",
-            "node_type": "Webserver",
+            "node_type": "WebServer",
             "node_sequence": 1,
             "status_watchdog": "OK",
             "last_communication": "2026-03-11 14:23:01",
@@ -101,7 +101,7 @@ def api_status():
         {
             "name": "Node",
             "role": "Node",
-            "node_type": "Webserver",
+            "node_type": "WebServer",
             "node_sequence": 2,
             "status_watchdog": "ERROR",
             "last_communication": "2026-03-11 14:25:10",
@@ -367,12 +367,12 @@ def index():
     return send_from_directory(".", "index.html")
 
 
-# Serve /common/webserver_task/website/* from the common directory
-@app.route("/common/webserver_task/website/<path:path>", methods=["GET"])
+# Serve /common/web_server_task/website/* from the common directory
+@app.route("/common/web_server_task/website/<path:path>", methods=["GET"])
 def serve_common_website(path):
     common_dir = os.path.abspath(os.path.join(os.path.dirname(
-        __file__), '../../common/webserver_task/website'))
-    print(f"GET /common/webserver_task/website/{path} (from {common_dir})")
+        __file__), '../../common/web_server_task/website'))
+    print(f"GET /common/web_server_task/website/{path} (from {common_dir})")
     return send_from_directory(common_dir, path)
 
 # Serve all other static files from the local website directory
@@ -383,7 +383,7 @@ def static_files(path):
     print(f"GET /{path}")
     if path in ("nodes.html", "security.html", "logging.html"):
         common_dir = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "../../common/webserver_task/website")
+            os.path.join(os.path.dirname(__file__), "../../common/web_server_task/website")
         )
         common_file = os.path.join(common_dir, path)
         if os.path.exists(common_file):
@@ -397,7 +397,7 @@ def api_nodes_info():
         # Mocked node info: name and mac_address for each node
         nodes = [
             {"name": "Master", "mac_address": "24:6F:28:AA:BB:CC"},
-            {"name": "Webserver", "mac_address": "24:6F:28:BB:CC:DD"},
+            {"name": "WebServer", "mac_address": "24:6F:28:BB:CC:DD"},
             {"name": "GPIO Node", "mac_address": "24:6F:28:CC:DD:EE"},
             {"name": "Display Node", "mac_address": "24:6F:28:DD:EE:FF"},
         ]

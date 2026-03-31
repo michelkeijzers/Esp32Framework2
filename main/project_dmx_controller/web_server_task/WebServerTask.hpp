@@ -1,18 +1,18 @@
 #pragma once
 
-#include "IWebserverTask.hpp"
+#include "IWebServerTask.hpp"
 #include "IApiServer.hpp"
 #include "../../../common/tasks/RtosTask.hpp"
 
 /**
- * Project webserver task wrapper around a project API server.
+ * Project web server task wrapper around a project API server.
  */
-class WebserverTask : public RtosTask, public IWebserverTask
+class WebServerTask : public RtosTask, public IWebServerTask
 {
 public:
-    WebserverTask(IFreeRtosFactory &freeRtosFactory, IApiServer &apiServer,
+    WebServerTask(IFreeRtosFactory &freeRtosFactory, IApiServer &apiServer,
                   const char *taskName, uint32_t stackSize, UBaseType_t taskPriority);
-    ~WebserverTask() override = default;
+    ~WebServerTask() override = default;
 
     esp_err_t init() override;
     esp_err_t start() override;

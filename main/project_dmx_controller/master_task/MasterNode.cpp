@@ -2,20 +2,14 @@
 #include "../slave_node/ISlaveNode.hpp"
 
 MasterNode::MasterNode(
-                       IFreeRtosFactory &rtosFactory,
-                       IMasterBridge    &masterBridge,
-                       IMasterTask      &masterTask,
-                       IWebserverTask   &webserverTask,
-                       IServiceTasks    &serviceTasks,
-                       std::vector<IFunctionTask *>   functionTasks,
-                       std::vector<ISlaveNode *> slaveNodes)
-    : rtosFactory_(rtosFactory)
-    , masterBridge_(masterBridge)
-    , masterTask_(masterTask)
-    , webserverTask_(webserverTask)
-    , serviceTasks_(serviceTasks)
-    , functionTasks_(std::move(functionTasks))
-    , slaveNodes_(std::move(slaveNodes))
+    IFreeRtosFactory &rtosFactory,
+    IMasterBridge &masterBridge,
+    IMasterTask &masterTask,
+    IWebServerTask &webServerTask,
+    IServiceTasks &serviceTasks,
+    std::vector<IFunctionTask *> functionTasks,
+    std::vector<ISlaveNode *> slaveNodes)
+    : rtosFactory_(rtosFactory), masterBridge_(masterBridge), masterTask_(masterTask), webServerTask_(webServerTask), serviceTasks_(serviceTasks), functionTasks_(std::move(functionTasks)), slaveNodes_(std::move(slaveNodes))
 {
 }
 
@@ -24,7 +18,7 @@ esp_err_t MasterNode::init()
     esp_err_t ret = masterTask_.init();
     if (ret != ESP_OK) return ret;
 
-    ret = webserverTask_.init();
+    ret = webServerTask_.init();
     if (ret != ESP_OK) return ret;
 
     ret = serviceTasks_.init();
@@ -50,7 +44,7 @@ esp_err_t MasterNode::start()
     esp_err_t ret = masterTask_.start();
     if (ret != ESP_OK) return ret;
 
-    ret = webserverTask_.start();
+    ret = webServerTask_.start();
     if (ret != ESP_OK) return ret;
 
     ret = serviceTasks_.start();

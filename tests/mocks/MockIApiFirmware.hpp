@@ -1,6 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
-#include "common/webserver_task/apis/IApiFirmware.hpp"
+#include "common/web_server_task/apis/IApiFirmware.hpp"
 
 class MockIApiFirmware : public IApiFirmware
 {
