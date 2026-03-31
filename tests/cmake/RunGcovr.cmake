@@ -19,12 +19,12 @@ foreach(exe "${UNIT_TEST_EXE}" "${INTEGRATION_TEST_EXE}")
     endif()
 endforeach()
 
-# Run tests through CTest so we get per-test progress and a hard timeout.
+# Run tests through CTest so we get per-test progress, parallelism, and a hard timeout.
 if(NOT DEFINED CMAKE_CTEST_COMMAND)
     find_program(CMAKE_CTEST_COMMAND NAMES ctest REQUIRED)
 endif()
 
-message(STATUS "Running host tests for coverage with ctest (timeout: 30s per test) ...")
+message(STATUS "Running host tests for coverage with ctest (timeout: 30s per test, parallel)...")
 execute_process(
     COMMAND "${CMAKE_CTEST_COMMAND}"
         --test-dir "${TEST_BUILD_DIR}"
@@ -32,6 +32,7 @@ execute_process(
         --output-on-failure
         --progress
         --timeout 30
+        -j $ENV{CTEST_PARALLEL_LEVEL}
     WORKING_DIRECTORY "${TEST_BUILD_DIR}"
     RESULT_VARIABLE ctest_result
     TIMEOUT 300

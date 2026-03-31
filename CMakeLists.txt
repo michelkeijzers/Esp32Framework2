@@ -1,24 +1,30 @@
 cmake_minimum_required(VERSION 3.20)
+include(ProcessorCount)
 list(APPEND EXTRA_COMPONENT_DIRS "${CMAKE_SOURCE_DIR}/main/libraries/esp_littlefs")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(Esp32Framework2)
 
+ProcessorCount(HOST_TEST_PARALLEL_LEVEL)
+if(NOT HOST_TEST_PARALLEL_LEVEL OR HOST_TEST_PARALLEL_LEVEL LESS 1)
+	set(HOST_TEST_PARALLEL_LEVEL 1)
+endif()
+
 # Build and run host tests from the root build without mixing ESP-IDF toolchains.
 option(BUILD_HOST_TESTS_WITH_MAIN "Build/run host tests during main build" ON)
 if(BUILD_HOST_TESTS_WITH_MAIN)
+	set(HOST_TEST_BUILD_DIR "/tmp/esp32framework2-tests-build")
 	add_custom_target(host_tests ALL
-		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Cleaning stale host-test CMake metadata"
-		# Self-heal stale/corrupted generated CMake metadata in host-test tree.
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Cleaning stale host-test CMake metadata in ${HOST_TEST_BUILD_DIR}"
 		COMMAND ${CMAKE_COMMAND} -E rm -rf
-			${CMAKE_SOURCE_DIR}/tests/build/CMakeFiles/3.30.2
-			${CMAKE_SOURCE_DIR}/tests/build/_deps/googletest-subbuild/CMakeFiles/3.30.2
-		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Configuring tests"
-		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build
-		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Building tests"
-		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Release
-		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Running tests"
-		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_SOURCE_DIR}/tests/build -C Release --output-on-failure --progress --timeout 120
-		COMMENT "Configuring, building, and running host tests"
+			${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2
+			${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Configuring tests in ${HOST_TEST_BUILD_DIR}"
+		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${HOST_TEST_BUILD_DIR}
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Building tests in ${HOST_TEST_BUILD_DIR}"
+		COMMAND ${CMAKE_COMMAND} --build ${HOST_TEST_BUILD_DIR} --config Release --parallel ${HOST_TEST_PARALLEL_LEVEL}
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Running tests in parallel in ${HOST_TEST_BUILD_DIR}"
+		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j ${HOST_TEST_PARALLEL_LEVEL}
+		COMMENT "Configuring, building, and running host tests in /tmp with parallelism"
 		USES_TERMINAL
 		VERBATIM
 	)
@@ -51,11 +57,12 @@ if(GCOVR_EXECUTABLE AND BUILD_HOST_COVERAGE_WITH_MAIN)
 			${CMAKE_SOURCE_DIR}/tests/build/_deps/googletest-subbuild/CMakeFiles/3.30.2
 		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build
 			-DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON
-		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target unit_tests
-		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target integration_tests
+		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target unit_tests --parallel ${HOST_TEST_PARALLEL_LEVEL}
+		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --target integration_tests --parallel ${HOST_TEST_PARALLEL_LEVEL}
 		COMMAND ${CMAKE_COMMAND}
 			-DGCOVR_EXE=${GCOVR_EXECUTABLE}
 			-DSOURCE_ROOT=${CMAKE_SOURCE_DIR}
+			-DCTEST_PARALLEL_LEVEL=${HOST_TEST_PARALLEL_LEVEL}
 			-DTEST_BUILD_DIR=${CMAKE_SOURCE_DIR}/tests/build
 			-P ${CMAKE_SOURCE_DIR}/tests/cmake/RunGcovr.cmake
 		COMMENT "Build, run, and generate host-side coverage with gcovr (output: tests/build/coverage_html/index.html)"
@@ -71,11 +78,12 @@ elseif(OPENCPPCOVERAGE_EXECUTABLE AND BUILD_HOST_COVERAGE_WITH_MAIN)
 			${CMAKE_SOURCE_DIR}/tests/build/CMakeFiles/3.30.2
 			${CMAKE_SOURCE_DIR}/tests/build/_deps/googletest-subbuild/CMakeFiles/3.30.2
 		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build -DCMAKE_BUILD_TYPE=Debug
-		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target unit_tests
-		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target integration_tests
+		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target unit_tests --parallel ${HOST_TEST_PARALLEL_LEVEL}
+		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Debug --target integration_tests --parallel ${HOST_TEST_PARALLEL_LEVEL}
 		COMMAND ${CMAKE_COMMAND}
 			-DOPENCPPCOVERAGE_EXE=${OPENCPPCOVERAGE_EXECUTABLE}
 			-DSOURCE_ROOT=${CMAKE_SOURCE_DIR}
+			-DCTEST_PARALLEL_LEVEL=${HOST_TEST_PARALLEL_LEVEL}
 			-DTEST_BUILD_DIR=${CMAKE_SOURCE_DIR}/tests/build
 			-P ${CMAKE_SOURCE_DIR}/tests/cmake/RunOpenCppCoverage.cmake
 		COMMENT "Build, run, and generate host-side coverage with OpenCppCoverage (output: tests/build/coverage_html/index.html)"
