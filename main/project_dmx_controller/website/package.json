@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "scripts": {
     "prepare-public": "node scripts/sync-public.mjs",
-    "dev": "npm run prepare-public && vite --host",
-    "build": "npm run prepare-public && vite build",
+    "preflight-native": "node scripts/ensure-rollup-native.mjs",
+    "repair-deps": "npm ci --include=optional --no-audit --no-fund",
+    "dev": "npm run prepare-public && npm run preflight-native && vite --host",
+    "build": "npm run prepare-public && npm run preflight-native && vite build",
     "preview": "vite preview --host"
   },
   "devDependencies": {

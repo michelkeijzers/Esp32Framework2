@@ -381,6 +381,13 @@ def serve_common_website(path):
 @app.route("/<path:path>", methods=["GET"])
 def static_files(path):
     print(f"GET /{path}")
+    if path in ("nodes.html", "security.html", "logging.html"):
+        common_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../common/webserver_task/website")
+        )
+        common_file = os.path.join(common_dir, path)
+        if os.path.exists(common_file):
+            return send_from_directory(common_dir, path)
     return send_from_directory(".", path)
 
 

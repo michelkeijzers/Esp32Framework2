@@ -7,14 +7,19 @@ project(Esp32Framework2)
 option(BUILD_HOST_TESTS_WITH_MAIN "Build/run host tests during main build" ON)
 if(BUILD_HOST_TESTS_WITH_MAIN)
 	add_custom_target(host_tests ALL
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Cleaning stale host-test CMake metadata"
 		# Self-heal stale/corrupted generated CMake metadata in host-test tree.
 		COMMAND ${CMAKE_COMMAND} -E rm -rf
 			${CMAKE_SOURCE_DIR}/tests/build/CMakeFiles/3.30.2
 			${CMAKE_SOURCE_DIR}/tests/build/_deps/googletest-subbuild/CMakeFiles/3.30.2
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Configuring tests"
 		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${CMAKE_SOURCE_DIR}/tests/build
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Building tests"
 		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_SOURCE_DIR}/tests/build --config Release
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Running tests"
 		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_SOURCE_DIR}/tests/build -C Release --output-on-failure --progress --timeout 120
 		COMMENT "Configuring, building, and running host tests"
+		USES_TERMINAL
 		VERBATIM
 	)
 endif()
@@ -96,13 +101,43 @@ endif()
 
 set(WEBSITE_DIR "${CMAKE_SOURCE_DIR}/main/project_dmx_controller/website")
 find_program(NPM_EXECUTABLE NAMES npm npm.cmd)
+find_package(Python3 COMPONENTS Interpreter)
+
+option(RUN_WEBSITE_SIMULATOR_WITH_MAIN "Start website API simulator during main build" ON)
+
+if(RUN_WEBSITE_SIMULATOR_WITH_MAIN)
+	if(Python3_Interpreter_FOUND)
+		add_custom_target(website_simulator_auto ALL
+			COMMAND ${CMAKE_COMMAND} -E echo "[website_simulator_auto] Ensuring API simulator is available on http://127.0.0.1:8080"
+			COMMAND ${Python3_EXECUTABLE} ${WEBSITE_DIR}/scripts/start-api-simulator-if-needed.py
+			WORKING_DIRECTORY ${WEBSITE_DIR}
+			COMMENT "Start local website API simulator if needed"
+			USES_TERMINAL
+			VERBATIM
+		)
+	else()
+		message(WARNING "RUN_WEBSITE_SIMULATOR_WITH_MAIN is ON, but Python3 interpreter was not found. Simulator autostart disabled.")
+	endif()
+endif()
 
 if(NPM_EXECUTABLE)
+	set(NPM_CI_COMMAND
+		${CMAKE_COMMAND} -E env
+		npm_config_include=optional
+		npm_config_optional=true
+		npm_config_audit=false
+		npm_config_fund=false
+		${NPM_EXECUTABLE} ci --include=optional --no-audit --no-fund
+	)
+
 	add_custom_target(website_build
-		COMMAND ${NPM_EXECUTABLE} install
+		COMMAND ${CMAKE_COMMAND} -E echo "[website_build] Installing npm dependencies (deterministic)"
+		COMMAND ${NPM_CI_COMMAND}
+		COMMAND ${CMAKE_COMMAND} -E echo "[website_build] Running Vite build"
 		COMMAND ${NPM_EXECUTABLE} run build
 		WORKING_DIRECTORY ${WEBSITE_DIR}
 		COMMENT "Installing website dependencies and building with Vite"
+		USES_TERMINAL
 		VERBATIM
 	)
 
@@ -117,7 +152,9 @@ if(NPM_EXECUTABLE)
 	endif()
 
 	add_custom_target(website_dev
-		COMMAND ${NPM_EXECUTABLE} install
+		COMMAND ${CMAKE_COMMAND} -E echo "[website_dev] Installing npm dependencies (deterministic)"
+		COMMAND ${NPM_CI_COMMAND}
+		COMMAND ${CMAKE_COMMAND} -E echo "[website_dev] Starting Vite dev server"
 		COMMAND ${NPM_EXECUTABLE} run dev
 		WORKING_DIRECTORY ${WEBSITE_DIR}
 		COMMENT "Starting website dev server with Vite"
@@ -128,10 +165,13 @@ if(NPM_EXECUTABLE)
 	option(BUILD_WEBSITE_WITH_MAIN "Build website during main build" OFF)
 	if(BUILD_WEBSITE_WITH_MAIN)
 		add_custom_target(website_all ALL
-			COMMAND ${NPM_EXECUTABLE} install
+			COMMAND ${CMAKE_COMMAND} -E echo "[website_all] Installing npm dependencies (deterministic)"
+			COMMAND ${NPM_CI_COMMAND}
+			COMMAND ${CMAKE_COMMAND} -E echo "[website_all] Running Vite build"
 			COMMAND ${NPM_EXECUTABLE} run build
 			WORKING_DIRECTORY ${WEBSITE_DIR}
 			COMMENT "Building website with Vite during main build"
+			USES_TERMINAL
 			VERBATIM
 		)
 	endif()

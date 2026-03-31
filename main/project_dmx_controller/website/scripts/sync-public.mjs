@@ -40,4 +40,17 @@ if (fs.existsSync(customCssSrc)) {
     fs.copyFileSync(customCssSrc, customCssAlias);
 }
 
+// Copy shared pages that live in main/common/webserver_task/website.
+const commonWebsiteDir = path.resolve(websiteRoot, "../..", "common", "webserver_task", "website");
+if (fs.existsSync(commonWebsiteDir)) {
+    const commonPages = ["nodes.html", "security.html", "logging.html"];
+    for (const page of commonPages) {
+        const from = path.join(commonWebsiteDir, page);
+        const to = path.join(publicDir, page);
+        if (fs.existsSync(from)) {
+            fs.copyFileSync(from, to);
+        }
+    }
+}
+
 console.log("Public website assets synchronized.");
