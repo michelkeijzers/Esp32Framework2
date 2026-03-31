@@ -17,5 +17,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Provide Prettier CLI in the container for formatting from terminal/tasks.
+RUN npm install -g prettier
+
 # Source IDF export in non-interactive shells used by VS Code tasks
 RUN echo ". \$IDF_PATH/export.sh > /dev/null 2>&1 || true" >> /root/.bashrc

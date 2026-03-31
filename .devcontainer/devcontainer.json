@@ -14,7 +14,7 @@
     "IDF_PATH": "/opt/esp/idf"
   },
 
-  "postCreateCommand": ". $IDF_PATH/export.sh > /dev/null 2>&1 || true && bash .devcontainer/setup-plantuml.sh",
+  "postCreateCommand": ". $IDF_PATH/export.sh > /dev/null 2>&1 || true && bash .devcontainer/setup-plantuml.sh && npm --prefix main/project_dmx_controller/website ci --include=optional --no-audit --no-fund",
 
   "customizations": {
     "vscode": {
@@ -24,7 +24,8 @@
         "ms-vscode.cmake-tools",
         "ryanluker.vscode-coverage-gutters",
         "eamodio.gitlens",
-        "jebbs.plantuml"
+        "jebbs.plantuml",
+        "esbenp.prettier-vscode"
       ],
       "settings": {
         "idf.espIdfPath": "/opt/esp/idf",
@@ -36,7 +37,26 @@
         "plantuml.java": "/usr/bin/java",
         "coverage-gutters.coverageFileNames": ["coverage.xml"],
         "C_Cpp.errorSquiggles": "disabled",
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[css]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[markdown]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
       }
     }
   }

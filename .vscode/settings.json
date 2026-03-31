@@ -1,11 +1,13 @@
 {
-  "idf.currentSetup": "C:\\Users\\i4studio\\esp\\v5.4.1\\esp-idf",
+  "idf.espIdfPath": "/opt/esp/idf",
+  "idf.toolsPath": "/opt/esp/tools",
   "idf.openOcdConfigs": ["board/esp32c3-builtin.cfg"],
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c3"
   },
   "plantuml.render": "Local",
-  "plantuml.jar": "${workspaceFolder}/.tools/plantuml/plantuml-1.2025.10.jar",
+  "plantuml.java": "/usr/bin/java",
+  "plantuml.jar": "/workspace/.tools/plantuml/plantuml-1.2025.10.jar",
   "coverage-gutters.coverageFileNames": ["coverage.xml"],
   "C_Cpp.errorSquiggles": "disabled"
 }
