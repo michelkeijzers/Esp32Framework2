@@ -138,3 +138,4 @@ target_include_directories(production_lib PUBLIC
 enable_testing()
 add_subdirectory(unit_tests)
 add_subdirectory(integration_tests)
+add_subdirectory(system_tests)

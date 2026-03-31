@@ -22,8 +22,12 @@ if(BUILD_HOST_TESTS_WITH_MAIN)
 		COMMAND ${CMAKE_COMMAND} -S ${CMAKE_SOURCE_DIR}/tests -B ${HOST_TEST_BUILD_DIR}
 		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Building tests in ${HOST_TEST_BUILD_DIR}"
 		COMMAND ${CMAKE_COMMAND} --build ${HOST_TEST_BUILD_DIR} --config Release --parallel ${HOST_TEST_PARALLEL_LEVEL}
-		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Running tests in parallel in ${HOST_TEST_BUILD_DIR}"
-		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j ${HOST_TEST_PARALLEL_LEVEL}
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Discovering integration tests in ${HOST_TEST_BUILD_DIR}"
+		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -R "IntegrationTest|AppMainIntegrationTest"
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Running integration tests in parallel in ${HOST_TEST_BUILD_DIR}"
+		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j ${HOST_TEST_PARALLEL_LEVEL} -R "IntegrationTest|AppMainIntegrationTest"
+		COMMAND ${CMAKE_COMMAND} -E echo "[host_tests] Running non-integration tests in parallel in ${HOST_TEST_BUILD_DIR}"
+		COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j ${HOST_TEST_PARALLEL_LEVEL} -E "IntegrationTest|AppMainIntegrationTest"
 		COMMENT "Configuring, building, and running host tests in /tmp with parallelism"
 		USES_TERMINAL
 		VERBATIM

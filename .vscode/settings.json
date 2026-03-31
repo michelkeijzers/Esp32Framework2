@@ -9,5 +9,17 @@
   "plantuml.java": "/usr/bin/java",
   "plantuml.jar": "/workspace/.tools/plantuml/plantuml-1.2025.10.jar",
   "coverage-gutters.coverageFileNames": ["coverage.xml"],
-  "C_Cpp.errorSquiggles": "disabled"
+  "C_Cpp.errorSquiggles": "disabled",
+  "[c]": {
+    "editor.rulers": [120],
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 120,
+    "editor.wrappingIndent": "indent"
+  },
+  "[cpp]": {
+    "editor.rulers": [120],
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 120,
+    "editor.wrappingIndent": "indent"
+  }
 }

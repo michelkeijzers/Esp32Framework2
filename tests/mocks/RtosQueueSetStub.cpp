@@ -1,5 +1,10 @@
 #include "common/tasks/RtosQueueSet.hpp"
 
+RtosQueueSet::RtosQueueSet(uint32_t setLength)
+    : IRtosQueueSet(setLength), setLength_(setLength)
+{
+}
+
 RtosQueueSet::~RtosQueueSet() {}
 
 bool RtosQueueSet::createSet()

@@ -2,6 +2,9 @@
 #include "esp_littlefs.h"
 #else
 
+#include <cstdint>
+#include "../esp_error/esp_error_if.hpp"
+
 typedef unsigned int uint32_t;
 
 typedef enum {
@@ -110,7 +113,7 @@ typedef enum {
     SPI_FLASH_CHIP_CAP_UNIQUE_ID = BIT(2),  ///< Flash chip supports reading a unique 64-bit ID
 } spi_flash_caps_t;
 
-esp_err_t (*sus_setup)(esp_flash_t *chip);
+extern esp_err_t (*sus_setup)(esp_flash_t *chip);
 
 struct spi_flash_chip_t {
     const char *name; ///< Name of the chip driver
@@ -186,8 +189,7 @@ struct esp_flash_t {
     uint32_t reserved_flags   :30;  ///< reserved.
 };
 
-
-esp_err_t (*probe)(esp_flash_t *chip, uint32_t flash_id);
+extern esp_err_t (*probe)(esp_flash_t *chip, uint32_t flash_id);
 
 typedef struct {
     uint8_t reserved;           ///< Reserved, must be 0.
