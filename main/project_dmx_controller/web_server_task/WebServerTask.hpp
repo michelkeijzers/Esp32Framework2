@@ -19,5 +19,7 @@ public:
     esp_err_t stop() override;
 
 private:
+    void taskEntry() override;
+
     IApiServer &apiServer_;
 };

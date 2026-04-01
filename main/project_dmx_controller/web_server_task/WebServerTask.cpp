@@ -13,18 +13,17 @@ esp_err_t WebServerTask::init()
 
 esp_err_t WebServerTask::start()
 {
-    esp_err_t err = RtosTask::start();
-    if (err != ESP_OK)
-    {
-        return err;
-    }
-
     apiServer_.start();
-    return ESP_OK;
+    return RtosTask::start();
 }
 
 esp_err_t WebServerTask::stop()
 {
     apiServer_.stop();
     return ESP_OK;
+}
+
+void WebServerTask::taskEntry()
+{
+    apiServer_.start();
 }

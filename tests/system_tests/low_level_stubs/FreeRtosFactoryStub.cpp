@@ -3,14 +3,18 @@
 #include <iostream>
 
 BaseType_t FreeRtosFactory::createTask(
-    TaskFunction_t,
+    TaskFunction_t taskFunction,
     const char *name,
     uint32_t,
-    void *,
+    void *params,
     UBaseType_t,
     TaskHandle_t *)
 {
     ++low_level_stubs::counters().free_rtos_create_task_calls;
-    // ...existing code...
+    if (taskFunction != nullptr)
+    {
+        taskFunction(params);
+    }
+
     return pdPASS;
 }

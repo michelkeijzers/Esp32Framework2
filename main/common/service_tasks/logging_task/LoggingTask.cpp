@@ -11,13 +11,31 @@ LoggingTask::LoggingTask(IFreeRtosFactory &freeRtosFactory)
 
 esp_err_t LoggingTask::init()
 {
-    // TODO: initialise log ring buffer and SSE client list
-    return ESP_OK;
+    // Optionally, create a queue with the correct size if not already created in RtosTask::start
+    // If you want a specific size/type, you can call createQueue here
+    return RtosTask::init();
 }
 
 esp_err_t LoggingTask::start()
 {
-    // TODO: create FreeRTOS task that reads the ring buffer and forwards
-    //       entries to all registered SSE clients
-    return ESP_OK;
+    return RtosTask::start();
+}
+
+void LoggingTask::taskEntry()
+{
+    // Use the first queue from RtosTask (created in start or init)
+    if (queues_.empty())
+    {
+        // No queue to listen to
+        return;
+    }
+    IRtosQueue *queue = queues_.front().get();
+    int item = 0; // Default to int, since RtosTask::start creates an int queue
+    while (true)
+    {
+        if (queue && queue->receive(&item, portMAX_DELAY))
+        {
+            // TODO: handle the received item
+        }
+    }
 }

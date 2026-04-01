@@ -18,6 +18,5 @@ esp_err_t GpioLedTask::init()
 
 esp_err_t GpioLedTask::start()
 {
-    // TODO: create FreeRTOS task that drives LED based on state
-    return ESP_OK;
+    return RtosTask::start();
 }

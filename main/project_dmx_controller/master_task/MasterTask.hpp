@@ -25,6 +25,8 @@ public:
     esp_err_t start() override;
 
 private:
+    void taskEntry() override;
+
     IMasterBridge& masterBridge_;
     IRtosQueue& masterBridgeQueue_;
     IWebServerTask &webServerTask;

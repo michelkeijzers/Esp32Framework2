@@ -35,11 +35,6 @@ esp_err_t MasterTask::init()
 
 esp_err_t MasterTask::start()
 {
-    esp_err_t err = RtosTask::start();
-    if (err != ESP_OK) {
-        return err;
-    }
-
     if (!queueSet_.addToSet(webServerQueue_.getHandle())) {
         return ESP_FAIL;
     }
@@ -48,10 +43,18 @@ esp_err_t MasterTask::start()
         return ESP_FAIL;
     }
 
-#ifdef ESP_PLATFORM
+    return RtosTask::start();
+}
+
+void MasterTask::taskEntry()
+{
     while (true)
     {
         const QueueSetMemberHandle_t activated = queueSet_.selectFromSet(portMAX_DELAY);
+        if (activated == nullptr) {
+            return;
+        }
+
         if (activated == webServerQueue_.getHandle()) {
             uint8_t item[64];
             webServerQueue_.receive(item, 0);
@@ -60,7 +63,4 @@ esp_err_t MasterTask::start()
             masterBridgeQueue_.receive(item, 0);
         }
     }
-#endif
-
-    return ESP_OK;
 }

@@ -24,6 +24,8 @@ class RtosTask : public IRtosTask
     IRtosQueue* createQueue(size_t itemSize, size_t length) override;
 
   protected:
+    virtual void taskEntry();
+
     // Create and add a queue set to the task.
     IRtosQueueSet* createQueueSet(UBaseType_t eventQueueLength);
 

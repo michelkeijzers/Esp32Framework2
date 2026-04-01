@@ -17,4 +17,7 @@ public:
 
     esp_err_t init()  override;
     esp_err_t start() override;
+
+protected:
+    void taskEntry() override;
 };

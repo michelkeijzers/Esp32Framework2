@@ -18,7 +18,5 @@ esp_err_t PotmeterTask::init()
 
 esp_err_t PotmeterTask::start()
 {
-    // TODO: create FreeRTOS task that periodically samples the ADC and
-    //       fires callbacks on value change
-    return ESP_OK;
+    return RtosTask::start();
 }

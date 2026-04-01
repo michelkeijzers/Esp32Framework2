@@ -18,6 +18,5 @@ esp_err_t ButtonTask::init()
 
 esp_err_t ButtonTask::start()
 {
-    // TODO: create FreeRTOS task that polls / uses ISR for button state
-    return ESP_OK;
+    return RtosTask::start();
 }

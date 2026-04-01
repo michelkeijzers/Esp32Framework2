@@ -21,9 +21,7 @@ esp_err_t DmxMax3485SenderTask::init()
 
 esp_err_t DmxMax3485SenderTask::start()
 {
-    // TODO: create FreeRTOS task that sends the DMX break + data frame
-    //       at 44Hz using the UART peripheral
-    return ESP_OK;
+    return RtosTask::start();
 }
 
 void DmxMax3485SenderTask::setChannelValue(uint16_t channel, uint8_t value)

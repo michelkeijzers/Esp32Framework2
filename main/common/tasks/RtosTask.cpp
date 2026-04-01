@@ -17,11 +17,10 @@ esp_err_t RtosTask::init()
 
 esp_err_t RtosTask::start()
 {
-    // ...existing code...
     if (freeRtosFactory_.createTask(
             [](void *arg) {
                 auto task = static_cast<RtosTask *>(arg);
-                task->start();
+                task->taskEntry();
             },
             name_,
             stackSize_ / sizeof(StackType_t),
@@ -29,12 +28,15 @@ esp_err_t RtosTask::start()
             priority_,
             nullptr) != pdPASS)
     {
-        // ...existing code...
         return ESP_FAIL;
     }
 
     createQueue(sizeof(int), 10); //TODO
     return ESP_OK;
+}
+
+void RtosTask::taskEntry()
+{
 }
 
 IRtosQueue* RtosTask::createQueue(size_t itemSize, size_t length) {

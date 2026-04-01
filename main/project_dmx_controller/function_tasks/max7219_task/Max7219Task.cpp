@@ -17,6 +17,5 @@ esp_err_t Max7219Task::init()
 
 esp_err_t Max7219Task::start()
 {
-    // TODO: create FreeRTOS task that updates the display from a queue
-    return ESP_OK;
+    return RtosTask::start();
 }
