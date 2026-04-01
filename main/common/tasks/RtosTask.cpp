@@ -1,6 +1,7 @@
 #include "RtosQueue.hpp"
 #include "RtosQueueSet.hpp"
 #include "RtosTask.hpp"
+#include <iostream>
 
 RtosTask::RtosTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize, UBaseType_t priority)
     : freeRtosFactory_(freeRtosFactory), name_(name), stackSize_(stackSize), priority_(priority)
@@ -16,6 +17,7 @@ esp_err_t RtosTask::init()
 
 esp_err_t RtosTask::start()
 {
+    // ...existing code...
     if (freeRtosFactory_.createTask(
             [](void *arg) {
                 auto task = static_cast<RtosTask *>(arg);
@@ -27,12 +29,13 @@ esp_err_t RtosTask::start()
             priority_,
             nullptr) != pdPASS)
     {
+        // ...existing code...
         return ESP_FAIL;
     }
 
     createQueue(sizeof(int), 10); //TODO
     return ESP_OK;
-}   
+}
 
 IRtosQueue* RtosTask::createQueue(size_t itemSize, size_t length) {
     auto queue = std::make_unique<RtosQueue>(itemSize, length);

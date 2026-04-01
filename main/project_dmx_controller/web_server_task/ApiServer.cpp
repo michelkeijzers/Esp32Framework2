@@ -23,7 +23,7 @@ ApiServer::~ApiServer()
     stop();
 }
 
-void ApiServer::start()
+void ApiServer::start() // TODO: esp_err_t return type and error handling
 {
     mount_littlefs();
 
