@@ -282,3 +282,45 @@ MasterTask -> WebServerTask: Return HTTP Response
 WebServerTask -> Website: Show
 
 @enduml
+
+
+@startuml 
+
+title Status Task
+
+participant Task1
+participant Task2
+participant MasterTask
+participant StatusTask 
+
+par Heartbeat Task 1, every 3 seconds
+    Task1 -> MasterTask : Heartbeat message
+    MasterTask -> StatusTask : Forward Heartbeat message(task1)
+end 
+par Heartbeat Task 2, every 3 seconds
+    Task2 -> MasterTask : Heartbeat message
+    MasterTask -> StatusTask : Forward Heartbeat message(task2)
+end
+par Heartbeat MasterTask, every 3 seconds
+    MasterTask -> StatusTask : Forward Heartbeat message (master task)
+end
+par Status Check every 5 seconds
+    StatusTask -> StatusTask : Check for missing heartbeats
+    alt Missing Heartbeat
+        StatusTask -> MasterTask : Alert missing heartbeat(task1)
+        MasterTask -> WebServerTask : Update status on website
+    else All Heartbeats Received
+        StatusTask -> MasterTask : All tasks healthy
+        MasterTask -> WebServerTask : Update status on website
+    end
+end
+
+
+
+
+
+
+
+
+
+@enduml
