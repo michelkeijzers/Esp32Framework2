@@ -25,7 +25,7 @@ esp_err_t SlaveBridge::registerMaster(const esp_now_peer_info_t &masterPeerInfo)
 }
 
 void SlaveBridge::setReceiveCallback(
-    std::function<void(const std::vector<uint8_t> &)> callback)
+    std::function<void(std::span<const uint8_t>)> callback)
 {
     receiveCallback_ = std::move(callback);
 }

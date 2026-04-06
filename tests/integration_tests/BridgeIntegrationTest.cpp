@@ -5,8 +5,17 @@
 #include "SlaveBridge.hpp"
 #include "MockIEspNow.hpp"
 
+#include <span>
+#include <vector>
+
 using ::testing::Return;
 using ::testing::_;
+
+// Custom GMock matcher for std::span<const uint8_t> equality.
+MATCHER_P(SpanEq, expected, "span equals expected bytes") {
+    if (arg.size() != expected.size()) return false;
+    return std::equal(arg.begin(), arg.end(), expected.begin());
+}
 
 TEST(BridgeIntegrationTest, MasterAndSlaveInitAgainstEspNow)
 {
@@ -37,11 +46,11 @@ TEST(BridgeIntegrationTest, MasterOperationsDelegateToEspNow)
 
     EXPECT_CALL(espNow, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(espNow, connectPeer(_)).WillOnce(Return(ESP_OK));
-    EXPECT_CALL(espNow, sendMessage(payload.data(), payload.size())).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(espNow, sendMessage(SpanEq(std::span<const uint8_t>{payload}))).WillOnce(Return(ESP_OK));
 
     EXPECT_EQ(ESP_OK, masterBridge.init());
     EXPECT_EQ(ESP_OK, masterBridge.addSlave(peer));
-    EXPECT_EQ(ESP_OK, masterBridge.sendMessage(peer.peer_addr, payload));
+    EXPECT_EQ(ESP_OK, masterBridge.sendMessage(peer.peer_addr, std::span<const uint8_t>{payload}));
 }
 
 TEST(BridgeIntegrationTest, SlaveRegistersMasterAndReceiveCallback)
@@ -56,7 +65,7 @@ TEST(BridgeIntegrationTest, SlaveRegistersMasterAndReceiveCallback)
     master.peer_addr[3] = 3;
     master.peer_addr[4] = 2;
     master.peer_addr[5] = 1;
-    auto callback = [](const std::vector<uint8_t> &) {};
+    auto callback = [](std::span<const uint8_t>) {};
 
     EXPECT_CALL(espNow, init()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(espNow, connectPeer(_)).WillOnce(Return(ESP_OK));

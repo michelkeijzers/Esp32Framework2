@@ -1,6 +1,8 @@
 #include "common/esp/esp_now/EspNow.hpp"
 #include "LowLevelStubCounters.hpp"
 
+#include <span>
+
 EspNow::EspNow() : initialized_(false)
 {
 }
@@ -30,7 +32,17 @@ esp_err_t EspNow::disconnectPeer(const uint8_t *)
     return ESP_OK;
 }
 
-esp_err_t EspNow::sendMessage(const uint8_t *, size_t)
+esp_err_t EspNow::sendMessage(std::span<const uint8_t>)
+{
+    return ESP_OK;
+}
+
+esp_err_t EspNow::registerSendCallback(esp_now_send_cb_t)
+{
+    return ESP_OK;
+}
+
+esp_err_t EspNow::registerReceiveCallback(esp_now_recv_cb_t)
 {
     return ESP_OK;
 }

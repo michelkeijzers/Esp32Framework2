@@ -4,8 +4,17 @@
 #include "MasterBridge.hpp"
 #include "MockIEspNow.hpp"
 
+#include <span>
+#include <vector>
+
 using ::testing::Return;
 using ::testing::_;
+
+// Custom GMock matcher for std::span<const uint8_t> equality.
+MATCHER_P(SpanEq, expected, "span equals expected bytes") {
+    if (arg.size() != expected.size()) return false;
+    return std::equal(arg.begin(), arg.end(), expected.begin());
+}
 
 class MasterBridgeTest : public ::testing::Test
 {
@@ -31,9 +40,9 @@ TEST_F(MasterBridgeTest, SendMessageDelegatesToEspNow)
     const uint8_t mac[6] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
     const std::vector<uint8_t> data = {0xAA, 0xBB, 0xCC};
 
-    EXPECT_CALL(mockEspNow, sendMessage(data.data(), data.size()))
+    EXPECT_CALL(mockEspNow, sendMessage(SpanEq(std::span<const uint8_t>{data})))
         .WillOnce(Return(ESP_OK));
-    EXPECT_EQ(ESP_OK, bridge.sendMessage(mac, data));
+    EXPECT_EQ(ESP_OK, bridge.sendMessage(mac, std::span<const uint8_t>{data}));
 }
 
 TEST_F(MasterBridgeTest, SendMessagePropagatesError)
@@ -41,17 +50,17 @@ TEST_F(MasterBridgeTest, SendMessagePropagatesError)
     const uint8_t mac[6] = {};
     const std::vector<uint8_t> data = {0x01};
 
-    EXPECT_CALL(mockEspNow, sendMessage(_, _)).WillOnce(Return(ESP_FAIL));
-    EXPECT_EQ(ESP_FAIL, bridge.sendMessage(mac, data));
+    EXPECT_CALL(mockEspNow, sendMessage(_)).WillOnce(Return(ESP_FAIL));
+    EXPECT_EQ(ESP_FAIL, bridge.sendMessage(mac, std::span<const uint8_t>{data}));
 }
 
 TEST_F(MasterBridgeTest, BroadcastMessageDelegatesToEspNow)
 {
     const std::vector<uint8_t> data = {0x10, 0x20};
 
-    EXPECT_CALL(mockEspNow, sendMessage(data.data(), data.size()))
+    EXPECT_CALL(mockEspNow, sendMessage(SpanEq(std::span<const uint8_t>{data})))
         .WillOnce(Return(ESP_OK));
-    EXPECT_EQ(ESP_OK, bridge.broadcastMessage(data));
+    EXPECT_EQ(ESP_OK, bridge.broadcastMessage(std::span<const uint8_t>{data}));
 }
 
 TEST_F(MasterBridgeTest, AddSlaveDelegatesToConnectPeer)

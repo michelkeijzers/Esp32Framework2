@@ -11,18 +11,18 @@ esp_err_t MasterBridge::init()
 }
 
 esp_err_t MasterBridge::sendMessage(const uint8_t targetMac[6],
-                                    const std::vector<uint8_t> &data)
+                                    std::span<const uint8_t> data)
 {
     // TODO: implement message serialisation / protocol framing before sending.
     // Note: IEspNow::sendMessage does not currently accept a target MAC;
     // extend IEspNow or maintain a MAC->peer mapping here if unicast is needed.
     (void)targetMac;
-    return espNow_.sendMessage(data.data(), data.size());
+    return espNow_.sendMessage(data);
 }
 
-esp_err_t MasterBridge::broadcastMessage(const std::vector<uint8_t> &data)
+esp_err_t MasterBridge::broadcastMessage(std::span<const uint8_t> data)
 {
-    return espNow_.sendMessage(data.data(), data.size());
+    return espNow_.sendMessage(data);
 }
 
 esp_err_t MasterBridge::addSlave(const esp_now_peer_info_t &peerInfo)
