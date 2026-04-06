@@ -4,18 +4,13 @@
 #include "MasterBridge.hpp"
 #include "SlaveBridge.hpp"
 #include "MockIEspNow.hpp"
+#include "SpanMatchers.hpp"
 
 #include <span>
 #include <vector>
 
 using ::testing::Return;
 using ::testing::_;
-
-// Custom GMock matcher for std::span<const uint8_t> equality.
-MATCHER_P(SpanEq, expected, "span equals expected bytes") {
-    if (arg.size() != expected.size()) return false;
-    return std::equal(arg.begin(), arg.end(), expected.begin());
-}
 
 TEST(BridgeIntegrationTest, MasterAndSlaveInitAgainstEspNow)
 {
