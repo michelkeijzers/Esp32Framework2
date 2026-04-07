@@ -4,6 +4,8 @@
 #include "SlaveBridge.hpp"
 #include "MockIEspNow.hpp"
 
+#include <span>
+
 using ::testing::Return;
 using ::testing::_;
 
@@ -45,7 +47,7 @@ TEST_F(SlaveBridgeTest, RegisterMasterPropagatesError)
 TEST_F(SlaveBridgeTest, SetReceiveCallbackStoresCallback)
 {
     bool called = false;
-    bridge.setReceiveCallback([&called](const std::vector<uint8_t> &) {
+    bridge.setReceiveCallback([&called](std::span<const uint8_t>) {
         called = true;
     });
     // The callback is stored but not invoked here (ESP-NOW receive path is ESP hardware)

@@ -4,8 +4,8 @@
 #include "../../esp/esp_now/IEspNow.hpp"
 
 #include <cstdint>
-#include <vector>
 #include <functional>
+#include <span>
 
 /**
  * Concrete slave-side bridge in the Remote Proxy pattern.
@@ -19,14 +19,14 @@ public:
     explicit SlaveBridge(IEspNow &espNow);
     ~SlaveBridge() override = default;
 
-    esp_err_t init() override;
+    [[nodiscard]] esp_err_t init() override;
 
-    esp_err_t registerMaster(const esp_now_peer_info_t &masterPeerInfo) override;
+    [[nodiscard]] esp_err_t registerMaster(const esp_now_peer_info_t &masterPeerInfo) override;
 
     void setReceiveCallback(
-        std::function<void(const std::vector<uint8_t> &)> callback) override;
+        std::function<void(std::span<const uint8_t>)> callback) override;
 
 private:
     IEspNow   &espNow_;
-    std::function<void(const std::vector<uint8_t> &)> receiveCallback_;
+    std::function<void(std::span<const uint8_t>)> receiveCallback_;
 };
