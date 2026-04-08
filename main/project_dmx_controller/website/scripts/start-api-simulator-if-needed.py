@@ -14,6 +14,8 @@ from pathlib import Path
 HOST = "127.0.0.1"
 PORT = 8080
 REQUIREMENTS_FILE = "api-simulator-requirements.txt"
+STARTUP_WAIT_SECONDS = 10.0
+POLL_INTERVAL_SECONDS = 0.2
 
 
 def is_port_open(host: str, port: int, timeout: float = 0.3) -> bool:
@@ -121,9 +123,19 @@ def main() -> int:
         print(f"[api_simulator] Failed to launch: {exc}", file=sys.stderr)
         return 1
 
-    # Give the process a short window to bind its port.
-    for _ in range(10):
-        time.sleep(0.2)
+    # Wait for the process to bind its port; startup may be slower under heavy build load.
+    deadline = time.time() + STARTUP_WAIT_SECONDS
+    while time.time() < deadline:
+        time.sleep(POLL_INTERVAL_SECONDS)
+
+        if process.poll() is not None:
+            print(
+                f"[api_simulator] Process exited early with code {process.returncode}. "
+                "Check website/.api-simulator.log",
+                file=sys.stderr,
+            )
+            return 1
+
         if is_port_open(HOST, PORT):
             print(
                 f"[api_simulator] Started on http://{HOST}:{PORT} "
@@ -132,7 +144,7 @@ def main() -> int:
             return 0
 
     print(
-        "[api_simulator] Process started but port did not open yet. "
+        "[api_simulator] Process started but port did not open within timeout. "
         "Check website/.api-simulator.log",
         file=sys.stderr,
     )

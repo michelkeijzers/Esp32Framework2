@@ -11,8 +11,6 @@ LoggingTask::LoggingTask(IFreeRtosFactory &freeRtosFactory)
 
 esp_err_t LoggingTask::init()
 {
-    // Optionally, create a queue with the correct size if not already created in RtosTask::start
-    // If you want a specific size/type, you can call createQueue here
     return RtosTask::init();
 }
 
@@ -23,10 +21,8 @@ esp_err_t LoggingTask::start()
 
 void LoggingTask::taskEntry()
 {
-    // Use the first queue from RtosTask (created in start or init)
     if (queues_.empty())
     {
-        // No queue to listen to
         return;
     }
     IRtosQueue *queue = queues_.front().get();

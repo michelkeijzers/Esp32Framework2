@@ -7,7 +7,7 @@ EspNow::EspNow() : initialized_(false)
 
 EspNow::~EspNow()
 {
-    deinit();
+    (void)deinit();
 }
 
 esp_err_t EspNow::init()
