@@ -23,6 +23,8 @@ class RtosTask : public IRtosTask
     // Create and add a queue to the task
     IRtosQueue* createQueue(size_t itemSize, size_t length) override;
 
+    TickType_t getTickCount() override;
+
   protected:
     virtual void taskEntry();
 

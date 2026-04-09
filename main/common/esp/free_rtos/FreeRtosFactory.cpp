@@ -13,3 +13,8 @@ BaseType_t FreeRtosFactory::createTask(
 {
     return xTaskCreate(taskFunction, name, stackDepth, params, priority, handle);
 }
+
+TickType_t FreeRtosFactory::getTickCount()
+{
+    return xTaskGetTickCount();
+}

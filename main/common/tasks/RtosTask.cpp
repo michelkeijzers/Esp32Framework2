@@ -35,6 +35,11 @@ esp_err_t RtosTask::start()
     return ESP_OK;
 }
 
+TickType_t RtosTask::getTickCount()
+{
+    return freeRtosFactory_.getTickCount();
+}
+
 void RtosTask::taskEntry()
 {
 }

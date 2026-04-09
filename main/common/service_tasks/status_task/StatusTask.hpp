@@ -1,6 +1,8 @@
 #pragma once
 
 #include "IStatusTask.hpp"
+#include "StatusTaskMessages.hpp"
+#include "TaskData.hpp"
 #include "../../tasks/RtosTask.hpp"
 
 /**
@@ -20,4 +22,10 @@ public:
 
 protected:
     void taskEntry() override;
+
+private:
+    void handleMessage(const StatusTaskMessages::MessageEnvelope &msg);
+    void handleHeartbeatTimer(TickType_t now);
+
+    std::vector<TaskData> taskData;
 };

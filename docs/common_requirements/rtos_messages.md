@@ -8,13 +8,16 @@ It is irrelevant for the messages if the message is sent directly between tasks,
 
 # Status Task
 
+The status task will wait the first 10 seconds after startup to receive the SET_TASK_NAME messages from the tasks to monitor. After that, it will expect to receive a TASK_HEARTBEAT message from each task every 3 seconds. If a heartbeat is not received within approximately 5 seconds, the status task will send a HEARTBEAT_TIMEOUT message to the web server task. If all heartbeats are received successfully, the status task will send an ALL_HEARTBEATS_OK message to the web server task.
+
 | Message           | Source      | Destination     | Field     | Data Type | Description                                                                                                                                                             |
 | ----------------- | ----------- | --------------- | --------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SET_MONITOR_TASK  | Master Task | Status Task     | task_id   | int       | Let status task know which task to check the heartbeat for. This message will be sent for each task to monitor including the Master Task itself.                        |
+| SET_TASK_NAME  | Master Task | Status Task     | task_id   | int       | Let status task know which task to check the heartbeat for. This message will be sent for each task to monitor including the Master Task itself.                        |
+|                   |             |                 | task_name | string[32] | Task name.                                                                             |
+| TASK_HEARTBEAT | Any Task    | Status Task     | task_id   | int       | Sent by a task to indicate that the task is still alive. This message should be sent approximately every 3 seconds.                                                     |
+| ALL_HEARTBEATS_OK     | Status Task | Web Server Task |   |        | All tasks have successfully sent their heartbeat to the status task.         |
+| HEARTBEAT_TIMEOUT | Status Task | Web Server Task | task_id   | int       | Task ID that has not sent a heartbeat within the expected time frame. This message is sent if the heartbeat of a task is not received within approximately 5 seconds. |
 |                   |             |                 | task_name | string[32] | Task name.                                                                                                                                                              |
-| HEARTBEAT         | Any Task    | Status Task     | task_id   | int       | Sent by a task to indicate that the task is still alive. This message should be sent approximately every 3 seconds.                                                     |
-| HEARTBEAT_TIMEOUT | Status Task | Web Server Task | task_id   | int       | Task name that has not sent a heartbeat within the expected time frame. This message is sent if the heartbeat of a task is not received within approximately 5 seconds. |
-|                   |             |                 | task_name | string    | Task name.                                                                                                                                                              |
 
 # Logging Task
 

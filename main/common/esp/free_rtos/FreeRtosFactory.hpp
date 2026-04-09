@@ -17,4 +17,6 @@ public:
         void           *params,
         UBaseType_t     priority,
         TaskHandle_t   *handle) override;
+
+    TickType_t getTickCount();
 };

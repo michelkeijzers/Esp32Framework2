@@ -19,4 +19,6 @@ public:
         void           *params,
         UBaseType_t     priority,
         TaskHandle_t   *handle) = 0;
+
+    virtual TickType_t getTickCount() = 0;
 };

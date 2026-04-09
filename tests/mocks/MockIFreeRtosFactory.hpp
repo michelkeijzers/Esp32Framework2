@@ -16,4 +16,6 @@ public:
     MOCK_METHOD(BaseType_t, createTask,
         (TaskFunction_t, const char*, uint32_t, void*, UBaseType_t, TaskHandle_t*),
         (override));
+
+    MOCK_METHOD(TickType_t, getTickCount, (), (override));
 };

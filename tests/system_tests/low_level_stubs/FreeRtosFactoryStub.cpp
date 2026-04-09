@@ -18,3 +18,9 @@ BaseType_t FreeRtosFactory::createTask(
 
     return pdPASS;
 }
+
+TickType_t FreeRtosFactory::getTickCount()
+{
+    ++low_level_stubs::counters().free_rtos_get_tick_count_calls;
+    return 0;
+}

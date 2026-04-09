@@ -15,4 +15,6 @@ class IRtosTask
 
     // Create and add a queue to the task
     virtual IRtosQueue* createQueue(size_t itemSize, size_t length) = 0;
+
+    virtual TickType_t getTickCount() = 0;
 };
