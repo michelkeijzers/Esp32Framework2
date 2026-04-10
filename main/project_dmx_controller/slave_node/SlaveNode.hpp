@@ -4,7 +4,7 @@
 #include "ISlaveTask.hpp"
 #include "../../common/node/Node.hpp"
 #include "../../common/bridge/slave_bridge/ISlaveBridge.hpp"
-#include "../../common/service_tasks/IServiceTasks.hpp"
+#include "../../common/service_tasks/ISlaveServiceTasks.hpp"
 #include "../../common/function_tasks/IFunctionTask.hpp"
 
 #include <vector>
@@ -18,9 +18,9 @@
 class SlaveNode : public Node, public ISlaveNode
 {
 public:
-    SlaveNode(ISlaveBridge   &slaveBridge,
-              ISlaveTask     &slaveTask,
-              IServiceTasks  &serviceTasks,
+    SlaveNode(ISlaveBridge &slaveBridge,
+              ISlaveTask &slaveTask,
+              ISlaveServiceTasks &serviceTasks,
               std::vector<IFunctionTask *> functionTasks);
 
     ~SlaveNode() override = default;
@@ -31,6 +31,6 @@ public:
 private:
     ISlaveBridge  &slaveBridge_;
     ISlaveTask    &slaveTask_;
-    IServiceTasks &serviceTasks_;
+    ISlaveServiceTasks &serviceTasks_;
     std::vector<IFunctionTask *> functionTasks_;
 };

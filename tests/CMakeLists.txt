@@ -59,6 +59,7 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/node/Node.cpp
     ${MAIN_DIR}/common/service_tasks/logging_task/LoggingTask.cpp
     ${MAIN_DIR}/common/service_tasks/ota_task/OtaTask.cpp
+    ${MAIN_DIR}/common/service_tasks/MasterServiceTasks.cpp
     ${MAIN_DIR}/common/service_tasks/ServiceTasks.cpp
     ${MAIN_DIR}/common/service_tasks/status_task/StatusTask.cpp
     ${MAIN_DIR}/common/function_tasks/FunctionTask.cpp

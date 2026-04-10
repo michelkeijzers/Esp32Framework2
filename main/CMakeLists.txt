@@ -15,6 +15,7 @@ idf_component_register(
         "common/node/Node.cpp"
         "common/service_tasks/logging_task/LoggingTask.cpp"
         "common/service_tasks/ota_task/OtaTask.cpp"
+        "common/service_tasks/MasterServiceTasks.cpp"
         "common/service_tasks/ServiceTasks.cpp"
         "common/service_tasks/status_task/StatusTask.cpp"
         "common/function_tasks/FunctionTask.cpp"

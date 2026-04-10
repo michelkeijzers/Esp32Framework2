@@ -5,9 +5,9 @@
 #include "../../common/node/Node.hpp"
 #include "../../common/bridge/master_bridge/IMasterBridge.hpp"
 #include "../web_server_task/IWebServerTask.hpp"
-#include "../../common/service_tasks/IServiceTasks.hpp"
+#include "../../common/service_tasks/IMasterServiceTasks.hpp"
 #include "../../common/function_tasks/IFunctionTask.hpp"
-
+#include "../../common/service_tasks/status_task/TaskStatusInfo.hpp"
 #include <vector>
 #include "../../common/esp/free_rtos/IFreeRtosFactory.hpp"
 
@@ -29,9 +29,10 @@ public:
         IMasterBridge &masterBridge,
         IMasterTask &masterTask,
         IWebServerTask &webServerTask,
-        IServiceTasks &serviceTasks,
+        IMasterServiceTasks &serviceTasks,
         std::vector<IFunctionTask *> functionTasks,
-        std::vector<ISlaveNode *> slaveNodes);
+        std::vector<ISlaveNode *> slaveNodes,
+        std::vector<TaskStatusInfo *> taskStatusInfo);
 
     ~MasterNode() override = default;
 
@@ -43,7 +44,7 @@ private:
     IMasterBridge  &masterBridge_;
     IMasterTask    &masterTask_;
     IWebServerTask &webServerTask_;
-    IServiceTasks  &serviceTasks_;
+    IMasterServiceTasks &serviceTasks_;
     std::vector<IFunctionTask *>   functionTasks_;
     std::vector<ISlaveNode *> slaveNodes_;
 };

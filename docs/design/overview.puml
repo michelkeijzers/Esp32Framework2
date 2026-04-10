@@ -77,7 +77,12 @@ package Project_Package
         class ServiceTask <<abstract, RtosTask>> #lightgreen {}
 
         class ServiceTasks #lightgreen {}
-        
+        class MasterServiceTasks #lightgreen {}
+        class SlaveServiceTasks #lightgreen {}
+
+        MasterServiceTasks --|> ServiceTasks
+        SlaveServiceTasks --|> ServiceTasks
+
         class LoggingTask <<ServiceTask>> #lightgreen {}
         class StatusTask <<ServiceTask>> #lightgreen {}
         class OtaTask <<ServiceTask>> #lightgreen {}
@@ -86,8 +91,8 @@ package Project_Package
         StatusTask --|> ServiceTask
         OtaTask --|> ServiceTask
 
+        MasterServiceTasks *-- StatusTask
         ServiceTasks *-- LoggingTask
-        ServiceTasks *-- StatusTask
         ServiceTasks *-- OtaTask
     }
 
@@ -96,12 +101,12 @@ package Project_Package
         class FunctionTasks #lightgreen {}
     }
 
-    MasterNode *-- FunctionTasks
-    SlaveNode  *-- FunctionTasks
+    MasterNode *-- "0..*" FunctionTasks
+    SlaveNode  *-- "1..*" FunctionTasks
     MasterTask <-> MasterBridge
 
-    MasterNode *---- ServiceTasks
-    SlaveNode *---- ServiceTasks
+    MasterNode *---- MasterServiceTasks
+    SlaveNode *---- SlaveServiceTasks
     SlaveTask <-> SlaveBridge
 }
 
@@ -286,41 +291,38 @@ WebServerTask -> Website: Show
 
 @startuml 
 
-title Status Task
+title Status Tasks
 
+participant MasterTask
 participant Task1
 participant Task2
 participant MasterTask
 participant StatusTask 
 
+MasterTask -> StatusTask : Create task([task_id, task_name])
+note right of StatusTask
+    Sends a list of task data
+end note
 par Heartbeat Task 1, every 3 seconds
-    Task1 -> MasterTask : Heartbeat message
-    MasterTask -> StatusTask : Forward Heartbeat message(task1)
+    Task1 -> MasterTask : HEARTBEAT
+    MasterTask -> StatusTask : Forward HEARTBEAT message(task1)
 end 
 par Heartbeat Task 2, every 3 seconds
-    Task2 -> MasterTask : Heartbeat message
-    MasterTask -> StatusTask : Forward Heartbeat message(task2)
+    Task2 -> MasterTask : HEARTBEAT
+    MasterTask -> StatusTask : Forward HEARTBEAT message(task2)
 end
 par Heartbeat MasterTask, every 3 seconds
-    MasterTask -> StatusTask : Forward Heartbeat message (master task)
+    MasterTask -> StatusTask : Forward HEARTBEAT message (master task)
 end
 par Status Check every 5 seconds
     StatusTask -> StatusTask : Check for missing heartbeats
     alt Missing Heartbeat
-        StatusTask -> MasterTask : Alert missing heartbeat(task1)
+        StatusTask -> MasterTask : HEARTBEAT_MISSED(task_id, task_name)
         MasterTask -> WebServerTask : Update status on website
-    else All Heartbeats Received
-        StatusTask -> MasterTask : All tasks healthy
+    else All HEARTBEATS Received
+        StatusTask -> MasterTask : HEARTBEATS_OK
         MasterTask -> WebServerTask : Update status on website
     end
 end
-
-
-
-
-
-
-
-
 
 @enduml

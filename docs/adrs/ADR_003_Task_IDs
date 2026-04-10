@@ -1,0 +1,46 @@
+# ADR 003: TASK IDs
+
+## Status
+
+Accepted
+
+## Context
+
+For the status functionality, each task should have an ID and name.
+
+# Decision
+
+Because the classes for the service tasks are common, an offset will be used for the task IDs of the service tasks. The task IDs of the service tasks will start from 1000, while the task IDs of the application tasks will start from 0.
+
+| Task ID  | Node    | Task Name                  | Description               |
+| -------- | ------- | -------------------------- | ------------------------- |
+| 0        | Master  | Master Task                |                           |
+| 1        | Master  | Web Server Task            | Optional, only for Master |
+| 2-10     | Master  | -                          | Reserved                  |
+| 10       | Master  | Service Logging Task       |                           |
+| 11       | Master  | Service Status Task        |                           |
+| 12       | Master  | Service OTA Task           |                           |
+| 13       | Master  | Service File System Task   |                           |
+| 14       | Master  | Service NVS Task           |                           |
+| 15-100   | Master  | -                          | Reserved                  |
+| 100-200  | Master  | Feature Tasks              |                           |
+| 200-1000 | Master  | -                          | Reserved                  |
+| 1xxx     | Slave 1 | as Master, but for slave 1 |                           |
+| 2xxx     | Slave 2 | as Master, but for slave 2 |                           |
+| ...      | ...     | ...                        |                           |
+
+## Alternatives
+
+None
+
+## Consequences
+
+None
+
+## References
+
+None
+
+# Implements
+
+None

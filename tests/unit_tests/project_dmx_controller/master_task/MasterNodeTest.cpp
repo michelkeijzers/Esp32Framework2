@@ -7,7 +7,7 @@
 #include "MockIMasterBridge.hpp"
 #include "MockIMasterTask.hpp"
 #include "MockIWebServerTask.hpp"
-#include "MockIServiceTasks.hpp"
+#include "MockIMasterServiceTasks.hpp"
 #include "MockIFunctionTask.hpp"
 #include "MockISlaveNode.hpp"
 
@@ -21,14 +21,14 @@ TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebServerTask webServerTask;
-    MockIServiceTasks serviceTasks;
+    MockIMasterServiceTasks serviceTasks;
     MockIFunctionTask functionTask1;
     MockIFunctionTask functionTask2;
     MockISlaveNode slaveNode1;
     MockISlaveNode slaveNode2;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2});
+                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2}, std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_OK));
@@ -48,12 +48,12 @@ TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebServerTask webServerTask;
-    MockIServiceTasks serviceTasks;
+    MockIMasterServiceTasks serviceTasks;
     MockIFunctionTask functionTask;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask}, {&slaveNode});
+                    {&functionTask}, {&slaveNode}, std::vector<TaskStatusInfo *>{});
 
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_FAIL));
     EXPECT_CALL(webServerTask, init()).Times(0);
@@ -70,13 +70,13 @@ TEST(MasterNodeTest, InitStopsOnFunctionTaskFailure)
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebServerTask webServerTask;
-    MockIServiceTasks serviceTasks;
+    MockIMasterServiceTasks serviceTasks;
     MockIFunctionTask functionTask1;
     MockIFunctionTask functionTask2;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask1, &functionTask2}, {&slaveNode});
+                    {&functionTask1, &functionTask2}, {&slaveNode}, std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_OK));
@@ -95,14 +95,14 @@ TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebServerTask webServerTask;
-    MockIServiceTasks serviceTasks;
+    MockIMasterServiceTasks serviceTasks;
     MockIFunctionTask functionTask1;
     MockIFunctionTask functionTask2;
     MockISlaveNode slaveNode1;
     MockISlaveNode slaveNode2;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2});
+                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2}, std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
@@ -122,12 +122,12 @@ TEST(MasterNodeTest, StartStopsOnWebServerFailure)
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebServerTask webServerTask;
-    MockIServiceTasks serviceTasks;
+    MockIMasterServiceTasks serviceTasks;
     MockIFunctionTask functionTask;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask}, {&slaveNode});
+                    {&functionTask}, {&slaveNode}, std::vector<TaskStatusInfo *>{});
 
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
     EXPECT_CALL(webServerTask, start()).WillOnce(Return(ESP_FAIL));
@@ -144,12 +144,12 @@ TEST(MasterNodeTest, StartStopsOnSlaveNodeFailure)
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
     MockIWebServerTask webServerTask;
-    MockIServiceTasks serviceTasks;
+    MockIMasterServiceTasks serviceTasks;
     MockIFunctionTask functionTask;
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask}, {&slaveNode});
+                    {&functionTask}, {&slaveNode}, std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));

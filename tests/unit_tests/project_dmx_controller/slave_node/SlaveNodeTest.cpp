@@ -4,7 +4,7 @@
 #include "SlaveNode.hpp"
 #include "MockISlaveBridge.hpp"
 #include "MockISlaveTask.hpp"
-#include "MockIServiceTasks.hpp"
+#include "MockISlaveServiceTasks.hpp"
 #include "MockIFunctionTask.hpp"
 
 using ::testing::InSequence;
@@ -14,7 +14,7 @@ TEST(SlaveNodeTest, InitCallsAllComponentsInOrder)
 {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
-    MockIServiceTasks serviceTasks;
+    MockISlaveServiceTasks serviceTasks;
     MockIFunctionTask functionTask1;
     MockIFunctionTask functionTask2;
 
@@ -33,7 +33,7 @@ TEST(SlaveNodeTest, InitStopsOnSlaveTaskFailure)
 {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
-    MockIServiceTasks serviceTasks;
+    MockISlaveServiceTasks serviceTasks;
     MockIFunctionTask functionTask;
 
     SlaveNode node(slaveBridge, slaveTask, serviceTasks, {&functionTask});
@@ -49,7 +49,7 @@ TEST(SlaveNodeTest, InitStopsOnFunctionTaskFailure)
 {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
-    MockIServiceTasks serviceTasks;
+    MockISlaveServiceTasks serviceTasks;
     MockIFunctionTask functionTask1;
     MockIFunctionTask functionTask2;
 
@@ -68,7 +68,7 @@ TEST(SlaveNodeTest, StartCallsAllComponentsInOrder)
 {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
-    MockIServiceTasks serviceTasks;
+    MockISlaveServiceTasks serviceTasks;
     MockIFunctionTask functionTask1;
     MockIFunctionTask functionTask2;
 
@@ -87,7 +87,7 @@ TEST(SlaveNodeTest, StartStopsOnServiceFailure)
 {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
-    MockIServiceTasks serviceTasks;
+    MockISlaveServiceTasks serviceTasks;
     MockIFunctionTask functionTask;
 
     SlaveNode node(slaveBridge, slaveTask, serviceTasks, {&functionTask});
@@ -103,7 +103,7 @@ TEST(SlaveNodeTest, StartStopsOnFunctionTaskFailure)
 {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
-    MockIServiceTasks serviceTasks;
+    MockISlaveServiceTasks serviceTasks;
     MockIFunctionTask functionTask;
 
     SlaveNode node(slaveBridge, slaveTask, serviceTasks, {&functionTask});

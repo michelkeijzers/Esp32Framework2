@@ -6,26 +6,128 @@ This document outlines the messages exchanged between various service tasks in t
 
 It is irrelevant for the messages if the message is sent directly between tasks, via the Master Task (which is default) or via ESP-NOW in case the task is residing on a slave node. The Master Task will forward the message to the destination task regardless of the source.
 
-# Status Task
+# Status Functionality 
 
-The status task will wait the first 10 seconds after startup to receive the SET_TASK_NAME messages from the tasks to monitor. After that, it will expect to receive a TASK_HEARTBEAT message from each task every 3 seconds. If a heartbeat is not received within approximately 5 seconds, the status task will send a HEARTBEAT_TIMEOUT message to the web server task. If all heartbeats are received successfully, the status task will send an ALL_HEARTBEATS_OK message to the web server task.
 
+
+The Master Task creates a Webserver Task that receives a list of task names and IDs per node from the Master Task. The task names will be used to complete the GET_NODE_STATUSES_RESPONSE message with task names before sending it back to the web client.
+The Master Task also creates a Status Task that receives a list of task IDs from the Master Task.
+
+Every 5 seconds, the web server task will send a GET_NODE_STATUSES message to the status task to request the current status of all tasks. 
+
+The status task will receive heartbeats from all tasks approximately every 3 seconds. If a heartbeat is missed for a task, the status task will send a MISSED_HEARTBEATS message to the master status task with the list of missed task IDs. An empty list indicates that all heartbeats were received successfully. 
+
+The web server task will not wait for the status task to respond to the GET_NODE_STATUSES message before responding to the web client. This means that the web server task will respond with the most recent statuses it has received from the status task, which may be up to 5 seconds old. 
+
+The webserver task will respond with a GET_NODE_STATUSES_RESPONSE message containing the current status of all tasks, for all nodes. The status of a task can be 'OK' or 'MISSED_HEARTBEAT'. The web server task will include the task names in the response by matching the task IDs with the task names it received from the master task during initialization.
+
+
+```mermaid
+sequenceDiagram
+    actor WebSite 
+    participant MasterTask
+    participant MasterLoggingTask
+    participant MasterOtaTask 
+    participant MasterWebserverTask
+    participant MasterStatusTask 
+    participant SlaveTask
+    participant SlaveStatusTask
+    
+    par Master Task Initialization
+        MasterTask ->> MasterWebserverTask : Create Task(taskNamesAndIdsOfMasterTasks, taskNamesAndIdsOfSlaveTasks) 
+        MasterTask ->> MasterStatusTask : Create Task(taskIdsOfMasterTasks) 
+    and SlaveTask Initialization
+        SlaveTask ->> SlaveStatusTask : Create Task(taskIdsOfSlaveTasks)
+    end
+
+    loop Every 5 seconds
+        WebSite ->> MasterWebserverTask: GET /api/v1/nodes/statuses
+        MasterWebserverTask ->> MasterStatusTask: GET_NODE_STATUSES
+
+        par Master Tasks, every 3 seconds
+            note over MasterStatusTask: REF: Receive Master Task Heartbeats
+
+        and Slave Tasks, every 3 seconds
+            Note over SlaveStatusTask: REF: Receive Slave Task Heartbeats
+
+            SlaveStatusTask ->> SlaveTask: MISSED_HEARTBEATS(<br/> missedTaskIds)
+            Note left of SlaveStatusTask: [int], list of task IDs <br/> with missed heartbeats
+
+            SlaveTask ->> MasterTask: (forward)
+            MasterTask ->> MasterStatusTask: (forward)
+        end
+
+        MasterStatusTask ->> MasterTask : GET_NODE_STATUSES_RESPONSE: [task_id, status]
+        MasterTask ->> MasterWebserverTask : (forward)
+        MasterWebserverTask ->> WebSite: GET /api/v1/nodes/statuses response: 200 OK, [node id, node name, [task_id, task_name, status]] 
+    end
+```
+
+```mermaid
+sequenceDiagram
+    participant MasterTask
+    participant MasterLoggingTask
+    participant MasterOtaTask
+    participant MasterWebserverTask
+    participant MasterStatusTask 
+
+    par Master Task, every 3 seconds
+        MasterTask ->> MasterStatusTask : HEARTBEAT(task_id)
+    and Master Logging Task, every 3 seconds
+        MasterLoggingTask ->> MasterStatusTask : HEARTBEAT(task_id)
+    and Master OTA Task, every 3 seconds
+        MasterOtaTask ->> MasterStatusTask : HEARTBEAT(task_id)
+    and Master Webserver Task, every 3 seconds
+        MasterWebserverTask ->> MasterStatusTask : HEARTBEAT(task_id)
+    and Combine results, every 3 seconds
+        MasterStatusTask ->> MasterStatusTask: Combine results
+    end
+```
+
+```mermaid
+sequenceDiagram
+    participant SlaveLoggingTask
+    participant SlaveOtaTask
+    participant SlaveFeature1Task 
+    participant SlaveFeature2Task
+    participant SlaveStatusTask
+
+    par Slave Task , every 3 seconds
+        SlaveTask ->> SlaveStatusTask : HEARTBEAT(task_id)
+    and Slave Logging Task, every 3 seconds
+        SlaveLoggingTask ->> SlaveStatusTask : HEARTBEAT(task_id)
+    and Slave OTA Task, every 3 seconds
+        SlaveOtaTask ->> SlaveStatusTask : HEARTBEAT(task_id)
+    and Slave Feature 1 Task, every 3 seconds
+        SlaveFeature1Task ->> SlaveStatusTask : HEARTBEAT(task_id)
+    and Slave Feature 2 Task, every 3 seconds
+        SlaveFeature2Task ->> SlaveStatusTask : HEARTBEAT(task_id)
+    and Combine results, every 3 seconds
+        SlaveStatusTask ->> SlaveStatusTask: Combine results
+    end
+```
 | Message           | Source      | Destination     | Field     | Data Type | Description                                                                                                                                                             |
 | ----------------- | ----------- | --------------- | --------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SET_TASK_NAME  | Master Task | Status Task     | task_id   | int       | Let status task know which task to check the heartbeat for. This message will be sent for each task to monitor including the Master Task itself.                        |
-|                   |             |                 | task_name | string[32] | Task name.                                                                             |
-| TASK_HEARTBEAT | Any Task    | Status Task     | task_id   | int       | Sent by a task to indicate that the task is still alive. This message should be sent approximately every 3 seconds.                                                     |
-| ALL_HEARTBEATS_OK     | Status Task | Web Server Task |   |        | All tasks have successfully sent their heartbeat to the status task.         |
-| HEARTBEAT_TIMEOUT | Status Task | Web Server Task | task_id   | int       | Task ID that has not sent a heartbeat within the expected time frame. This message is sent if the heartbeat of a task is not received within approximately 5 seconds. |
-|                   |             |                 | task_name | string[32] | Task name.                                                                                                                                                              |
+| GET_NODE_STATUSES | Web Server Task | Status Task     | -         | -         | Sent by the web server task to request the current status of all tasks. The status task will respond with a GET_NODE_STATUSES_RESPONSE message containing the statuses of all tasks. |
+| GET_NODE_STATUSES_RESPONSE | Status Task | Web Server Task | task_statuses | list
+| HEARTBEAT | Any Task    | Status Task     | task_id   | int       | Sent by a task to indicate that the task is still alive. This message should be sent approximately every 3 seconds.                                                     |
+| MISSED_HEARTBEATS | Slave Status Task | Master Status Task        | missed_task_ids | list | Task IDs for which heartbeats were missed.  An empty list indicates that all heartbeats were received successfully.
 
-# Logging Task
+# Logging 
+
+Logging happens in contrary to the status task both on the website (Master) and via UART output on both the Master and slave nodes. The logging task receives log messages from all tasks and forwards them to the web server task to be displayed on the website. The logging task also forwards the log messages to the its master or slave logging task, which will forward them to the slave nodes to be displayed via UART output.
+
+A logging message contains of a task ID, log category, log level and the message to be logged. The log category can be INFO, WARNING or ERROR. The log level is a uint8 value that can be set for each log category to filter out messages below a certain log level.
+
+
 
 | Message       | Source          | Destination  | Field     | Data Type | Description                                   |
 | ------------- | --------------- | ------------ | --------- | --------- | --------------------------------------------- |
-| SET_LOG_LEVEL | Web Server Task | Logging Task | category  | uint8     | Log category (e.g., INFO, WARNING, ERROR).    |
+| SET_LOG_LEVEL | Web Server Task | Logging Task | Task ID  | uint16   | ID of the task for which the log level is being set. |
+| | | | category  | uint8     | Log category (e.g., INFO, WARNING, ERROR).    |
 |               |                 |              | log_level | uint8     | Set the log level for the specified category. |
-| LOG_MESSAGE   | Any Task        | Logging Task | category  | uint8     | Log category (e.g., INFO, WARNING, ERROR).    |
+| LOG_MESSAGE   | Any Task        | Logging Task | Task ID | uint16   | ID of the task that is sending the log message. |
+| | | | category  | uint8     | Log category (e.g., INFO, WARNING, ERROR).    |
 |               |                 |              | log_level | uint8     | Log level for the specified category.         |
 |               |                 |              | message   | string    | String to be logged.                          |
 

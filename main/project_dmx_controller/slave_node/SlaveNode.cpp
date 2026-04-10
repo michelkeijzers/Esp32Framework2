@@ -1,13 +1,10 @@
 #include "SlaveNode.hpp"
 
-SlaveNode::SlaveNode(ISlaveBridge   &slaveBridge,
-                     ISlaveTask     &slaveTask,
-                     IServiceTasks  &serviceTasks,
+SlaveNode::SlaveNode(ISlaveBridge &slaveBridge,
+                     ISlaveTask &slaveTask,
+                     ISlaveServiceTasks &serviceTasks,
                      std::vector<IFunctionTask *> functionTasks)
-    : slaveBridge_(slaveBridge)
-    , slaveTask_(slaveTask)
-    , serviceTasks_(serviceTasks)
-    , functionTasks_(std::move(functionTasks))
+    : slaveBridge_(slaveBridge), slaveTask_(slaveTask), serviceTasks_(serviceTasks), functionTasks_(std::move(functionTasks))
 {
 }
 

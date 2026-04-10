@@ -6,9 +6,10 @@ MasterNode::MasterNode(
     IMasterBridge &masterBridge,
     IMasterTask &masterTask,
     IWebServerTask &webServerTask,
-    IServiceTasks &serviceTasks,
+    IMasterServiceTasks &serviceTasks,
     std::vector<IFunctionTask *> functionTasks,
-    std::vector<ISlaveNode *> slaveNodes)
+    std::vector<ISlaveNode *> slaveNodes,
+    std::vector<TaskStatusInfo *> taskStatusInfo)
     : rtosFactory_(rtosFactory), masterBridge_(masterBridge), masterTask_(masterTask), webServerTask_(webServerTask), serviceTasks_(serviceTasks), functionTasks_(std::move(functionTasks)), slaveNodes_(std::move(slaveNodes))
 {
 }
