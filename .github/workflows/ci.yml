@@ -206,6 +206,39 @@ jobs:
             fi
 
             find "${DOCS_ARTIFACT_DIR}" -type f -name "*.puml" -print0 | xargs -0 -r java -Djava.awt.headless=true -jar "${PLANTUML_JAR}" -tsvg
+
+            # Ensure GitHub Pages has a root entry point and does not run Jekyll filtering.
+            touch "${DOCS_ARTIFACT_DIR}/.nojekyll"
+
+            if [ ! -f "${DOCS_ARTIFACT_DIR}/index.html" ]; then
+              {
+                echo "<!doctype html>"
+                echo "<html lang=\"en\">"
+                echo "<head>"
+                echo "  <meta charset=\"utf-8\">"
+                echo "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+                echo "  <title>Esp32Framework2 Docs</title>"
+                echo "  <style>body{font-family:Arial,sans-serif;max-width:980px;margin:2rem auto;padding:0 1rem;line-height:1.5}h1{margin-bottom:.25rem}ul{padding-left:1.25rem}li{margin:.35rem 0}</style>"
+                echo "</head>"
+                echo "<body>"
+                echo "  <h1>Esp32Framework2 Documentation</h1>"
+                echo "  <p>This site is generated from the repository docs folder.</p>"
+                echo "  <h2>Markdown Files</h2>"
+                echo "  <ul>"
+                find "${DOCS_ARTIFACT_DIR}" -type f -name "*.md" | sed "s#^${DOCS_ARTIFACT_DIR}/##" | sort | while IFS= read -r rel; do
+                  echo "    <li><a href=\"$rel\">$rel</a></li>"
+                done
+                echo "  </ul>"
+                echo "  <h2>PlantUML SVG Files</h2>"
+                echo "  <ul>"
+                find "${DOCS_ARTIFACT_DIR}" -type f -name "*.svg" | sed "s#^${DOCS_ARTIFACT_DIR}/##" | sort | while IFS= read -r rel; do
+                  echo "    <li><a href=\"$rel\">$rel</a></li>"
+                done
+                echo "  </ul>"
+                echo "</body>"
+                echo "</html>"
+              } > "${DOCS_ARTIFACT_DIR}/index.html"
+            fi
           '
 
       - name: Upload generated docs artifact
@@ -297,7 +330,26 @@ jobs:
 
       - name: Publish metrics summary
         run: |
-          cat .artifacts/metrics/summary.md >> "$GITHUB_STEP_SUMMARY"
+          METRICS_DIR=.artifacts/metrics
+          SUMMARY_FILE="$METRICS_DIR/summary.md"
+
+          mkdir -p "$METRICS_DIR"
+
+          if [[ -f "$SUMMARY_FILE" ]]; then
+            cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          else
+            cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+            ## CI Metrics
+
+            - Metrics summary was not generated in this run.
+            EOF
+
+            cat > "$SUMMARY_FILE" <<EOF
+            ## CI Metrics
+
+            - Metrics summary was not generated in this run.
+            EOF
+          fi
 
       - name: Upload metrics artifact
         if: always()
@@ -499,9 +551,7 @@ jobs:
             set -e
 
             echo "========== COVERAGE: BUILD & RUN =========="
-            cmake -E rm -rf \
-              tests/build/CMakeFiles/3.30.2 \
-              tests/build/_deps/googletest-subbuild/CMakeFiles/3.30.2
+            cmake -E rm -rf tests/build
             cmake -S tests -B tests/build -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON
             cmake --build tests/build --target unit_tests --parallel "$(nproc)"
             cmake --build tests/build --target integration_tests --parallel "$(nproc)"

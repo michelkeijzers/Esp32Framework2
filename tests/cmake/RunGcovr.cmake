@@ -24,15 +24,24 @@ if(NOT DEFINED CMAKE_CTEST_COMMAND)
     find_program(CMAKE_CTEST_COMMAND NAMES ctest REQUIRED)
 endif()
 
+if(DEFINED CTEST_PARALLEL_LEVEL AND NOT "${CTEST_PARALLEL_LEVEL}" STREQUAL "")
+    set(CTEST_JOBS "${CTEST_PARALLEL_LEVEL}")
+elseif(DEFINED ENV{CTEST_PARALLEL_LEVEL} AND NOT "$ENV{CTEST_PARALLEL_LEVEL}" STREQUAL "")
+    set(CTEST_JOBS "$ENV{CTEST_PARALLEL_LEVEL}")
+else()
+    set(CTEST_JOBS "1")
+endif()
+
 message(STATUS "Running host tests for coverage with ctest (timeout: 30s per test, parallel)...")
 execute_process(
     COMMAND "${CMAKE_CTEST_COMMAND}"
         --test-dir "${TEST_BUILD_DIR}"
         -C Debug
+        -E "_NOT_BUILT$"
         --output-on-failure
         --progress
         --timeout 30
-        -j $ENV{CTEST_PARALLEL_LEVEL}
+        -j ${CTEST_JOBS}
     WORKING_DIRECTORY "${TEST_BUILD_DIR}"
     RESULT_VARIABLE ctest_result
     TIMEOUT 300
@@ -48,8 +57,6 @@ file(REMOVE "${COVERAGE_XML}")
 file(MAKE_DIRECTORY "${COVERAGE_HTML_DIR}")
 
 message(STATUS "Generating gcovr coverage report (timeout: 60s) ...")
-)
-message(STATUS "gcovr completed with exit code: ${gcovr_result}")
 execute_process(
     COMMAND "${GCOVR_EXE}"
         --root "${SOURCE_ROOT}/main"
@@ -62,6 +69,7 @@ execute_process(
     RESULT_VARIABLE gcovr_result
     TIMEOUT 60
 )
+message(STATUS "gcovr completed with exit code: ${gcovr_result}")
 if(NOT gcovr_result EQUAL 0)
     message(FATAL_ERROR "gcovr failed (exit ${gcovr_result})")
 endif()

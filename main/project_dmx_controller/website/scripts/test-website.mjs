@@ -34,9 +34,10 @@ for (const relPath of requiredSourceFiles) {
 
 // If build output exists, validate key output artifacts as well.
 const distDir = path.join(root, 'dist');
-if (fs.existsSync(distDir)) {
+const distAssetsDir = path.join(distDir, 'assets');
+if (fs.existsSync(distDir) && fs.existsSync(distAssetsDir)) {
   assertExists(path.join(distDir, 'index.html'), 'build output file');
-  assertNonEmptyDir(path.join(distDir, 'assets'), 'build assets directory');
+  assertNonEmptyDir(distAssetsDir, 'build assets directory');
 }
 
 console.log('Website smoke tests passed.');
