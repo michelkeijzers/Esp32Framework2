@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build CI container image
+        run: docker build -f .devcontainer/Dockerfile -t esp32framework2-ci .
+
+      - name: Run build, integration tests, and coverage
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            -w /workspace \
+            esp32framework2-ci \
+            bash -lc '
+              set -e
+
+              if [ -f /opt/esp/idf/export.sh ]; then
+                . /opt/esp/idf/export.sh > /dev/null 2>&1
+              elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then
+                . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1
+              elif [ -n "$IDF_PATH" ] && [ -f "$IDF_PATH/export.sh" ]; then
+                . "$IDF_PATH/export.sh" > /dev/null 2>&1
+              else
+                echo "ESP-IDF export.sh not found"
+                exit 1
+              fi
+
+              if [ -f build/CMakeCache.txt ]; then
+                stale_cmake=$(sed -n "s/^CMAKE_COMMAND:INTERNAL=//p" build/CMakeCache.txt | head -n 1)
+                if [ -n "$stale_cmake" ] && [ ! -x "$stale_cmake" ]; then
+                  echo "Detected stale CMake path in build cache: $stale_cmake"
+                  idf.py reconfigure
+                fi
+              fi
+
+              echo "========== BUILD =========="
+              idf.py build
+
+              echo ""
+              echo "========== INTEGRATION TESTS =========="
+              ctest --test-dir /tmp/esp32framework2-tests-build -N -R "IntegrationTest|AppMainIntegrationTest"
+              ctest --test-dir /tmp/esp32framework2-tests-build -R "IntegrationTest|AppMainIntegrationTest" --output-on-failure --progress
+
+              echo ""
+              echo "========== COVERAGE OUTPUT =========="
+              [ -f tests/build/coverage_html/index.html ] && echo "HTML report: tests/build/coverage_html/index.html" || echo "HTML report not found at tests/build/coverage_html/index.html"
+              [ -f tests/build/coverage.xml ] && echo "Cobertura XML: tests/build/coverage.xml" || echo "Cobertura XML not found at tests/build/coverage.xml"
+            '
+
+      - name: Upload coverage HTML artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: tests/build/coverage_html/**
+          if-no-files-found: warn
+
+      - name: Upload coverage XML artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: tests/build/coverage.xml
+          if-no-files-found: warn
