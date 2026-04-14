@@ -42,7 +42,7 @@ extern "C" void app_main(void)
 
     MasterBridge masterBridge = MasterBridge(espNowFactory.getEspNow());
     RtosQueue masterBridgeQueue = RtosQueue(64, 8);                // TODO
-    ApiServer apiServer = ApiServer(espFactory, commonApiFactory); // TODO
+    ApiServer apiServer = ApiServer(espFactory, commonApiFactory, nodesStaticInfo); // TODO
     WebServerTask webServerTask = WebServerTask(espFactory.getFreeRtosFactory(), apiServer, "web_server_task", 8192, 6);
     RtosQueue webServerQueue = RtosQueue(64, 8);   // TODO
     RtosQueueSet queueSet = RtosQueueSet(64 + 64); // TODO

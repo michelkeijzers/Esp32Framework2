@@ -25,7 +25,12 @@
         "ryanluker.vscode-coverage-gutters",
         "eamodio.gitlens",
         "jebbs.plantuml",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "humao.rest-client",
+        "yzhang.markdown-all-in-one",
+        "ritwickdey.liveserver"
       ],
       "settings": {
         "idf.espIdfPath": "/opt/esp/idf",

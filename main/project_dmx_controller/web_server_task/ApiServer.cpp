@@ -9,12 +9,14 @@
 #include "../../../common/esp/esp_logger/IEspLogger.hpp"
 #include "../../../common/esp/esp_http_server/IEspHttpServer.hpp"
 #include "../../../common/esp/esp_file_systems/IEspLittleFs.hpp"
+#include "../../../common/node/NodesStaticInfo.hpp"
 
 #include <cstring>
 
-ApiServer::ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory)
+ApiServer::ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory, const NodesStaticInfo &nodesStaticInfo)
     : espLittleFs_(espFactory.getLittleFs()), espHttpServer_(espFactory.getHttpServer()), logger_(espFactory.getLogger()), apiStatus_(commonApiFactory.getApiStatus()), apiNodes_(commonApiFactory.getApiNodes()), apiSystem_(commonApiFactory.getApiSystem()), apiFirmware_(commonApiFactory.getApiFirmware()), apiSecurity_(commonApiFactory.getApiSecurity()), apiLogging_(commonApiFactory.getApiLogging()), server(nullptr)
 {
+    apiNodes_.set_nodes_static_info(nodesStaticInfo);
     server = nullptr;
 }
 

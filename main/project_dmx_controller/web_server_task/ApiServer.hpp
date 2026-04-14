@@ -15,6 +15,7 @@
 class IEspLittleFs;
 class IEspHttpServer;
 class IEspLogger;
+class NodesStaticInfo;
 
 /**
  * Project API server implementation for DMX controller.
@@ -22,7 +23,7 @@ class IEspLogger;
 class ApiServer : public IApiServer
 {
 public:
-    ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory);
+    ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactory, const NodesStaticInfo &nodesStaticInfo);
     ~ApiServer() override;
 
     void start() override;
