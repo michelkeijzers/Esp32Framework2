@@ -1,10 +1,10 @@
 #pragma once
 #include <gmock/gmock.h>
+
 #include "IPresetManager.hpp"
 
-class MockIPresetManager : public IPresetManager
-{
-public:
+class MockIPresetManager : public IPresetManager {
+   public:
     MOCK_METHOD(std::vector<Preset>, get_presets, (), (override));
     MOCK_METHOD(std::vector<int>, get_active_presets, (), (override));
     MOCK_METHOD(Preset *, get_preset, (uint32_t), (override));

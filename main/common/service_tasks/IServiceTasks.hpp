@@ -12,9 +12,8 @@ class IOtaTask;
  * shared functionality (logging, OTA updates) to all
  * nodes in the system.
  */
-class IServiceTasks
-{
-public:
+class IServiceTasks {
+   public:
     virtual ~IServiceTasks() = default;
 
     /**
@@ -30,5 +29,5 @@ public:
     virtual esp_err_t start() = 0;
 
     virtual ILoggingTask &getLoggingTask() = 0;
-    virtual IOtaTask     &getOtaTask()     = 0;
+    virtual IOtaTask &getOtaTask() = 0;
 };

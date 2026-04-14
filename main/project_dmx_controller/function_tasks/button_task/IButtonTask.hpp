@@ -5,9 +5,8 @@
 /**
  * Interface for the button input function task.
  */
-class IButtonTask : public IFunctionTask
-{
-public:
+class IButtonTask : public IFunctionTask {
+   public:
     virtual ~IButtonTask() = default;
 
     // TODO: define button-specific interface methods

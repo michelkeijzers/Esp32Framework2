@@ -21,8 +21,7 @@
 #endif
 #endif
 
-extern "C" void app_main(void)
-{
+extern "C" void app_main(void) {
 #if defined(BUILD_PROJECT_DMX_CONTROLLER)
 #if defined(BUILD_MASTER_NODE)
     // Build static node information for the web server.
@@ -45,8 +44,8 @@ extern "C" void app_main(void)
     ApiServer apiServer = ApiServer(espFactory, commonApiFactory, nodesStaticInfo);  // TODO
     WebServerTask webServerTask =
         WebServerTask(espFactory.getFreeRtosFactory(), apiServer, "web_server_task", 8192, 6);
-    RtosQueue webServerQueue = RtosQueue(64, 8);   // TODO
-    RtosQueueSet queueSet = RtosQueueSet(64 + 64); // TODO
+    RtosQueue webServerQueue = RtosQueue(64, 8);    // TODO
+    RtosQueueSet queueSet = RtosQueueSet(64 + 64);  // TODO
     IFreeRtosFactory &rtosFactory = espFactory.getFreeRtosFactory();
     MasterTask masterTask(rtosFactory, masterBridge, masterBridgeQueue, webServerTask,
                           webServerQueue, queueSet, "master_task", 8192, 5);
@@ -54,21 +53,21 @@ extern "C" void app_main(void)
 
     std::vector<TaskStatusInfo> statusTaskInfoStorage;
     statusTaskInfoStorage.reserve(masterNodeStaticInfo.tasksStaticInfo.size());
-    for (const TaskStaticInfo &taskStaticInfo : masterNodeStaticInfo.tasksStaticInfo)
-    {
-        statusTaskInfoStorage.push_back(TaskStatusInfo{taskStaticInfo.taskId, taskStaticInfo.taskName});
+    for (const TaskStaticInfo &taskStaticInfo : masterNodeStaticInfo.tasksStaticInfo) {
+        statusTaskInfoStorage.push_back(
+            TaskStatusInfo{taskStaticInfo.taskId, taskStaticInfo.taskName});
     }
 
     std::vector<TaskStatusInfo *> statusTaskInfo;
     statusTaskInfo.reserve(statusTaskInfoStorage.size());
-    for (TaskStatusInfo &taskStatusInfoEntry : statusTaskInfoStorage)
-    {
+    for (TaskStatusInfo &taskStatusInfoEntry : statusTaskInfoStorage) {
         statusTaskInfo.push_back(&taskStatusInfoEntry);
     }
-    MasterNode masterNode(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks, {}, {}, statusTaskInfo);
+    MasterNode masterNode(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks, {},
+                          {}, statusTaskInfo);
     masterNode.init();
     masterNode.start();
 #elif defined(BUILD_SLAVE_NODE)
 #endif
-#endif // BUILD_PROJECT_DMX_CONTROLLER
+#endif  // BUILD_PROJECT_DMX_CONTROLLER
 }

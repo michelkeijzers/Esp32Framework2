@@ -3,8 +3,7 @@
 #include "../../../mocks/MockDmxApiFactory.hpp"
 #include "../../../mocks/MockEspNowFactory.hpp"
 
-TEST(MockDmxApiFactoryTest, ReturnsStableApiReferences)
-{
+TEST(MockDmxApiFactoryTest, ReturnsStableApiReferences) {
     MockDmxApiFactory factory;
 
     EXPECT_EQ(&factory.getApiConfig(), &factory.getApiConfig());
@@ -13,8 +12,7 @@ TEST(MockDmxApiFactoryTest, ReturnsStableApiReferences)
     EXPECT_EQ(&factory.getApiConfiguration(), &factory.getApiConfiguration());
 }
 
-TEST(MockEspNowFactoryTest, ReturnsStableEspNowReference)
-{
+TEST(MockEspNowFactoryTest, ReturnsStableEspNowReference) {
     MockEspNowFactory factory;
 
     EXPECT_EQ(&factory.getEspNow(), &factory.getEspNow());

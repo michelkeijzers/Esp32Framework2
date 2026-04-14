@@ -8,7 +8,7 @@
  * interface using modern C++ conventions (std::span, [[nodiscard]]).
  */
 class EspNow : public IEspNow {
-public:
+   public:
     EspNow();
     ~EspNow() override;
 
@@ -17,9 +17,9 @@ public:
     [[nodiscard]] esp_err_t connectPeer(const esp_now_peer_info_t *peer_info) override;
     [[nodiscard]] esp_err_t disconnectPeer(const uint8_t *peer_addr) override;
     [[nodiscard]] esp_err_t sendMessage(std::span<const uint8_t> data) override;
-    [[nodiscard]] esp_err_t registerSendCallback(esp_now_send_cb_t cb) override;
-    [[nodiscard]] esp_err_t registerReceiveCallback(esp_now_recv_cb_t cb) override;
+    [[nodiscard]] esp_err_t registerSendCallback(esp_now_send_cb_t callback) override;
+    [[nodiscard]] esp_err_t registerReceiveCallback(esp_now_recv_cb_t callback) override;
 
-private:
+   private:
     bool initialized_;
 };

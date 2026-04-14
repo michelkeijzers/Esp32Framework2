@@ -1,19 +1,18 @@
 #pragma once
 
-#include "Preset.hpp"
-#include "../../common/esp/esp_error/esp_error_if.hpp"
-
-#include <vector>
 #include <cstdint>
+#include <vector>
+
+#include "../../common/esp/esp_error/esp_error_if.hpp"
+#include "Preset.hpp"
 
 /**
  * Interface for the preset manager.
  *
  * Manages DMX presets: in-memory CRUD operations plus persistence to NVS.
  */
-class IPresetManager
-{
-public:
+class IPresetManager {
+   public:
     virtual ~IPresetManager() = default;
 
     /**

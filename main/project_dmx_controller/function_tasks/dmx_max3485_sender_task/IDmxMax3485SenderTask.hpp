@@ -1,17 +1,16 @@
 #pragma once
 
-#include "../../../common/function_tasks/IFunctionTask.hpp"
-
 #include <cstdint>
+
+#include "../../../common/function_tasks/IFunctionTask.hpp"
 
 /**
  * Interface for the DMX MAX3485 sender function task.
  *
  * Transmits DMX512 frames over a RS-485 bus via a MAX3485 transceiver.
  */
-class IDmxMax3485SenderTask : public IFunctionTask
-{
-public:
+class IDmxMax3485SenderTask : public IFunctionTask {
+   public:
     virtual ~IDmxMax3485SenderTask() = default;
 
     /**

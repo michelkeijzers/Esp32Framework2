@@ -23,7 +23,7 @@ bool ApiValidator::is_valid_device_name(const char* name) {
     if (!name) return false;
     size_t len = strlen(name);
     if (len < 1 || len > 32) return false;
-    
+
     for (size_t i = 0; i < len; i++) {
         char c = name[i];
         if (!isalnum(c) && c != '_') return false;
@@ -31,9 +31,7 @@ bool ApiValidator::is_valid_device_name(const char* name) {
     return true;
 }
 
-bool ApiValidator::is_valid_json(const char* json_str) {
-    return json_str && strlen(json_str) > 0;
-}
+bool ApiValidator::is_valid_json(const char* json_str) { return json_str && strlen(json_str) > 0; }
 
 bool ApiValidator::is_hex_string(const char* str) {
     if (!str) return false;
@@ -44,7 +42,5 @@ bool ApiValidator::is_hex_string(const char* str) {
 }
 
 bool ApiValidator::is_valid_hex_char(char c) {
-    return (c >= '0' && c <= '9') || 
-           (c >= 'a' && c <= 'f') || 
-           (c >= 'A' && c <= 'F');
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }

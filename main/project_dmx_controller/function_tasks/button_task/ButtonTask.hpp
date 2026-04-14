@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IButtonTask.hpp"
 #include "../../../common/function_tasks/FunctionTask.hpp"
+#include "IButtonTask.hpp"
 
 /**
  * Concrete button input function task.
@@ -9,15 +9,14 @@
  * Monitors a GPIO pin connected to a button and fires callbacks on
  * press/release events.
  */
-class ButtonTask : public FunctionTask, public IButtonTask
-{
-public:
+class ButtonTask : public FunctionTask, public IButtonTask {
+   public:
     ButtonTask(IFreeRtosFactory &freeRtosFactory, int gpioPin);
     ~ButtonTask() override = default;
 
-    esp_err_t init()  override;
+    esp_err_t init() override;
     esp_err_t start() override;
 
-private:
+   private:
     int gpioPin_;
 };

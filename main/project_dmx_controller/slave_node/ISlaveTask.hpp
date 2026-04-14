@@ -8,9 +8,8 @@
  * The slave task runs the main FreeRTOS loop on a slave node, processing
  * commands received from the master via the SlaveBridge.
  */
-class ISlaveTask
-{
-public:
+class ISlaveTask {
+   public:
     virtual ~ISlaveTask() = default;
 
     /**

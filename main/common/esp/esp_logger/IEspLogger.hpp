@@ -7,7 +7,7 @@
  * Safe to use in both ESP32 and unit test builds
  */
 class IEspLogger {
-public:
+   public:
     virtual ~IEspLogger() = default;
 
     virtual void log_error(const char* tag, const char* message) = 0;

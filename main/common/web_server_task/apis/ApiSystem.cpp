@@ -1,8 +1,9 @@
 
 #include "ApiSystem.hpp"
+
 #include "../../esp/esp_http_server/IEspHttpServer.hpp"
 
-ApiSystem::ApiSystem(IEspHttpServer& espHttpServer) : espHttpServer_(espHttpServer) {}
+ApiSystem::ApiSystem(IEspHttpServer &espHttpServer) : espHttpServer_(espHttpServer) {}
 ApiSystem::~ApiSystem() = default;
 
 esp_err_t ApiSystem::reboot_handler(httpd_req_t *req) {

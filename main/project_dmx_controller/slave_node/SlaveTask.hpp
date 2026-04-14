@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ISlaveTask.hpp"
-#include "../../common/tasks/RtosTask.hpp"
 #include "../../common/bridge/slave_bridge/ISlaveBridge.hpp"
+#include "../../common/tasks/RtosTask.hpp"
+#include "ISlaveTask.hpp"
 
 /**
  * Concrete slave task.
@@ -11,15 +11,14 @@
  * node (received via SlaveBridge), dispatching them to the appropriate
  * function tasks.
  */
-class SlaveTask : public RtosTask, public ISlaveTask
-{
-public:
+class SlaveTask : public RtosTask, public ISlaveTask {
+   public:
     SlaveTask(IFreeRtosFactory &freeRtosFactory, ISlaveBridge &slaveBridge);
     ~SlaveTask() override = default;
 
-    esp_err_t init()  override;
+    esp_err_t init() override;
     esp_err_t start() override;
 
-private:
+   private:
     ISlaveBridge &slaveBridge_;
 };

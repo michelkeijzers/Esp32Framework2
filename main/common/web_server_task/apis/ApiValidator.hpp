@@ -1,12 +1,12 @@
 #pragma once
-#include <cstring>
 #include <cctype>
+#include <cstring>
 
 /**
  * Input Validation Utilities for API Endpoints
  */
 class ApiValidator {
-public:
+   public:
     /**
      * Validate Wi-Fi SSID (1-32 characters)
      * @param ssid - SSID string to validate
@@ -49,6 +49,6 @@ public:
      */
     static bool is_hex_string(const char* str);
 
-private:
+   private:
     static bool is_valid_hex_char(char c);
 };

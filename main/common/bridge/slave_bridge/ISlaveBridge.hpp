@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../esp/esp_error/esp_error_if.hpp"
-#include "../../esp/esp_now/esp_now_if.hpp"
-
 #include <cstdint>
 #include <functional>
 #include <span>
+
+#include "../../esp/esp_error/esp_error_if.hpp"
+#include "../../esp/esp_now/esp_now_if.hpp"
 
 /**
  * Interface for the slave-side bridge in the Remote Proxy pattern.
@@ -16,9 +16,8 @@
  * [[nodiscard]] is applied to every function returning esp_err_t.
  * Receive callbacks use std::span<const uint8_t> instead of a raw pointer + length pair.
  */
-class ISlaveBridge
-{
-public:
+class ISlaveBridge {
+   public:
     virtual ~ISlaveBridge() = default;
 
     /**
@@ -41,6 +40,5 @@ public:
      *
      * @param callback  Function called with the raw payload bytes as a span.
      */
-    virtual void setReceiveCallback(
-        std::function<void(std::span<const uint8_t>)> callback) = 0;
+    virtual void setReceiveCallback(std::function<void(std::span<const uint8_t>)> callback) = 0;
 };

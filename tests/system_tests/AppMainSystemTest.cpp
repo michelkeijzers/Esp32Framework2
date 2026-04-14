@@ -4,8 +4,7 @@
 
 extern "C" void app_main(void);
 
-TEST(AppMainSystemTest, AppMainBuildsMasterCompositionAndStartsNode)
-{
+TEST(AppMainSystemTest, AppMainBuildsMasterCompositionAndStartsNode) {
     low_level_stubs::reset_counters();
 
     app_main();

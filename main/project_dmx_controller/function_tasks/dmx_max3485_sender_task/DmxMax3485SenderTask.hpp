@@ -1,9 +1,9 @@
 #pragma once
 
-#include "IDmxMax3485SenderTask.hpp"
-#include "../../../common/function_tasks/FunctionTask.hpp"
-
 #include <cstdint>
+
+#include "../../../common/function_tasks/FunctionTask.hpp"
+#include "IDmxMax3485SenderTask.hpp"
 
 /**
  * Concrete DMX MAX3485 sender function task.
@@ -11,18 +11,17 @@
  * Continuously transmits DMX512 frames at the required 44Hz cadence over
  * the UART->MAX3485 RS-485 interface.
  */
-class DmxMax3485SenderTask : public FunctionTask, public IDmxMax3485SenderTask
-{
-public:
+class DmxMax3485SenderTask : public FunctionTask, public IDmxMax3485SenderTask {
+   public:
     explicit DmxMax3485SenderTask(IFreeRtosFactory &freeRtosFactory);
     ~DmxMax3485SenderTask() override = default;
 
-    esp_err_t init()  override;
+    esp_err_t init() override;
     esp_err_t start() override;
 
-    void setChannelValue(uint16_t channel, uint8_t value)    override;
-    void setAllChannelValues(const uint8_t values[512])      override;
+    void setChannelValue(uint16_t channel, uint8_t value) override;
+    void setAllChannelValues(const uint8_t values[512]) override;
 
-private:
+   private:
     uint8_t dmxFrame_[512];
 };

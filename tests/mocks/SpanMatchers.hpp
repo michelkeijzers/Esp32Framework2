@@ -1,8 +1,9 @@
 #pragma once
 
 #include <gmock/gmock.h>
-#include <span>
+
 #include <algorithm>
+#include <span>
 
 /**
  * GMock matcher that compares a std::span<const uint8_t> against an expected

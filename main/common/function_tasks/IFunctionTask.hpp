@@ -13,9 +13,8 @@
  * The concrete FunctionTask class satisfies both by inheriting from RtosTask
  * and IFunctionTask independently, avoiding diamond inheritance.
  */
-class IFunctionTask
-{
-public:
+class IFunctionTask {
+   public:
     virtual ~IFunctionTask() = default;
 
     /**

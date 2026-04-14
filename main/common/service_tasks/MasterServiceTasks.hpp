@@ -12,10 +12,10 @@ class NodeStaticInfo;
  *
  * Extends common service tasks with StatusTask.
  */
-class MasterServiceTasks : public IMasterServiceTasks
-{
-public:
-    MasterServiceTasks(IFreeRtosFactory &freeRtosFactory, NodeStaticInfo &nodeStaticInfo, int nodeOffset);
+class MasterServiceTasks : public IMasterServiceTasks {
+   public:
+    MasterServiceTasks(IFreeRtosFactory &freeRtosFactory, NodeStaticInfo &nodeStaticInfo,
+                       int nodeOffset);
     ~MasterServiceTasks() override = default;
 
     esp_err_t init() override;
@@ -25,7 +25,7 @@ public:
     IOtaTask &getOtaTask() override;
     IStatusTask &getStatusTask() override;
 
-private:
+   private:
     ServiceTasks serviceTasks_;
     StatusTask statusTask_;
 };

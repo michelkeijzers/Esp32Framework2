@@ -1,14 +1,13 @@
 #pragma once
-#include "IEspNowFactory.hpp"
 #include "../esp/esp_now/EspNow.hpp"
+#include "IEspNowFactory.hpp"
 
-class EspNowFactory : public IEspNowFactory
-{
-public:
+class EspNowFactory : public IEspNowFactory {
+   public:
     EspNowFactory();
 
     IEspNow &getEspNow() override;
 
-private:
+   private:
     EspNow espNow_;
 };

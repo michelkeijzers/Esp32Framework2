@@ -10,28 +10,27 @@ The general API contracts can be found in [common_api_contract.md](../requiremen
   - [Select Preset](#select-preset)
   - [Blackout](#blackout)
 - [DMX Presets Page](#dmx-presets-page)
-  - [Presets](#get-presets)   
+  - [Presets](#get-presets)
   - [Save Preset](#save-preset)
   - [Move Preset Up](#move-preset-up)
   - [Move Preset Down](#move-preset-down)
-  - [Delete Preset](#delete-preset) 
+  - [Delete Preset](#delete-preset)
   - [Insert Preset At](#insert-preset-at)
   - [Swap Preset Activation](#swap-preset-activation)
 - [Edit Preset](#edit-preset)
   - [Preset Values](#preset-values)
 - [Edit Value Page](#edit-value-page)
-  - [Preset Value](#preset-value) 
+  - [Preset Value](#preset-value)
 - [Configuration Page](#configuration-page)
-  - [Load Button](#load-button) 
+  - [Load Button](#load-button)
   - [Save Button](#save-button)
   - [Presets/Circular Navigation Checkbox](#presetscircular-navigation-checkbox)
-
 
 # Control Page
 
 ## Active Preset Numbers
 
-**Endpoint:** `GET /api/v1/active_preset_numbers`  
+**Endpoint:** `GET /api/v1/active_preset_numbers`
 
 **Description:** Returns an array of all active preset numbers to display only active presets on the Control page. The backend (Flask or ESP32) provides the current active preset numbers.
 
@@ -44,6 +43,7 @@ No request parameters or body required.
 
 **Response Specification:**
 Array of integers representing active preset numbers:
+
 - Each element (integer, required) – Preset number (1-20) that is currently active
 
 Example request:
@@ -73,6 +73,7 @@ Example response (JSON):
 - **URL Parameter:** `preset_number` (required, integer 1-20)
 
 **Response Specification:**
+
 - `preset_name` (string, required) – Name of the selected preset (e.g., "Warm White")
 
 Example request:
@@ -101,6 +102,7 @@ Example response:
 No request body required.
 
 **Response Specification:**
+
 - `preset_name` (string, required) – Name of the blackout preset (always "Blackout")
 
 Example request:
@@ -119,7 +121,7 @@ Example response (JSON):
 
 ## Presets
 
-**Endpoint:** `GET /api/v1/presets`  
+**Endpoint:** `GET /api/v1/presets`
 
 **Description:** Returns an array of all DMX presets with their names and active states to display the full Presets list. The backend (Flask or ESP32) provides the current names and activation status.
 
@@ -129,6 +131,7 @@ Example response (JSON):
 
 **Response Specification:**
 Array of preset objects, each containing:
+
 - `name` (string, required) – Name of the preset (e.g., "Warm White")
 - `active` (boolean, required) – Whether the preset is currently active
 
@@ -150,19 +153,21 @@ Example response (JSON):
 
 ## Save Preset
 
-**Endpoint:** `PUT /api/v1/save_preset/<preset_number>`  
+**Endpoint:** `PUT /api/v1/save_preset/<preset_number>`
 
 **Description:** Saves the current preset (name and DMX values) for the given preset number. Expects the updated preset data in the request body (JSON). Returns ack/nack.
 
 **Returns:** `200 OK` with `{ "ack": "ok" }` on success; `400 Bad Request` with `{ "ack": "nok" }` on error.
 
 **Request Specification:**
+
 - **URL Parameter:** `preset_number` (required, integer 1-20)
 - **Body:** JSON object containing:
   - `name` (string, required) – Name of the preset (e.g., "Cool Blue")
   - `dmx_values` (array of integers, required) – Array of 512 DMX channel values (0–255)
 
 **Response Specification:**
+
 - `ack` (string, required) – "ok" on success, "nok" on failure
 
 Example request:
@@ -184,12 +189,13 @@ Example response (JSON):
 
 ## Move Preset Up
 
-**Endpoint:** `PUT /api/v1/presets/<preset_index>/move_up`  
+**Endpoint:** `PUT /api/v1/presets/<preset_index>/move_up`
 
 **Description:** Moves the preset at the given index up by one position. Returns the updated preset list.
 **Returns:** `200 OK` with updated preset list; `400 Bad Request` on invalid index.
 
 **Request Specification:**
+
 - **URL Parameter:** `preset_index` (required, integer 0-based index)
 
 **Response Specification:**
@@ -213,7 +219,7 @@ Example response (JSON):
 
 ## Move Preset Down
 
-**Endpoint:** `PUT /api/v1/presets/<preset_index>/move_down`  
+**Endpoint:** `PUT /api/v1/presets/<preset_index>/move_down`
 
 **Description:** Moves the preset at the given index down by one position. Returns the updated preset list.
 
@@ -245,7 +251,7 @@ Example response (JSON):
 
 ## Delete Preset
 
-**Endpoint:** `DELETE /api/v1/presets/<preset_index>`  
+**Endpoint:** `DELETE /api/v1/presets/<preset_index>`
 
 **Description:** Deletes the preset at the given index. Returns the updated preset list.
 
@@ -275,13 +281,14 @@ Example response (JSON):
 
 ## Insert Preset At
 
-**Endpoint:** `POST /api/v1/presets/<preset_index>/insert_at`  
+**Endpoint:** `POST /api/v1/presets/<preset_index>/insert_at`
 
 **Description:** Inserts a new preset at the given index. Returns the updated preset list.
 
 **Returns:** `200 OK` with updated preset list; `400 Bad Request` on invalid index.
 
 **Request Specification:**
+
 - **URL Parameter:** `preset_index` (required, integer 0-based index)
 - **Body:** JSON object containing:
   - `name` (string, optional) – Name of the new preset (default: empty string)
@@ -321,6 +328,7 @@ Example response (JSON):
 **Returns:** `200 OK` with updated preset list; `400 Bad Request` on invalid index.
 
 **Request Specification:**
+
 - **URL Parameter:** `preset_index` (required, integer 0-based index)
 
 **Response Specification:**
@@ -353,19 +361,23 @@ Example response (JSON):
 **Returns:** `200 OK` with JSON array of DMX values if preset exists; `400 Bad Request` if preset not found.
 
 **Request Specification:**
+
 - **URL Parameter:** `preset_number` (required, integer 1-20)
 
 **Response Specification:**
 Array of 512 integers (0-255), where each element represents a DMX channel value:
+
 - Index 0-511 represents DMX channels 1-512
 - Each value is an integer 0-255 representing the intensity/brightness
 
 **Example request:**
+
 ```
 GET /api/v1/preset_values/2
 ```
 
 **Example response:**
+
 ```json
 [0, 128, 255, 0, 0, 64, 192, ..., 0]
 ```
@@ -381,12 +393,14 @@ GET /api/v1/preset_values/2
 **Returns:** `200 OK` with updated value object on success; `400 Bad Request` on invalid input (out of range values or invalid preset).
 
 **Request Specification:**
+
 - **URL Parameters:**
   - `preset` (required, integer 1-20) – Preset number
   - `index` (required, integer 0-511) – DMX channel index (0-based, 512 total channels)
   - `value` (required, integer 0-255) – DMX intensity value
 
 **Response Specification:**
+
 - `index` (integer, required) – The DMX channel index that was updated
 - `value` (integer, required) – The new DMX value (0-255)
 - `preset` (integer, required) – The preset number
@@ -419,6 +433,7 @@ Example response (JSON):
 
 **Response Specification:**
 JSON object containing all configuration settings:
+
 - `circular navigation` (boolean, required) – Enable/disable circular navigation for preset lists
 
 Example request:
@@ -445,9 +460,11 @@ Example response (JSON):
 
 **Request Specification:**
 JSON object containing configuration fields to save:
+
 - `circular navigation` (boolean, required) – Enable/disable circular navigation for preset lists
 
 **Response Specification:**
+
 - `ack` (string, required) – Acknowledgment status ("ok" on success, "nok" on failure)
 
 Example request (URL + JSON):
@@ -476,9 +493,11 @@ Example response (JSON):
 
 **Request Specification:**
 JSON object containing the circular navigation state:
+
 - `state` (boolean, required) – Enable (true) or disable (false) circular navigation
 
 **Response Specification:**
+
 - `ack` (string, required) – Acknowledgment status ("ok" on success, "nok" on failure)
 
 Example request (URL + JSON):
@@ -494,5 +513,3 @@ Example response (JSON):
 ```json
 { "ack": "ok" }
 ```
-
-

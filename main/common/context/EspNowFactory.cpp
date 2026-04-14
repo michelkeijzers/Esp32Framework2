@@ -1,8 +1,5 @@
 #include "EspNowFactory.hpp"
 
-EspNowFactory::EspNowFactory()
-    : espNow_()
-{
-}
+EspNowFactory::EspNowFactory() = default;
 
 IEspNow &EspNowFactory::getEspNow() { return espNow_; }

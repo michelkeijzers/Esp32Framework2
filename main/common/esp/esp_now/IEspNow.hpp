@@ -1,10 +1,10 @@
 #pragma once
 
-#include "esp_now_if.hpp"
-
 #include <cstddef>
 #include <functional>
 #include <span>
+
+#include "esp_now_if.hpp"
 
 /**
  * Interface for the ESP-NOW abstraction layer.
@@ -21,7 +21,7 @@
  * callers cannot silently ignore errors.
  */
 class IEspNow {
-public:
+   public:
     virtual ~IEspNow() = default;
 
     /** Initialise the ESP-NOW subsystem. */
@@ -54,7 +54,7 @@ public:
      * destination MAC address and the delivery status.
      * @param cb  Callback function; pass nullptr to unregister.
      */
-    [[nodiscard]] virtual esp_err_t registerSendCallback(esp_now_send_cb_t cb) = 0;
+    [[nodiscard]] virtual esp_err_t registerSendCallback(esp_now_send_cb_t callback) = 0;
 
     /**
      * Register the receive callback (ESP-IDF 5.0+ / 6.0).
@@ -62,5 +62,5 @@ public:
      * full recv_info struct (source/destination address) plus RSSI.
      * @param cb  Callback function; pass nullptr to unregister.
      */
-    [[nodiscard]] virtual esp_err_t registerReceiveCallback(esp_now_recv_cb_t cb) = 0;
+    [[nodiscard]] virtual esp_err_t registerReceiveCallback(esp_now_recv_cb_t callback) = 0;
 };

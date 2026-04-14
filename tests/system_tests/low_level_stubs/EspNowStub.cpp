@@ -1,48 +1,29 @@
-#include "common/esp/esp_now/EspNow.hpp"
-#include "LowLevelStubCounters.hpp"
-
 #include <span>
 
-EspNow::EspNow() : initialized_(false)
-{
-}
+#include "LowLevelStubCounters.hpp"
+#include "common/esp/esp_now/EspNow.hpp"
+
+EspNow::EspNow() : initialized_(false) {}
 
 EspNow::~EspNow() = default;
 
-esp_err_t EspNow::init()
-{
+esp_err_t EspNow::init() {
     ++low_level_stubs::counters().esp_now_init_calls;
     initialized_ = true;
     return ESP_OK;
 }
 
-esp_err_t EspNow::deinit()
-{
+esp_err_t EspNow::deinit() {
     initialized_ = false;
     return ESP_OK;
 }
 
-esp_err_t EspNow::connectPeer(const esp_now_peer_info_t *)
-{
-    return ESP_OK;
-}
+esp_err_t EspNow::connectPeer(const esp_now_peer_info_t *) { return ESP_OK; }
 
-esp_err_t EspNow::disconnectPeer(const uint8_t *)
-{
-    return ESP_OK;
-}
+esp_err_t EspNow::disconnectPeer(const uint8_t *) { return ESP_OK; }
 
-esp_err_t EspNow::sendMessage(std::span<const uint8_t>)
-{
-    return ESP_OK;
-}
+esp_err_t EspNow::sendMessage(std::span<const uint8_t>) { return ESP_OK; }
 
-esp_err_t EspNow::registerSendCallback(esp_now_send_cb_t)
-{
-    return ESP_OK;
-}
+esp_err_t EspNow::registerSendCallback(esp_now_send_cb_t) { return ESP_OK; }
 
-esp_err_t EspNow::registerReceiveCallback(esp_now_recv_cb_t)
-{
-    return ESP_OK;
-}
+esp_err_t EspNow::registerReceiveCallback(esp_now_recv_cb_t) { return ESP_OK; }

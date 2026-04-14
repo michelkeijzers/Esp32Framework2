@@ -1,15 +1,10 @@
 #include "SlaveBridge.hpp"
 
-SlaveBridge::SlaveBridge(IEspNow &espNow)
-    : espNow_(espNow)
-{
-}
+SlaveBridge::SlaveBridge(IEspNow &espNow) : espNow_(espNow) {}
 
-esp_err_t SlaveBridge::init()
-{
+esp_err_t SlaveBridge::init() {
     esp_err_t ret = espNow_.init();
-    if (ret != ESP_OK)
-    {
+    if (ret != ESP_OK) {
         return ret;
     }
 
@@ -19,13 +14,10 @@ esp_err_t SlaveBridge::init()
     return ESP_OK;
 }
 
-esp_err_t SlaveBridge::registerMaster(const esp_now_peer_info_t &masterPeerInfo)
-{
+esp_err_t SlaveBridge::registerMaster(const esp_now_peer_info_t &masterPeerInfo) {
     return espNow_.connectPeer(&masterPeerInfo);
 }
 
-void SlaveBridge::setReceiveCallback(
-    std::function<void(std::span<const uint8_t>)> callback)
-{
+void SlaveBridge::setReceiveCallback(std::function<void(std::span<const uint8_t>)> callback) {
     receiveCallback_ = std::move(callback);
 }

@@ -6,9 +6,8 @@
  * Interface for all nodes (MasterNode, SlaveNode).
  * Defines the lifecycle contract for nodes.
  */
-class INode
-{
-public:
+class INode {
+   public:
     virtual ~INode() = default;
 
     /**

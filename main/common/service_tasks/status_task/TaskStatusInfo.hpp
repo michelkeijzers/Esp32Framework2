@@ -2,8 +2,7 @@
 
 #include <string>
 
-struct TaskStatusInfo
-{
+struct TaskStatusInfo {
     uint16_t id;
     std::string name;
 };

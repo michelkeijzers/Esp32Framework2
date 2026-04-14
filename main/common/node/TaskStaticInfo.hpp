@@ -4,15 +4,12 @@
 #include <string>
 #include <utility>
 
-class TaskStaticInfo
-{
-public:
+class TaskStaticInfo {
+   public:
     TaskStaticInfo() = default;
 
     TaskStaticInfo(uint8_t taskId, std::string taskName)
-        : taskId(taskId), taskName(std::move(taskName))
-    {
-    }
+        : taskId(taskId), taskName(std::move(taskName)) {}
 
     uint8_t taskId = 0;
     std::string taskName;

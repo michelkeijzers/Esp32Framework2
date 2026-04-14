@@ -5,20 +5,14 @@
 
 #include "NodeStaticInfo.hpp"
 
-class NodesStaticInfo
-{
-public:
+class NodesStaticInfo {
+   public:
     NodesStaticInfo() = default;
 
     explicit NodesStaticInfo(std::vector<NodeStaticInfo> nodesStaticInfo)
-        : nodesStaticInfo(std::move(nodesStaticInfo))
-    {
-    }
+        : nodesStaticInfo(std::move(nodesStaticInfo)) {}
 
-    void addNodeStaticInfo(const NodeStaticInfo &nodeInfo)
-    {
-        nodesStaticInfo.push_back(nodeInfo);
-    }
+    void addNodeStaticInfo(const NodeStaticInfo &nodeInfo) { nodesStaticInfo.push_back(nodeInfo); }
 
     std::vector<NodeStaticInfo> nodesStaticInfo;
 };

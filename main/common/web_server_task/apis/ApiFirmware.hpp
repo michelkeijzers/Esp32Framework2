@@ -1,17 +1,17 @@
 #pragma once
-#include "IApiFirmware.hpp"
-#include "../../esp/esp_http_server/esp_http_server_if.hpp"
 #include "../../esp/esp_error/esp_error_if.hpp"
+#include "../../esp/esp_http_server/esp_http_server_if.hpp"
+#include "IApiFirmware.hpp"
 
 class IEspHttpServer;
 class ApiFirmware : public IApiFirmware {
-public:
+   public:
     ApiFirmware(IEspHttpServer& espHttpServer);
     ~ApiFirmware();
 
-    esp_err_t firmware_chunk_handler(httpd_req_t *req) override;
-    esp_err_t firmware_finish_handler(httpd_req_t *req) override;
+    esp_err_t firmware_chunk_handler(httpd_req_t* req) override;
+    esp_err_t firmware_finish_handler(httpd_req_t* req) override;
 
-private:
+   private:
     IEspHttpServer& espHttpServer_;
 };

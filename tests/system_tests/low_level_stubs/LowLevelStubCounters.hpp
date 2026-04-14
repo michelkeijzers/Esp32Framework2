@@ -11,4 +11,4 @@ struct Counters {
 
 Counters &counters();
 void reset_counters();
-} // namespace low_level_stubs
+}  // namespace low_level_stubs

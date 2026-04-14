@@ -3,9 +3,8 @@
 /**
  * Interface for project API server implementations.
  */
-class IApiServer
-{
-public:
+class IApiServer {
+   public:
     virtual ~IApiServer() = default;
 
     /**

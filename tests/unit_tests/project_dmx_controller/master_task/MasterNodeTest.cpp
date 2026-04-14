@@ -13,9 +13,7 @@
 using ::testing::InSequence;
 using ::testing::Return;
 
-TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
-{
-    
+TEST(MasterNodeTest, InitCallsAllComponentsInOrder) {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
@@ -27,7 +25,8 @@ TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
     MockISlaveNode slaveNode2;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2}, std::vector<TaskStatusInfo *>{});
+                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2},
+                    std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_OK));
@@ -41,8 +40,7 @@ TEST(MasterNodeTest, InitCallsAllComponentsInOrder)
     EXPECT_EQ(ESP_OK, node.init());
 }
 
-TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
-{
+TEST(MasterNodeTest, InitStopsOnMasterTaskFailure) {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
@@ -63,8 +61,7 @@ TEST(MasterNodeTest, InitStopsOnMasterTaskFailure)
     EXPECT_EQ(ESP_FAIL, node.init());
 }
 
-TEST(MasterNodeTest, InitStopsOnFunctionTaskFailure)
-{
+TEST(MasterNodeTest, InitStopsOnFunctionTaskFailure) {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
@@ -75,7 +72,8 @@ TEST(MasterNodeTest, InitStopsOnFunctionTaskFailure)
     MockISlaveNode slaveNode;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask1, &functionTask2}, {&slaveNode}, std::vector<TaskStatusInfo *>{});
+                    {&functionTask1, &functionTask2}, {&slaveNode},
+                    std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, init()).WillOnce(Return(ESP_OK));
@@ -88,8 +86,7 @@ TEST(MasterNodeTest, InitStopsOnFunctionTaskFailure)
     EXPECT_EQ(ESP_FAIL, node.init());
 }
 
-TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
-{
+TEST(MasterNodeTest, StartCallsAllComponentsInOrder) {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
@@ -101,7 +98,8 @@ TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
     MockISlaveNode slaveNode2;
 
     MasterNode node(rtosFactory, masterBridge, masterTask, webServerTask, serviceTasks,
-                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2}, std::vector<TaskStatusInfo *>{});
+                    {&functionTask1, &functionTask2}, {&slaveNode1, &slaveNode2},
+                    std::vector<TaskStatusInfo *>{});
 
     InSequence seq;
     EXPECT_CALL(masterTask, start()).WillOnce(Return(ESP_OK));
@@ -115,8 +113,7 @@ TEST(MasterNodeTest, StartCallsAllComponentsInOrder)
     EXPECT_EQ(ESP_OK, node.start());
 }
 
-TEST(MasterNodeTest, StartStopsOnWebServerFailure)
-{
+TEST(MasterNodeTest, StartStopsOnWebServerFailure) {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;
@@ -137,8 +134,7 @@ TEST(MasterNodeTest, StartStopsOnWebServerFailure)
     EXPECT_EQ(ESP_FAIL, node.start());
 }
 
-TEST(MasterNodeTest, StartStopsOnSlaveNodeFailure)
-{
+TEST(MasterNodeTest, StartStopsOnSlaveNodeFailure) {
     ::testing::NiceMock<MockIFreeRtosFactory> rtosFactory;
     MockIMasterBridge masterBridge;
     MockIMasterTask masterTask;

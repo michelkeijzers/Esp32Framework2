@@ -3,11 +3,10 @@
 
 class IDmxApiFactory;
 
-class IDmxContextFactory
-{
-public:
+class IDmxContextFactory {
+   public:
     virtual ~IDmxContextFactory() = default;
 
     virtual IContextFactory &getContextFactory() = 0;
-    virtual IDmxApiFactory  &getDmxApiFactory()  = 0;
+    virtual IDmxApiFactory &getDmxApiFactory() = 0;
 };

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../esp/esp_error/esp_error_if.hpp"
-#include "../../esp/esp_now/esp_now_if.hpp"
-
 #include <cstdint>
 #include <span>
+
+#include "../../esp/esp_error/esp_error_if.hpp"
+#include "../../esp/esp_now/esp_now_if.hpp"
 
 /**
  * Interface for the master-side bridge in the Remote Proxy pattern.
@@ -16,9 +16,8 @@
  * [[nodiscard]] is applied to every function returning esp_err_t.
  * Data buffers use std::span<const uint8_t> instead of a raw pointer + length pair.
  */
-class IMasterBridge
-{
-public:
+class IMasterBridge {
+   public:
     virtual ~IMasterBridge() = default;
 
     /**
@@ -34,8 +33,9 @@ public:
      * @param data       Payload bytes.
      * @return ESP_OK on success.
      */
-    [[nodiscard]] virtual esp_err_t sendMessage(const uint8_t targetMac[6],
-                                                std::span<const uint8_t> data) = 0;
+    [[nodiscard]] virtual esp_err_t sendMessage(
+        std::span<const uint8_t, kEspNowMacAddressLength> targetMac,
+        std::span<const uint8_t> data) = 0;
 
     /**
      * Broadcast a raw message payload to all registered slave nodes.

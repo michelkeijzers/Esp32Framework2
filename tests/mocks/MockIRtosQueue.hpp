@@ -1,10 +1,11 @@
 #pragma once
 
 #include <gmock/gmock.h>
+
 #include "tasks/IRtosQueue.hpp"
 
 class MockIRtosQueue : public IRtosQueue {
-public:
+   public:
     ~MockIRtosQueue() override = default;
     MOCK_METHOD(bool, create, (), (override));
     MOCK_METHOD(QueueHandle_t, getHandle, (), (override));

@@ -6,7 +6,7 @@
  * Wraps esp_log macros and provides a class-based interface
  */
 class EspLogger : public IEspLogger {
-public:
+   public:
     EspLogger() = default;
     virtual ~EspLogger() = default;
 

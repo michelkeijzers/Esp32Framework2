@@ -1,35 +1,34 @@
 #pragma once
 
-#include "../esp/free_rtos/IFreeRtosFactory.hpp"
-#include "IRtosTask.hpp"
-#include "../esp/esp_error/esp_error_if.hpp"
-
 #include <cstdint>
-
-#include <vector>
 #include <memory>
-#include "RtosQueue.hpp"
-#include "IRtosQueueSet.hpp"
+#include <vector>
 
-class RtosTask : public IRtosTask
-{
-  public:
-    RtosTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize, UBaseType_t priority);
+#include "../esp/esp_error/esp_error_if.hpp"
+#include "../esp/free_rtos/IFreeRtosFactory.hpp"
+#include "IRtosQueueSet.hpp"
+#include "IRtosTask.hpp"
+#include "RtosQueue.hpp"
+
+class RtosTask : public IRtosTask {
+   public:
+    RtosTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize,
+             UBaseType_t priority);
     virtual ~RtosTask() = default;
 
-    virtual esp_err_t init();
-    virtual esp_err_t start();
+    esp_err_t init() override;
+    esp_err_t start() override;
 
     // Create and add a queue to the task
-    IRtosQueue* createQueue(size_t itemSize, size_t length) override;
+    IRtosQueue *createQueue(size_t itemSize, size_t length) override;
 
     TickType_t getTickCount() override;
 
-  protected:
+   protected:
     virtual void taskEntry();
 
     // Create and add a queue set to the task.
-    IRtosQueueSet* createQueueSet(UBaseType_t eventQueueLength);
+    IRtosQueueSet *createQueueSet(UBaseType_t eventQueueLength);
 
     IFreeRtosFactory &freeRtosFactory_;
     const char *name_;

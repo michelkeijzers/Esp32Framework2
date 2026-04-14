@@ -1,8 +1,9 @@
 
 #include "ApiFirmware.hpp"
+
 #include "../../esp/esp_http_server/IEspHttpServer.hpp"
 
-ApiFirmware::ApiFirmware(IEspHttpServer& espHttpServer) : espHttpServer_(espHttpServer) {}
+ApiFirmware::ApiFirmware(IEspHttpServer &espHttpServer) : espHttpServer_(espHttpServer) {}
 ApiFirmware::~ApiFirmware() = default;
 
 esp_err_t ApiFirmware::firmware_chunk_handler(httpd_req_t *req) {

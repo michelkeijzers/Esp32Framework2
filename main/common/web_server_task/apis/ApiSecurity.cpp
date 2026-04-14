@@ -1,8 +1,9 @@
 
 #include "ApiSecurity.hpp"
+
 #include "../../esp/esp_http_server/IEspHttpServer.hpp"
 
-ApiSecurity::ApiSecurity(IEspHttpServer& espHttpServer) : espHttpServer_(espHttpServer) {}
+ApiSecurity::ApiSecurity(IEspHttpServer &espHttpServer) : espHttpServer_(espHttpServer) {}
 ApiSecurity::~ApiSecurity() = default;
 
 esp_err_t ApiSecurity::esp_now_key_handler(httpd_req_t *req) {

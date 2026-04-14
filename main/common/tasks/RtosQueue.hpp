@@ -1,17 +1,17 @@
 #pragma once
 
 #include <cstddef>
+
 #include "IRtosQueue.hpp"
 
 // FreeRTOS-like, generic, extensible queue
-class RtosQueue : public IRtosQueue 
-{
-public:
+class RtosQueue : public IRtosQueue {
+   public:
     RtosQueue(size_t itemSize, size_t length);
     ~RtosQueue() override;
 
-    bool create();
-    QueueHandle_t getHandle();
+    bool create() override;
+    QueueHandle_t getHandle() override;
 
     bool send(const void* item, uint32_t timeoutMs) override;
     bool receive(void* item, uint32_t timeoutMs) override;
@@ -19,9 +19,9 @@ public:
     size_t capacity() const override;
     size_t count() const override;
 
-private:
+   private:
     size_t m_itemSize;
     size_t m_length;
 
-    QueueHandle_t m_queueHandle; // Opaque handle to underlying RTOS queue
+    QueueHandle_t m_queueHandle;  // Opaque handle to underlying RTOS queue
 };

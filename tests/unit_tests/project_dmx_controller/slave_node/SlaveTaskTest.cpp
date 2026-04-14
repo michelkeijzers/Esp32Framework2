@@ -1,14 +1,13 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "SlaveTask.hpp"
-#include "MockISlaveBridge.hpp"
 #include "MockIFreeRtosFactory.hpp"
+#include "MockISlaveBridge.hpp"
+#include "SlaveTask.hpp"
 
 using ::testing::Return;
 
-TEST(SlaveTaskTest, InitDelegatesToSlaveBridge)
-{
+TEST(SlaveTaskTest, InitDelegatesToSlaveBridge) {
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockISlaveBridge mockBridge;
     SlaveTask task(mockRtosFactory, mockBridge);
@@ -17,8 +16,7 @@ TEST(SlaveTaskTest, InitDelegatesToSlaveBridge)
     EXPECT_EQ(ESP_OK, task.init());
 }
 
-TEST(SlaveTaskTest, InitPropagatesBridgeFailure)
-{
+TEST(SlaveTaskTest, InitPropagatesBridgeFailure) {
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockISlaveBridge mockBridge;
     SlaveTask task(mockRtosFactory, mockBridge);
@@ -27,8 +25,7 @@ TEST(SlaveTaskTest, InitPropagatesBridgeFailure)
     EXPECT_EQ(ESP_FAIL, task.init());
 }
 
-TEST(SlaveTaskTest, StartReturnsOk)
-{
+TEST(SlaveTaskTest, StartReturnsOk) {
     ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
     MockISlaveBridge mockBridge;
     SlaveTask task(mockRtosFactory, mockBridge);

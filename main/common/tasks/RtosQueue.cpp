@@ -1,12 +1,13 @@
-#include <cstring>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
 #include "RtosQueue.hpp"
 
+#include <cstring>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+#include "freertos/task.h"
+
 RtosQueue::RtosQueue(size_t itemSize, size_t length)
-    : m_itemSize(itemSize), m_length(length), m_queueHandle(nullptr)
-{}
+    : m_itemSize(itemSize), m_length(length), m_queueHandle(nullptr) {}
 
 RtosQueue::~RtosQueue() {
     if (m_queueHandle) {
@@ -15,15 +16,12 @@ RtosQueue::~RtosQueue() {
     }
 }
 
-bool RtosQueue::create()
-{
+bool RtosQueue::create() {
     m_queueHandle = xQueueCreate(m_length, m_itemSize);
     return m_queueHandle != nullptr;
 }
 
-QueueHandle_t RtosQueue::getHandle() {
-    return m_queueHandle;
-}
+QueueHandle_t RtosQueue::getHandle() { return m_queueHandle; }
 
 bool RtosQueue::send(const void* item, uint32_t timeoutMs) {
     if (!m_queueHandle) return false;

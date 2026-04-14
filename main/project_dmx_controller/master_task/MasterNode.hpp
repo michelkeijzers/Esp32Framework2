@@ -1,15 +1,16 @@
 #pragma once
 
+#include <vector>
+
+#include "../../common/bridge/master_bridge/IMasterBridge.hpp"
+#include "../../common/esp/free_rtos/IFreeRtosFactory.hpp"
+#include "../../common/function_tasks/IFunctionTask.hpp"
+#include "../../common/node/Node.hpp"
+#include "../../common/service_tasks/IMasterServiceTasks.hpp"
+#include "../../common/service_tasks/status_task/TaskStatusInfo.hpp"
+#include "../web_server_task/IWebServerTask.hpp"
 #include "IMasterNode.hpp"
 #include "IMasterTask.hpp"
-#include "../../common/node/Node.hpp"
-#include "../../common/bridge/master_bridge/IMasterBridge.hpp"
-#include "../web_server_task/IWebServerTask.hpp"
-#include "../../common/service_tasks/IMasterServiceTasks.hpp"
-#include "../../common/function_tasks/IFunctionTask.hpp"
-#include "../../common/service_tasks/status_task/TaskStatusInfo.hpp"
-#include <vector>
-#include "../../common/esp/free_rtos/IFreeRtosFactory.hpp"
 
 // Forward declaration to avoid circular includes
 class IFreeRtosFactory;
@@ -21,30 +22,24 @@ class ISlaveNode;
  * Aggregates all top-level components by reference and orchestrates
  * their initialisation and start-up sequence.
  */
-class MasterNode : public Node, public IMasterNode
-{
-public:
-    MasterNode(
-        IFreeRtosFactory &rtosFactory,
-        IMasterBridge &masterBridge,
-        IMasterTask &masterTask,
-        IWebServerTask &webServerTask,
-        IMasterServiceTasks &serviceTasks,
-        std::vector<IFunctionTask *> functionTasks,
-        std::vector<ISlaveNode *> slaveNodes,
-        std::vector<TaskStatusInfo *> taskStatusInfo);
+class MasterNode : public Node, public IMasterNode {
+   public:
+    MasterNode(IFreeRtosFactory &rtosFactory, IMasterBridge &masterBridge, IMasterTask &masterTask,
+               IWebServerTask &webServerTask, IMasterServiceTasks &serviceTasks,
+               std::vector<IFunctionTask *> functionTasks, std::vector<ISlaveNode *> slaveNodes,
+               std::vector<TaskStatusInfo *> taskStatusInfo);
 
     ~MasterNode() override = default;
 
-    esp_err_t init()  override;
+    esp_err_t init() override;
     esp_err_t start() override;
 
-private:
-    IFreeRtosFactory  &rtosFactory_;
-    IMasterBridge  &masterBridge_;
-    IMasterTask    &masterTask_;
+   private:
+    IFreeRtosFactory &rtosFactory_;
+    IMasterBridge &masterBridge_;
+    IMasterTask &masterTask_;
     IWebServerTask &webServerTask_;
     IMasterServiceTasks &serviceTasks_;
-    std::vector<IFunctionTask *>   functionTasks_;
+    std::vector<IFunctionTask *> functionTasks_;
     std::vector<ISlaveNode *> slaveNodes_;
 };

@@ -6,9 +6,8 @@
  * Provides periodic status updates pushed to clients via the
  * /api/v1/status SSE endpoint.
  */
-class IStatusTask
-{
-public:
+class IStatusTask {
+   public:
     virtual ~IStatusTask() = default;
 
     // TODO: define additional status task-specific interface methods

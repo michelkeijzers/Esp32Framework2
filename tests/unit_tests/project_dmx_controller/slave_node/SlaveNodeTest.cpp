@@ -1,17 +1,16 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "SlaveNode.hpp"
-#include "MockISlaveBridge.hpp"
-#include "MockISlaveTask.hpp"
-#include "MockISlaveServiceTasks.hpp"
 #include "MockIFunctionTask.hpp"
+#include "MockISlaveBridge.hpp"
+#include "MockISlaveServiceTasks.hpp"
+#include "MockISlaveTask.hpp"
+#include "SlaveNode.hpp"
 
 using ::testing::InSequence;
 using ::testing::Return;
 
-TEST(SlaveNodeTest, InitCallsAllComponentsInOrder)
-{
+TEST(SlaveNodeTest, InitCallsAllComponentsInOrder) {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
     MockISlaveServiceTasks serviceTasks;
@@ -29,8 +28,7 @@ TEST(SlaveNodeTest, InitCallsAllComponentsInOrder)
     EXPECT_EQ(ESP_OK, node.init());
 }
 
-TEST(SlaveNodeTest, InitStopsOnSlaveTaskFailure)
-{
+TEST(SlaveNodeTest, InitStopsOnSlaveTaskFailure) {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
     MockISlaveServiceTasks serviceTasks;
@@ -45,8 +43,7 @@ TEST(SlaveNodeTest, InitStopsOnSlaveTaskFailure)
     EXPECT_EQ(ESP_FAIL, node.init());
 }
 
-TEST(SlaveNodeTest, InitStopsOnFunctionTaskFailure)
-{
+TEST(SlaveNodeTest, InitStopsOnFunctionTaskFailure) {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
     MockISlaveServiceTasks serviceTasks;
@@ -64,8 +61,7 @@ TEST(SlaveNodeTest, InitStopsOnFunctionTaskFailure)
     EXPECT_EQ(ESP_FAIL, node.init());
 }
 
-TEST(SlaveNodeTest, StartCallsAllComponentsInOrder)
-{
+TEST(SlaveNodeTest, StartCallsAllComponentsInOrder) {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
     MockISlaveServiceTasks serviceTasks;
@@ -83,8 +79,7 @@ TEST(SlaveNodeTest, StartCallsAllComponentsInOrder)
     EXPECT_EQ(ESP_OK, node.start());
 }
 
-TEST(SlaveNodeTest, StartStopsOnServiceFailure)
-{
+TEST(SlaveNodeTest, StartStopsOnServiceFailure) {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
     MockISlaveServiceTasks serviceTasks;
@@ -99,8 +94,7 @@ TEST(SlaveNodeTest, StartStopsOnServiceFailure)
     EXPECT_EQ(ESP_FAIL, node.start());
 }
 
-TEST(SlaveNodeTest, StartStopsOnFunctionTaskFailure)
-{
+TEST(SlaveNodeTest, StartStopsOnFunctionTaskFailure) {
     MockISlaveBridge slaveBridge;
     MockISlaveTask slaveTask;
     MockISlaveServiceTasks serviceTasks;

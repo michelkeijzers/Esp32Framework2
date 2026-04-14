@@ -1,17 +1,16 @@
 #pragma once
-#include "IContextFactory.hpp"
-#include "EspFactory.hpp"
 #include "CommonApiFactory.hpp"
+#include "EspFactory.hpp"
+#include "IContextFactory.hpp"
 
-class ContextFactory : public IContextFactory
-{
-public:
+class ContextFactory : public IContextFactory {
+   public:
     ContextFactory();
 
-    IEspFactory       &getEspFactory()       override;
+    IEspFactory &getEspFactory() override;
     ICommonApiFactory &getCommonApiFactory() override;
 
-private:
-    EspFactory        espFactory_;
-    CommonApiFactory  commonApiFactory_;
+   private:
+    EspFactory espFactory_;
+    CommonApiFactory commonApiFactory_;
 };

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
+
 #include "PresetManager.hpp"
 
-TEST(PresetManagerIntegrationTest, FullCrudWorkflow)
-{
+TEST(PresetManagerIntegrationTest, FullCrudWorkflow) {
     PresetManager pm;
 
     EXPECT_EQ(ESP_OK, pm.save_preset(Preset(1, "A", false)));

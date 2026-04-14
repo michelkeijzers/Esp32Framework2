@@ -1,11 +1,11 @@
 #pragma once
-#include "../../esp/esp_http_server/esp_http_server_if.hpp"
 #include "../../esp/esp_error/esp_error_if.hpp"
+#include "../../esp/esp_http_server/esp_http_server_if.hpp"
 
 class NodesStaticInfo;
 
 class IApiNodes {
-public:
+   public:
     virtual ~IApiNodes() = default;
 
     virtual void set_nodes_static_info(const NodesStaticInfo &nodesStaticInfo) = 0;

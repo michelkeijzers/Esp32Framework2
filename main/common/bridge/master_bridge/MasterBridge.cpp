@@ -1,18 +1,11 @@
 #include "MasterBridge.hpp"
 
-MasterBridge::MasterBridge(IEspNow &espNow)
-    : espNow_(espNow)
-{
-}
+MasterBridge::MasterBridge(IEspNow& espNow) : espNow_(espNow) {}
 
-esp_err_t MasterBridge::init()
-{
-    return espNow_.init();
-}
+esp_err_t MasterBridge::init() { return espNow_.init(); }
 
-esp_err_t MasterBridge::sendMessage(const uint8_t targetMac[6],
-                                    std::span<const uint8_t> data)
-{
+esp_err_t MasterBridge::sendMessage(std::span<const uint8_t, kEspNowMacAddressLength> targetMac,
+                                    std::span<const uint8_t> data) {
     // TODO: implement message serialisation / protocol framing before sending.
     // Note: IEspNow::sendMessage does not currently accept a target MAC;
     // extend IEspNow or maintain a MAC->peer mapping here if unicast is needed.
@@ -20,12 +13,10 @@ esp_err_t MasterBridge::sendMessage(const uint8_t targetMac[6],
     return espNow_.sendMessage(data);
 }
 
-esp_err_t MasterBridge::broadcastMessage(std::span<const uint8_t> data)
-{
+esp_err_t MasterBridge::broadcastMessage(std::span<const uint8_t> data) {
     return espNow_.sendMessage(data);
 }
 
-esp_err_t MasterBridge::addSlave(const esp_now_peer_info_t &peerInfo)
-{
+esp_err_t MasterBridge::addSlave(const esp_now_peer_info_t& peerInfo) {
     return espNow_.connectPeer(&peerInfo);
 }

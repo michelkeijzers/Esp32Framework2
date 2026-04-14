@@ -7,9 +7,8 @@ class IStatusTask;
 /**
  * Service tasks available on master nodes.
  */
-class IMasterServiceTasks : public IServiceTasks
-{
-public:
+class IMasterServiceTasks : public IServiceTasks {
+   public:
     ~IMasterServiceTasks() override = default;
 
     virtual IStatusTask &getStatusTask() = 0;

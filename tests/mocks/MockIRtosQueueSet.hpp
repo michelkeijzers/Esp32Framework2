@@ -1,10 +1,11 @@
 #pragma once
 
 #include <gmock/gmock.h>
+
 #include "tasks/IRtosQueueSet.hpp"
 
 class MockIRtosQueueSet : public IRtosQueueSet {
-public:
+   public:
     MockIRtosQueueSet(uint32_t setLength = 1) : IRtosQueueSet(setLength) {}
     ~MockIRtosQueueSet() override = default;
     MOCK_METHOD(bool, createSet, (), (override));

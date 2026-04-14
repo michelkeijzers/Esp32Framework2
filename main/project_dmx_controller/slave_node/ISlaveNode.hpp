@@ -9,9 +9,8 @@
  * hardware function tasks. It communicates with the master node over ESP-NOW
  * via a SlaveBridge.
  */
-class ISlaveNode
-{
-public:
+class ISlaveNode {
+   public:
     virtual ~ISlaveNode() = default;
 
     /**

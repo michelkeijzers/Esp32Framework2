@@ -5,9 +5,8 @@
 // Forward declaration
 class IRtosQueue;
 
-class IRtosTask
-{
-  public:
+class IRtosTask {
+   public:
     virtual ~IRtosTask() = default;
 
     virtual esp_err_t init() = 0;

@@ -1,21 +1,13 @@
 #include "SlaveTask.hpp"
 
-static constexpr const char *SLAVE_TASK_NAME       = "slave_task";
-static constexpr uint32_t    SLAVE_TASK_STACK_SIZE  = 8192;
-static constexpr UBaseType_t SLAVE_TASK_PRIORITY    = 7;
+static constexpr const char *SLAVE_TASK_NAME = "slave_task";
+static constexpr uint32_t SLAVE_TASK_STACK_SIZE = 8192;
+static constexpr UBaseType_t SLAVE_TASK_PRIORITY = 7;
 
 SlaveTask::SlaveTask(IFreeRtosFactory &freeRtosFactory, ISlaveBridge &slaveBridge)
-    : RtosTask(freeRtosFactory, SLAVE_TASK_NAME, SLAVE_TASK_STACK_SIZE, SLAVE_TASK_PRIORITY)
-    , slaveBridge_(slaveBridge)
-{
-}
+    : RtosTask(freeRtosFactory, SLAVE_TASK_NAME, SLAVE_TASK_STACK_SIZE, SLAVE_TASK_PRIORITY),
+      slaveBridge_(slaveBridge) {}
 
-esp_err_t SlaveTask::init()
-{
-    return slaveBridge_.init();
-}
+esp_err_t SlaveTask::init() { return slaveBridge_.init(); }
 
-esp_err_t SlaveTask::start()
-{
-    return RtosTask::start();
-}
+esp_err_t SlaveTask::start() { return RtosTask::start(); }

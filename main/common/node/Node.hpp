@@ -6,9 +6,8 @@
  * Abstract base class for all nodes.
  * Derived classes (MasterNode, SlaveNode) must implement init() and start().
  */
-class Node : public INode
-{
-public:
+class Node : public INode {
+   public:
     Node() = default;
     virtual ~Node() = default;
 

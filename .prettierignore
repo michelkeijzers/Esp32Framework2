@@ -1,0 +1,9 @@
+# Third-party submodule content
+main/libraries/esp_littlefs/**
+
+# Generated local virtual environment assets
+main/project_dmx_controller/website/.api-simulator-venv/**
+
+# Minified/vendor web assets
+**/*.min.js
+**/*.min.css

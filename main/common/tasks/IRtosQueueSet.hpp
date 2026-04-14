@@ -1,10 +1,11 @@
 #pragma once
 
 #include <cstdint>
+
 #include "../esp/free_rtos/free_rtos_if.hpp"
 
 class IRtosQueueSet {
-public:
+   public:
     IRtosQueueSet(uint32_t setLength);
     virtual ~IRtosQueueSet();
 

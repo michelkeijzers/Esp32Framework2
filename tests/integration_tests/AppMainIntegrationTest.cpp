@@ -4,17 +4,18 @@
 
 extern "C" void app_main(void);
 
-TEST(AppMainIntegrationTest, AppMainInitializesAndStartsTopLevelFlow)
-{
+TEST(AppMainIntegrationTest, AppMainInitializesAndStartsTopLevelFlow) {
     low_level_stubs::reset_counters();
 
     app_main();
 
     const auto &calls = low_level_stubs::counters();
-    std::cout << "[DEBUG] free_rtos_create_task_calls: " << calls.free_rtos_create_task_calls << std::endl;
+    std::cout << "[DEBUG] free_rtos_create_task_calls: " << calls.free_rtos_create_task_calls
+              << std::endl;
     EXPECT_GE(calls.esp_now_init_calls, 1);
     EXPECT_GE(calls.httpd_start_calls, 1);
     EXPECT_GE(calls.littlefs_mount_calls, 1);
     EXPECT_EQ(calls.free_rtos_create_task_calls, 5)
-        << "Expected exactly 5 RTOS tasks (MasterTask, WebServerTask, LoggingTask, StatusTask, OtaTask)";
+        << "Expected exactly 5 RTOS tasks (MasterTask, WebServerTask, LoggingTask, StatusTask, "
+           "OtaTask)";
 }

@@ -8,9 +8,8 @@
  * The master task runs the main application loop on the master node,
  * coordinating communication between slave nodes and service tasks.
  */
-class IMasterTask
-{
-public:
+class IMasterTask {
+   public:
     virtual ~IMasterTask() = default;
 
     /**

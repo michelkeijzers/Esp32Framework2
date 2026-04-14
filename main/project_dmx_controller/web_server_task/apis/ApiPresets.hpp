@@ -1,15 +1,15 @@
 
 #pragma once
-#include "IApiPresets.hpp"
-#include "../../../common/esp/esp_http_server/esp_http_server_if.hpp"
 #include "../../../common/esp/esp_error/esp_error_if.hpp"
+#include "../../../common/esp/esp_http_server/esp_http_server_if.hpp"
 #include "../../presets_task/IPresetManager.hpp"
+#include "IApiPresets.hpp"
 
 class IEspHttpServer;
 
 class ApiPresets : public IApiPresets {
-public:
-    ApiPresets(IEspHttpServer& espHttpServer, IPresetManager& presetManager);
+   public:
+    ApiPresets(IEspHttpServer &espHttpServer, IPresetManager &presetManager);
     ~ApiPresets();
 
     // Presets management
@@ -24,7 +24,7 @@ public:
     esp_err_t insert_preset_at_handler(httpd_req_t *req) override;
     esp_err_t swap_preset_activation_handler(httpd_req_t *req) override;
 
-private:
-    IEspHttpServer& espHttpServer_;
-    IPresetManager& presetManager_;
+   private:
+    IEspHttpServer &espHttpServer_;
+    IPresetManager &presetManager_;
 };

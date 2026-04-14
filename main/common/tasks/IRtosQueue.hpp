@@ -7,7 +7,7 @@
 
 // Interface for RTOS-like queue (for DI)
 class IRtosQueue {
-public:
+   public:
     virtual ~IRtosQueue() = default;
     virtual bool create() = 0;
     virtual QueueHandle_t getHandle() = 0;
