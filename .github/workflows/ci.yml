@@ -43,6 +43,8 @@ jobs:
         with:
           context: .
           file: .devcontainer/Dockerfile
+          labels: |
+            org.opencontainers.image.source=https://github.com/michelkeijzers/Esp32Framework2
           tags: |
             ${{ env.CI_IMAGE }}
             ghcr.io/michelkeijzers/esp32framework2-ci:latest
