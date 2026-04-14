@@ -1,15 +1,14 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "MasterNode.hpp"
-
 #include "MockIFreeRtosFactory.hpp"
-#include "MockIMasterBridge.hpp"
-#include "MockIMasterTask.hpp"
-#include "MockIWebServerTask.hpp"
-#include "MockIMasterServiceTasks.hpp"
 #include "MockIFunctionTask.hpp"
+#include "MockIMasterBridge.hpp"
+#include "MockIMasterServiceTasks.hpp"
+#include "MockIMasterTask.hpp"
 #include "MockISlaveNode.hpp"
+#include "MockIWebServerTask.hpp"
 
 using ::testing::InSequence;
 using ::testing::Return;

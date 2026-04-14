@@ -78,11 +78,28 @@ jobs:
             cmake -S tests -B /tmp/esp32framework2-tests-build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           '
 
-      - name: Run clang-tidy (C++)
+      - name: Run clang-tidy (production C++)
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
             set -e
-            find tests -type f -name "*.cpp" | xargs -r clang-tidy -p /tmp/esp32framework2-tests-build --warnings-as-errors=* --quiet
+            COMPILE_DB=/tmp/esp32framework2-tests-build/compile_commands.json
+
+            if [ ! -f "$COMPILE_DB" ]; then
+              echo "compile_commands.json not found at $COMPILE_DB"
+              exit 1
+            fi
+
+            grep -o '"file": "[^"]*"' "$COMPILE_DB" \
+              | sed 's/"file": "//; s/"$//' \
+              | grep '^/workspace/main/.*\\.cpp$' \
+              | sort -u > /tmp/clang_tidy_files.txt
+
+            if [ ! -s /tmp/clang_tidy_files.txt ]; then
+              echo "No production source files found for clang-tidy"
+              exit 1
+            fi
+
+            xargs -a /tmp/clang_tidy_files.txt clang-tidy -p /tmp/esp32framework2-tests-build --warnings-as-errors=* --quiet
           '
 
   website:

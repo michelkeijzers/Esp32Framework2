@@ -1,12 +1,12 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "MasterTask.hpp"
-#include "MockIMasterBridge.hpp"
 #include "MockIFreeRtosFactory.hpp"
+#include "MockIMasterBridge.hpp"
 #include "MockIRtosQueue.hpp"
-#include "MockIWebServerTask.hpp"
 #include "MockIRtosQueueSet.hpp"
+#include "MockIWebServerTask.hpp"
 
 using ::testing::Return;
 

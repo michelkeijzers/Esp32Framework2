@@ -2,7 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build (F7)",
+      "label": "Quality Check",
+      "type": "shell",
+      "windows": {
+        "command": "Write-Host 'Quality check is currently configured for Linux/devcontainer workflow.' -ForegroundColor Yellow"
+      },
+      "linux": {
+        "command": "bash -lc 'if [ -f /opt/esp/idf/export.sh ]; then . /opt/esp/idf/export.sh > /dev/null 2>&1; elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1; elif [ -n \"$IDF_PATH\" ] && [ -f \"$IDF_PATH/export.sh\" ]; then . \"$IDF_PATH/export.sh\" > /dev/null 2>&1; else echo \"ESP-IDF export.sh not found\"; exit 1; fi; bash scripts/run_quality_checks.sh'"
+      },
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Build + Tests",
       "type": "shell",
       "windows": {
         "command": "$ErrorActionPreference='Stop'; & cmd /c '\"C:\\Users\\i4studio\\esp\\v6.0\\esp-idf\\export.bat\" && idf.py build'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Write-Host ''; Write-Host '========== COVERAGE OUTPUT ==========' -ForegroundColor Cyan; if (Test-Path 'tests/build/coverage_html/index.html') { Write-Host 'HTML report: tests/build/coverage_html/index.html' -ForegroundColor Green } else { Write-Host 'HTML report not found at tests/build/coverage_html/index.html' -ForegroundColor Yellow }; if (Test-Path 'tests/build/coverage.xml') { Write-Host 'Cobertura XML: tests/build/coverage.xml' -ForegroundColor Green } else { Write-Host 'Cobertura XML not found at tests/build/coverage.xml' -ForegroundColor Yellow }"
@@ -10,11 +24,22 @@
       "linux": {
         "command": "bash -lc 'if [ -f /opt/esp/idf/export.sh ]; then . /opt/esp/idf/export.sh > /dev/null 2>&1; elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1; elif [ -n \"$IDF_PATH\" ] && [ -f \"$IDF_PATH/export.sh\" ]; then . \"$IDF_PATH/export.sh\" > /dev/null 2>&1; else echo \"ESP-IDF export.sh not found\"; exit 1; fi; if [ -f build/CMakeCache.txt ]; then stale_cmake=$(sed -n \"s/^CMAKE_COMMAND:INTERNAL=//p\" build/CMakeCache.txt | head -n 1); if [ -n \"$stale_cmake\" ] && [ ! -x \"$stale_cmake\" ]; then echo \"Detected stale CMake path in build cache: $stale_cmake\"; idf.py reconfigure; fi; fi; idf.py build && echo \"\" && echo \"========== INTEGRATION TESTS ==========\" && ctest --test-dir /tmp/esp32framework2-tests-build -N -R \"IntegrationTest|AppMainIntegrationTest\" && ctest --test-dir /tmp/esp32framework2-tests-build -R \"IntegrationTest|AppMainIntegrationTest\" --output-on-failure --progress; echo \"\"; echo \"========== COVERAGE OUTPUT ==========\"; [ -f tests/build/coverage_html/index.html ] && echo \"HTML report: tests/build/coverage_html/index.html\" || echo \"HTML report not found at tests/build/coverage_html/index.html\"; [ -f tests/build/coverage.xml ] && echo \"Cobertura XML: tests/build/coverage.xml\" || echo \"Cobertura XML not found at tests/build/coverage.xml\"'"
       },
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Build (F7)",
+      "type": "shell",
+      "command": "echo \"F7 pipeline completed\"",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Quality Check", "Build + Tests"],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": ["$gcc"],
+      "problemMatcher": [],
       "presentation": {
         "reveal": "always"
       }
