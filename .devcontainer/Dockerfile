@@ -2,6 +2,9 @@ FROM espressif/idf:v6.0
 
 # Install additional tools
 
+# Install clang-format and clang-tidy for C++ linting and static analysis
+RUN apt-get update && apt-get install -y --no-install-recommends clang-format clang-tidy && rm -rf /var/lib/apt/lists/*
+
 
 # Install Java (OpenJDK 17) for PlantUML and other tools, and Graphviz for PlantUML diagram rendering
 RUN apt-get update && apt-get install -y --no-install-recommends \
