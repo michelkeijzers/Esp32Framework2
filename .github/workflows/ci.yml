@@ -161,6 +161,52 @@ jobs:
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website esp32framework2-ci bash -c 'npm test'
 
+  docs:
+    runs-on: ubuntu-latest
+    needs: prepare-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Download CI image artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-image
+
+      - name: Load CI container image
+        run: docker load -i esp32framework2-ci.tar
+
+      - name: Generate documentation artifact
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+            set -e
+            DOCS_ARTIFACT_DIR=/workspace/.artifacts/docs
+
+            rm -rf "${DOCS_ARTIFACT_DIR}"
+            mkdir -p "${DOCS_ARTIFACT_DIR}"
+            cp -a /workspace/docs/. "${DOCS_ARTIFACT_DIR}/"
+
+            bash /workspace/.devcontainer/setup-plantuml.sh
+            PLANTUML_JAR=$(ls /workspace/.tools/plantuml/plantuml-*.jar | head -n 1)
+
+            if [ -z "${PLANTUML_JAR}" ] || [ ! -f "${PLANTUML_JAR}" ]; then
+              echo "PlantUML jar not found"
+              exit 1
+            fi
+
+            find "${DOCS_ARTIFACT_DIR}" -type f -name "*.puml" -print0 | xargs -0 -r java -Djava.awt.headless=true -jar "${PLANTUML_JAR}" -tsvg
+          '
+
+      - name: Upload generated docs artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: docs-generated
+          path: .artifacts/docs/**
+          if-no-files-found: error
+
   build:
     runs-on: ubuntu-latest
     needs: prepare-image
