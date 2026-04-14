@@ -92,8 +92,6 @@ void StatusTask::handleHeartbeatTimer(TickType_t now) {
     }
 
     if (allHeartbeatsOk) {
-        StatusTaskMessages::MessageEnvelope okMsg{};
-        okMsg.type = StatusTaskMessages::Type::ALL_HEARTBEATS_OK;
-        // TODO: send okMsg to Web Server Task queue.
+        // TODO: send ALL_HEARTBEATS_OK to Web Server Task queue.
     }
 }
