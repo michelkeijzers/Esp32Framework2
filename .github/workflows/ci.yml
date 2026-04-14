@@ -210,6 +210,96 @@ jobs:
           path: .artifacts/docs/**
           if-no-files-found: error
 
+  metrics:
+    runs-on: ubuntu-latest
+    needs: prepare-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Download CI image artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: ci-image
+
+      - name: Load CI container image
+        run: docker load -i esp32framework2-ci.tar
+
+      - name: Generate repository metrics
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+            set -e
+
+            METRICS_DIR=/workspace/.artifacts/metrics
+            HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
+
+            rm -rf "${METRICS_DIR}"
+            mkdir -p "${METRICS_DIR}"
+
+            CPP_FILE_COUNT=$(find /workspace/main /workspace/tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | wc -l)
+            CPP_LINE_COUNT=$(find /workspace/main /workspace/tests -type f \( -name "*.cpp" -o -name "*.hpp" \) -print0 | xargs -0 -r cat | wc -l)
+            DOC_MD_COUNT=$(find /workspace/docs -type f -name "*.md" | wc -l)
+            PUML_COUNT=$(find /workspace/docs -type f -name "*.puml" | wc -l)
+            WEBSITE_FILE_COUNT=$(find /workspace/main/project_dmx_controller/website -type f | wc -l)
+
+            cmake -S /workspace/tests -B ${HOST_TEST_BUILD_DIR} > /dev/null
+            TOTAL_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N | grep -E "^  Test" | wc -l)
+            UNIT_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -E "IntegrationTest|AppMainIntegrationTest" | grep -E "^  Test" | wc -l)
+            INTEGRATION_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -R "IntegrationTest|AppMainIntegrationTest" | grep -E "^  Test" | wc -l)
+
+            GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+            cat > "${METRICS_DIR}/metrics.json" <<EOF
+            {
+              "generated_at_utc": "${GENERATED_AT}",
+              "code": {
+                "cpp_hpp_file_count": ${CPP_FILE_COUNT},
+                "cpp_hpp_line_count": ${CPP_LINE_COUNT}
+              },
+              "tests": {
+                "total": ${TOTAL_TESTS},
+                "unit": ${UNIT_TESTS},
+                "integration": ${INTEGRATION_TESTS}
+              },
+              "docs": {
+                "markdown_file_count": ${DOC_MD_COUNT},
+                "plantuml_file_count": ${PUML_COUNT}
+              },
+              "website": {
+                "file_count": ${WEBSITE_FILE_COUNT}
+              }
+            }
+            EOF
+
+            cat > "${METRICS_DIR}/summary.md" <<EOF
+            ## CI Metrics
+
+            - Generated at (UTC): ${GENERATED_AT}
+            - C++ files (`*.cpp`, `*.hpp`): ${CPP_FILE_COUNT}
+            - C++ lines (`*.cpp`, `*.hpp`): ${CPP_LINE_COUNT}
+            - Total tests discovered: ${TOTAL_TESTS}
+            - Unit tests discovered: ${UNIT_TESTS}
+            - Integration tests discovered: ${INTEGRATION_TESTS}
+            - Docs Markdown files: ${DOC_MD_COUNT}
+            - Docs PlantUML files: ${PUML_COUNT}
+            - Website files: ${WEBSITE_FILE_COUNT}
+            EOF
+          '
+
+      - name: Publish metrics summary
+        run: |
+          cat .artifacts/metrics/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload metrics artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ci-metrics
+          path: .artifacts/metrics/**
+          if-no-files-found: error
+
   deploy-docs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
