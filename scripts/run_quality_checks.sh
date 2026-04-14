@@ -56,14 +56,16 @@ xargs -a /tmp/clang_tidy_files.txt clang-tidy -p "$HOST_TEST_BUILD_DIR" --warnin
 
 echo ""
 echo "========== QUALITY: WEBSITE =========="
-if [[ -f "$WEBSITE_DIR/package.json" ]]; then
-  if [[ ! -d "$WEBSITE_DIR/node_modules" ]]; then
-    npm --prefix "$WEBSITE_DIR" ci --include=optional --no-audit --no-fund
-  fi
-  npm --prefix "$WEBSITE_DIR" run format:check
-  npm --prefix "$WEBSITE_DIR" run test
-  npm --prefix "$WEBSITE_DIR" run build
+if [[ ! -f "$WEBSITE_DIR/package.json" ]]; then
+  echo "Missing $WEBSITE_DIR/package.json"
+  exit 1
 fi
+
+# Match CI behavior: always perform a clean install before website checks.
+npm --prefix "$WEBSITE_DIR" ci --include=optional --no-audit --no-fund
+npm --prefix "$WEBSITE_DIR" run format:check
+npm --prefix "$WEBSITE_DIR" run build
+npm --prefix "$WEBSITE_DIR" run test
 
 echo ""
 echo "Quality checks passed."
