@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  build-test-coverage:
+  prepare-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -14,7 +14,32 @@ jobs:
       - name: Build CI container image
         run: docker build -f .devcontainer/Dockerfile -t esp32framework2-ci .
 
-      - name: Run build, integration tests, and coverage
+      - name: Export CI image tarball
+        run: docker save esp32framework2-ci -o esp32framework2-ci.tar
+
+      - name: Upload CI image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-image
+          path: esp32framework2-ci.tar
+          if-no-files-found: error
+
+  build:
+    runs-on: ubuntu-latest
+    needs: prepare-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download CI image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-image
+
+      - name: Load CI container image
+        run: docker load -i esp32framework2-ci.tar
+
+      - name: Run ESP-IDF build only
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE":/workspace \
@@ -34,6 +59,10 @@ jobs:
                 exit 1
               fi
 
+              # Ensure CI build starts from a clean project build dir so no stale
+              # CMake cache can re-enable host test targets implicitly.
+              rm -rf /workspace/build
+
               if [ -f build/CMakeCache.txt ]; then
                 stale_cmake=$(sed -n "s/^CMAKE_COMMAND:INTERNAL=//p" build/CMakeCache.txt | head -n 1)
                 if [ -n "$stale_cmake" ] && [ ! -x "$stale_cmake" ]; then
@@ -43,12 +72,168 @@ jobs:
               fi
 
               echo "========== BUILD =========="
-              idf.py build
+              idf.py -DBUILD_HOST_TESTS_WITH_MAIN=OFF -DBUILD_HOST_COVERAGE_WITH_MAIN=OFF reconfigure
+              idf.py -DBUILD_HOST_TESTS_WITH_MAIN=OFF -DBUILD_HOST_COVERAGE_WITH_MAIN=OFF build
+            '
 
-              echo ""
-              echo "========== INTEGRATION TESTS =========="
-              ctest --test-dir /tmp/esp32framework2-tests-build -N -R "IntegrationTest|AppMainIntegrationTest"
-              ctest --test-dir /tmp/esp32framework2-tests-build -R "IntegrationTest|AppMainIntegrationTest" --output-on-failure --progress
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-image
+      - build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download CI image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-image
+
+      - name: Load CI container image
+        run: docker load -i esp32framework2-ci.tar
+
+      - name: Run host unit tests
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            -w /workspace \
+            esp32framework2-ci \
+            bash -lc '
+              set -e
+
+              HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
+
+              if [ -f /opt/esp/idf/export.sh ]; then
+                . /opt/esp/idf/export.sh > /dev/null 2>&1
+              elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then
+                . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1
+              elif [ -n "$IDF_PATH" ] && [ -f "$IDF_PATH/export.sh" ]; then
+                . "$IDF_PATH/export.sh" > /dev/null 2>&1
+              else
+                echo "ESP-IDF export.sh not found"
+                exit 1
+              fi
+
+              echo "========== UNIT TESTS: CONFIGURE =========="
+              cmake -E rm -rf \
+                ${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2 \
+                ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
+              cmake -S tests -B ${HOST_TEST_BUILD_DIR}
+
+              echo "========== UNIT TESTS: BUILD =========="
+              cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
+
+              echo "========== UNIT TESTS: RUN =========="
+              ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -E "IntegrationTest|AppMainIntegrationTest"
+              ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -E "IntegrationTest|AppMainIntegrationTest"
+            '
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-image
+      - build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download CI image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-image
+
+      - name: Load CI container image
+        run: docker load -i esp32framework2-ci.tar
+
+      - name: Run host integration tests
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            -w /workspace \
+            esp32framework2-ci \
+            bash -lc '
+              set -e
+
+              HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
+
+              if [ -f /opt/esp/idf/export.sh ]; then
+                . /opt/esp/idf/export.sh > /dev/null 2>&1
+              elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then
+                . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1
+              elif [ -n "$IDF_PATH" ] && [ -f "$IDF_PATH/export.sh" ]; then
+                . "$IDF_PATH/export.sh" > /dev/null 2>&1
+              else
+                echo "ESP-IDF export.sh not found"
+                exit 1
+              fi
+
+              echo "========== INTEGRATION TESTS: CONFIGURE =========="
+              cmake -E rm -rf \
+                ${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2 \
+                ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
+              cmake -S tests -B ${HOST_TEST_BUILD_DIR}
+
+              echo "========== INTEGRATION TESTS: BUILD =========="
+              cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
+
+              echo "========== INTEGRATION TESTS: RUN =========="
+              ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -R "IntegrationTest|AppMainIntegrationTest"
+              ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -R "IntegrationTest|AppMainIntegrationTest"
+            '
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-image
+      - build
+      - unit-tests
+      - integration-tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download CI image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-image
+
+      - name: Load CI container image
+        run: docker load -i esp32framework2-ci.tar
+
+      - name: Generate host coverage
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE":/workspace \
+            -w /workspace \
+            esp32framework2-ci \
+            bash -lc '
+              set -e
+
+              if [ -f /opt/esp/idf/export.sh ]; then
+                . /opt/esp/idf/export.sh > /dev/null 2>&1
+              elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then
+                . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1
+              elif [ -n "$IDF_PATH" ] && [ -f "$IDF_PATH/export.sh" ]; then
+                . "$IDF_PATH/export.sh" > /dev/null 2>&1
+              else
+                echo "ESP-IDF export.sh not found"
+                exit 1
+              fi
+
+              echo "========== COVERAGE: BUILD & RUN =========="
+              cmake -E rm -rf \
+                tests/build/CMakeFiles/3.30.2 \
+                tests/build/_deps/googletest-subbuild/CMakeFiles/3.30.2
+              cmake -S tests -B tests/build -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON
+              cmake --build tests/build --target unit_tests --parallel "$(nproc)"
+              cmake --build tests/build --target integration_tests --parallel "$(nproc)"
+              cmake \
+                -DGCOVR_EXE=/usr/bin/gcovr \
+                -DSOURCE_ROOT=/workspace \
+                -DCTEST_PARALLEL_LEVEL="$(nproc)" \
+                -DTEST_BUILD_DIR=/workspace/tests/build \
+                -P /workspace/tests/cmake/RunGcovr.cmake
 
               echo ""
               echo "========== COVERAGE OUTPUT =========="
