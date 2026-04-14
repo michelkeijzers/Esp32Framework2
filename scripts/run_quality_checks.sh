@@ -20,6 +20,20 @@ echo "========== QUALITY: CLANG-FORMAT =========="
 find main tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | xargs -r clang-format -n --Werror
 
 echo ""
+echo "========== QUALITY: PRETTIER (REPO) =========="
+if [[ -x "$WEBSITE_DIR/node_modules/.bin/prettier" ]]; then
+  PRETTIER_BIN="$WEBSITE_DIR/node_modules/.bin/prettier"
+elif command -v prettier >/dev/null 2>&1; then
+  PRETTIER_BIN="$(command -v prettier)"
+else
+  echo "Prettier not found. Installing website dependencies to obtain local Prettier..."
+  npm --prefix "$WEBSITE_DIR" ci --include=optional --no-audit --no-fund
+  PRETTIER_BIN="$WEBSITE_DIR/node_modules/.bin/prettier"
+fi
+
+"$PRETTIER_BIN" --check "**/*.{js,ts,css,scss,md,json,html}"
+
+echo ""
 echo "========== QUALITY: CLANG-TIDY (PRODUCTION) =========="
 cmake -S tests -B "$HOST_TEST_BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null
 COMPILE_DB="$HOST_TEST_BUILD_DIR/compile_commands.json"
