@@ -2,10 +2,15 @@ name: CI
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  COVERAGE_MIN_PERCENT: ${{ vars.COVERAGE_MIN_PERCENT }}
 
 on:
   push:
   pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   prepare-image:
@@ -223,11 +228,20 @@ jobs:
               ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
             cmake -S tests -B ${HOST_TEST_BUILD_DIR}
             cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
+            mkdir -p ${HOST_TEST_BUILD_DIR}/reports
 
             echo "========== UNIT TESTS =========="
             ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -E "IntegrationTest|AppMainIntegrationTest"
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -E "IntegrationTest|AppMainIntegrationTest"
+            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -E "IntegrationTest|AppMainIntegrationTest" --output-junit ${HOST_TEST_BUILD_DIR}/reports/unit-tests.xml
           '
+
+      - name: Upload unit test report artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: unit-test-results
+          path: /tmp/esp32framework2-tests-build/reports/unit-tests.xml
+          if-no-files-found: warn
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -259,11 +273,20 @@ jobs:
               ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
             cmake -S tests -B ${HOST_TEST_BUILD_DIR}
             cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
+            mkdir -p ${HOST_TEST_BUILD_DIR}/reports
 
             echo "========== INTEGRATION TESTS =========="
             ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -R "IntegrationTest|AppMainIntegrationTest"
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -R "IntegrationTest|AppMainIntegrationTest"
+            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -R "IntegrationTest|AppMainIntegrationTest" --output-junit ${HOST_TEST_BUILD_DIR}/reports/integration-tests.xml
           '
+
+      - name: Upload integration test report artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: integration-test-results
+          path: /tmp/esp32framework2-tests-build/reports/integration-tests.xml
+          if-no-files-found: warn
 
   coverage:
     runs-on: ubuntu-latest
@@ -309,6 +332,31 @@ jobs:
             [ -f tests/build/coverage_html/index.html ] && echo "HTML report: tests/build/coverage_html/index.html" || echo "HTML report not found at tests/build/coverage_html/index.html"
             [ -f tests/build/coverage.xml ] && echo "Cobertura XML: tests/build/coverage.xml" || echo "Cobertura XML not found at tests/build/coverage.xml"
           '
+
+      - name: Enforce coverage threshold
+        run: |
+          set -e
+          COVERAGE_XML=tests/build/coverage.xml
+          MIN_COVERAGE="${COVERAGE_MIN_PERCENT:-60}"
+
+          if [ ! -f "$COVERAGE_XML" ]; then
+            echo "Coverage XML not found at $COVERAGE_XML"
+            exit 1
+          fi
+
+          LINE_RATE=$(grep -o 'line-rate="[0-9.]*"' "$COVERAGE_XML" | head -n 1 | sed 's/line-rate="//; s/"//')
+          if [ -z "$LINE_RATE" ]; then
+            echo "Could not parse line-rate from $COVERAGE_XML"
+            exit 1
+          fi
+
+          COVERAGE_PERCENT=$(awk -v rate="$LINE_RATE" 'BEGIN { printf "%.2f", rate * 100 }')
+          echo "Coverage: ${COVERAGE_PERCENT}% (minimum required: ${MIN_COVERAGE}%)"
+
+          awk -v coverage="$COVERAGE_PERCENT" -v min="$MIN_COVERAGE" 'BEGIN { exit !(coverage + 0 >= min + 0) }' || {
+            echo "Coverage gate failed: ${COVERAGE_PERCENT}% is below ${MIN_COVERAGE}%"
+            exit 1
+          }
 
       - name: Upload coverage HTML artifact
         if: always()
