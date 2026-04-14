@@ -100,14 +100,17 @@ jobs:
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
-            cmake -S tests -B /tmp/esp32framework2-tests-build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            CLANG_TIDY_BUILD_DIR=/workspace/.artifacts/clang-tidy-build
+            cmake -E rm -rf "$CLANG_TIDY_BUILD_DIR"
+            cmake -S tests -B "$CLANG_TIDY_BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           '
 
       - name: Run clang-tidy (production C++)
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
-            COMPILE_DB=/tmp/esp32framework2-tests-build/compile_commands.json
+            CLANG_TIDY_BUILD_DIR=/workspace/.artifacts/clang-tidy-build
+            COMPILE_DB="$CLANG_TIDY_BUILD_DIR/compile_commands.json"
 
             if [ ! -f "$COMPILE_DB" ]; then
               echo "compile_commands.json not found at $COMPILE_DB"
@@ -124,7 +127,7 @@ jobs:
               exit 1
             fi
 
-            xargs -a /tmp/clang_tidy_files.txt clang-tidy -p /tmp/esp32framework2-tests-build --warnings-as-errors=* --quiet
+            xargs -a /tmp/clang_tidy_files.txt clang-tidy -p "$CLANG_TIDY_BUILD_DIR" --warnings-as-errors=* --quiet
           '
 
   website:
@@ -333,13 +336,10 @@ jobs:
           METRICS_DIR=.artifacts/metrics
           SUMMARY_FILE="$METRICS_DIR/summary.md"
 
-          mkdir -p "$METRICS_DIR"
-
           if [[ -f "$SUMMARY_FILE" ]]; then
             cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
           else
             printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' >> "$GITHUB_STEP_SUMMARY"
-            printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' > "$SUMMARY_FILE"
           fi
 
       - name: Upload metrics artifact
@@ -445,17 +445,19 @@ jobs:
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
+            UNIT_REPORT_DIR=/workspace/.artifacts/test-reports/unit
 
             cmake -E rm -rf \
               ${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2 \
               ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
+            cmake -E rm -rf ${UNIT_REPORT_DIR}
             cmake -S tests -B ${HOST_TEST_BUILD_DIR}
             cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
-            mkdir -p ${HOST_TEST_BUILD_DIR}/reports
+            mkdir -p ${UNIT_REPORT_DIR}
 
             echo "========== UNIT TESTS =========="
             ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -E "IntegrationTest|AppMainIntegrationTest"
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -E "IntegrationTest|AppMainIntegrationTest" --output-junit ${HOST_TEST_BUILD_DIR}/reports/unit-tests.xml
+            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -E "IntegrationTest|AppMainIntegrationTest" --output-junit ${UNIT_REPORT_DIR}/unit-tests.xml
           '
 
       - name: Upload unit test report artifact
@@ -463,7 +465,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: unit-test-results
-          path: /tmp/esp32framework2-tests-build/reports/unit-tests.xml
+          path: .artifacts/test-reports/unit/unit-tests.xml
           if-no-files-found: warn
 
   integration-tests:
@@ -492,17 +494,19 @@ jobs:
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
+            INTEGRATION_REPORT_DIR=/workspace/.artifacts/test-reports/integration
 
             cmake -E rm -rf \
               ${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2 \
               ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
+            cmake -E rm -rf ${INTEGRATION_REPORT_DIR}
             cmake -S tests -B ${HOST_TEST_BUILD_DIR}
             cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
-            mkdir -p ${HOST_TEST_BUILD_DIR}/reports
+            mkdir -p ${INTEGRATION_REPORT_DIR}
 
             echo "========== INTEGRATION TESTS =========="
             ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -R "IntegrationTest|AppMainIntegrationTest"
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -R "IntegrationTest|AppMainIntegrationTest" --output-junit ${HOST_TEST_BUILD_DIR}/reports/integration-tests.xml
+            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -R "IntegrationTest|AppMainIntegrationTest" --output-junit ${INTEGRATION_REPORT_DIR}/integration-tests.xml
           '
 
       - name: Upload integration test report artifact
@@ -510,7 +514,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: integration-test-results
-          path: /tmp/esp32framework2-tests-build/reports/integration-tests.xml
+          path: .artifacts/test-reports/integration/integration-tests.xml
           if-no-files-found: warn
 
   coverage:
