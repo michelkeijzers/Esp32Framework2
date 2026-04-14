@@ -114,9 +114,9 @@ jobs:
               exit 1
             fi
 
-            grep -o '"file": "[^"]*"' "$COMPILE_DB" \
-              | sed 's/"file": "//; s/"$//' \
-              | grep '^/workspace/main/.*\\.cpp$' \
+            grep -o "\"file\": \"[^\"]*\"" "$COMPILE_DB" \
+              | sed "s/\"file\": \"//; s/\"$//" \
+              | grep "^/workspace/main/.*\\.cpp$" \
               | sort -u > /tmp/clang_tidy_files.txt
 
             if [ ! -s /tmp/clang_tidy_files.txt ]; then
@@ -338,17 +338,8 @@ jobs:
           if [[ -f "$SUMMARY_FILE" ]]; then
             cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
           else
-            cat >> "$GITHUB_STEP_SUMMARY" <<EOF
-            ## CI Metrics
-
-            - Metrics summary was not generated in this run.
-            EOF
-
-            cat > "$SUMMARY_FILE" <<EOF
-            ## CI Metrics
-
-            - Metrics summary was not generated in this run.
-            EOF
+            printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' >> "$GITHUB_STEP_SUMMARY"
+            printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' > "$SUMMARY_FILE"
           fi
 
       - name: Upload metrics artifact
@@ -571,7 +562,7 @@ jobs:
         run: |
           set -e
           COVERAGE_XML=tests/build/coverage.xml
-          MIN_COVERAGE="${COVERAGE_MIN_PERCENT:-60}"
+          MIN_COVERAGE="${COVERAGE_MIN_PERCENT:-95.0}"
 
           if [ ! -f "$COVERAGE_XML" ]; then
             echo "Coverage XML not found at $COVERAGE_XML"
