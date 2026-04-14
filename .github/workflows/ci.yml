@@ -3,16 +3,17 @@ name: CI
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   COVERAGE_MIN_PERCENT: ${{ vars.COVERAGE_MIN_PERCENT }}
+  CI_IMAGE: ghcr.io/michelkeijzers/esp32framework2-ci:${{ github.sha }}
 
 on:
   push:
-  pull_request:
   schedule:
     - cron: "0 2 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -30,25 +31,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build CI container image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: .devcontainer/Dockerfile
-          tags: esp32framework2-ci:latest
-          load: true
+          tags: |
+            ${{ env.CI_IMAGE }}
+            ghcr.io/michelkeijzers/esp32framework2-ci:latest
+          push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Export CI image tarball
-        run: docker save esp32framework2-ci:latest -o esp32framework2-ci.tar
-
-      - name: Upload CI image artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: ci-image
-          path: esp32framework2-ci.tar
-          if-no-files-found: error
 
   lint-format:
     runs-on: ubuntu-latest
@@ -58,22 +58,23 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Run clang-format (C++)
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -c 'find main tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | xargs -r clang-format -n --Werror'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -c 'find main tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | xargs -r clang-format -n --Werror'
 
       - name: Run Prettier (JS/Markdown/CSS)
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -c 'prettier --check "**/*.{js,ts,css,scss,md,json,html}"'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -c 'prettier --check "**/*.{js,ts,css,scss,md,json,html}"'
 
   static-analysis:
     runs-on: ubuntu-latest
@@ -83,25 +84,26 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Configure host tests for compile database
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             cmake -S tests -B /tmp/esp32framework2-tests-build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           '
 
       - name: Run clang-tidy (production C++)
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             COMPILE_DB=/tmp/esp32framework2-tests-build/compile_commands.json
 
@@ -131,14 +133,15 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Cache npm dependencies
         uses: actions/cache@v4
@@ -150,19 +153,19 @@ jobs:
 
       - name: Install npm dependencies
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website esp32framework2-ci bash -c 'npm ci --include=optional --no-audit --no-fund'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website $CI_IMAGE bash -c 'npm ci --include=optional --no-audit --no-fund'
 
       - name: Run Prettier (website)
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website esp32framework2-ci bash -c 'npm run format:check'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website $CI_IMAGE bash -c 'npm run format:check'
 
       - name: Build website
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website esp32framework2-ci bash -c 'npm run build'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website $CI_IMAGE bash -c 'npm run build'
 
       - name: Test website
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website esp32framework2-ci bash -c 'npm test'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace/main/project_dmx_controller/website $CI_IMAGE bash -c 'npm test'
 
   docs:
     runs-on: ubuntu-latest
@@ -172,18 +175,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Generate documentation artifact
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             DOCS_ARTIFACT_DIR=/workspace/.artifacts/docs
 
@@ -218,18 +222,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Generate repository metrics
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
 
             METRICS_DIR=/workspace/.artifacts/metrics
@@ -301,7 +306,7 @@ jobs:
           if-no-files-found: error
 
   deploy-docs:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: docs
     permissions:
@@ -337,18 +342,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Run ESP-IDF build only
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
 
             if [ -f /opt/esp/idf/export.sh ]; then
@@ -379,18 +385,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Run host unit tests
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
 
@@ -425,18 +432,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Run host integration tests
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
 
@@ -473,18 +481,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           submodules: recursive
-
-      - name: Download CI image artifact
-        uses: actions/download-artifact@v5
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          name: ci-image
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load CI container image
-        run: docker load -i esp32framework2-ci.tar
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
       - name: Generate host coverage
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace esp32framework2-ci bash -lc '
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
 
             echo "========== COVERAGE: BUILD & RUN =========="
