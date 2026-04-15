@@ -14,6 +14,7 @@ ApiConfig::~ApiConfig() = default;
 
 esp_err_t ApiConfig::get_config_handler(httpd_req_t* req) {
     char response[MAX_RESPONSE_SIZE];
+    char payload[MAX_RESPONSE_SIZE];
     char ssid[API_MAX_SSID_LEN + 1] = {0};
     char device_name[MAX_DEVICE_NAME_LEN + 1] = {0};
     size_t len = 0;
@@ -43,11 +44,11 @@ esp_err_t ApiConfig::get_config_handler(httpd_req_t* req) {
     espHttpServer_.httpd_resp_set_type(req, "application/json");
 
     // Format: {"wifi_ssid":"MyNetwork","device_name":"master","espnow_configured":true}
-    snprintf(response, MAX_RESPONSE_SIZE,
+    snprintf(payload, MAX_RESPONSE_SIZE,
              "{\"wifi_ssid\":\"%s\",\"device_name\":\"%s\",\"espnow_configured\":true}", ssid,
              device_name);
 
-    int written = ApiResponse::build_success_response(response, MAX_RESPONSE_SIZE, response);
+    int written = ApiResponse::build_success_response(response, MAX_RESPONSE_SIZE, payload);
     if (written > 0) {
         espHttpServer_.httpd_resp_send(req, response, written);
     } else {
@@ -79,6 +80,7 @@ esp_err_t ApiConfig::put_config_handler(httpd_req_t* req) {
     buffer[total_len] = '\0';
 
     char response[MAX_RESPONSE_SIZE];
+    char payload[MAX_RESPONSE_SIZE];
     char ssid[API_MAX_SSID_LEN + 1] = {0};
     char device_name[MAX_DEVICE_NAME_LEN + 1] = {0};
     bool has_ssid = false, has_device_name = false;
@@ -151,11 +153,11 @@ esp_err_t ApiConfig::put_config_handler(httpd_req_t* req) {
 
     // Return success response
     espHttpServer_.httpd_resp_set_type(req, "application/json");
-    snprintf(response, MAX_RESPONSE_SIZE,
+    snprintf(payload, MAX_RESPONSE_SIZE,
              "{\"message\":\"Configuration updated\",\"wifi_ssid\":\"%s\",\"device_name\":\"%s\"}",
              ssid, device_name);
 
-    int written = ApiResponse::build_success_response(response, MAX_RESPONSE_SIZE, response);
+    int written = ApiResponse::build_success_response(response, MAX_RESPONSE_SIZE, payload);
     if (written > 0) {
         espHttpServer_.httpd_resp_send(req, response, written);
     } else {

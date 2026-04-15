@@ -37,7 +37,10 @@ esp_err_t ApiPresetValues::set_preset_value_handler(httpd_req_t* req) {
     // Extract preset number and channel from URI: /api/v1/preset_value/<preset>/<channel>
     // Value should ideally come from request body (JSON: {"value": 255})
     // For now, we extract it from the third wildcard if available
-    auto params = UriParamExtractor::extractParams("/api/v1/preset_value/*/*", req->uri);
+    auto params = UriParamExtractor::extractParams("/api/v1/preset_value/*/*/*", req->uri);
+    if (params.size() < 2) {
+        params = UriParamExtractor::extractParams("/api/v1/preset_value/*/*", req->uri);
+    }
 
     if (params.size() < 2) {
         espHttpServer_.httpd_resp_set_type(req, "application/json");

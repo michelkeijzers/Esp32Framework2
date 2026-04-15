@@ -71,7 +71,17 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/web_server_task/apis/ApiStatus.cpp
     ${MAIN_DIR}/common/web_server_task/apis/ApiSystem.cpp
     ${MAIN_DIR}/common/web_server_task/apis/ApiValidator.cpp
+    ${MAIN_DIR}/common/context/CommonApiFactory.cpp
+    ${MAIN_DIR}/common/context/ContextFactory.cpp
+    ${MAIN_DIR}/common/context/EspFactory.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/EspLittleFsStub.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/EspHttpServerStub.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/EspLoggerStub.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/EspNvsStub.cpp
     ${MAIN_DIR}/project_dmx_controller/web_server_task/WebServerTask.cpp
+    ${MAIN_DIR}/project_dmx_controller/web_server_task/ApiServer.cpp
+    ${MAIN_DIR}/project_dmx_controller/master_task/DmxApiFactory.cpp
+    ${MAIN_DIR}/project_dmx_controller/master_task/DmxContextFactory.cpp
     ${MAIN_DIR}/project_dmx_controller/master_task/MasterNode.cpp
     ${MAIN_DIR}/project_dmx_controller/master_task/MasterTask.cpp
     ${MAIN_DIR}/project_dmx_controller/presets_task/PresetManager.cpp
@@ -91,6 +101,7 @@ set(PROD_SOURCES
     ${MAIN_DIR}/common/tasks/IRtosQueueSet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/mocks/RtosQueueStub.cpp
     ${CMAKE_CURRENT_LIST_DIR}/mocks/RtosQueueSetStub.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/mocks/FreeRtosFactoryStub.cpp
 )
 
 add_library(production_lib STATIC ${PROD_SOURCES})
