@@ -7,6 +7,40 @@ CPPLINT_REPORT=ci_metrics_cpplint.txt
 LIZARD_REPORT=ci_metrics_lizard.txt
 SUMMARY=ci_metrics_summary.md
 
+PYTHON_CANDIDATES=(
+  "/opt/esp/python_env/idf6.0_py3.12_env/bin/python"
+  "python3"
+  "python"
+)
+
+resolve_python_for_module() {
+  local module_name="$1"
+  local py
+
+  for py in "${PYTHON_CANDIDATES[@]}"; do
+    if command -v "$py" >/dev/null 2>&1 && "$py" -m "$module_name" --version >/dev/null 2>&1; then
+      echo "$py"
+      return 0
+    fi
+  done
+
+  for py in "${PYTHON_CANDIDATES[@]}"; do
+    if ! command -v "$py" >/dev/null 2>&1; then
+      continue
+    fi
+
+    if "$py" -m pip --version >/dev/null 2>&1; then
+      "$py" -m pip install --user "$module_name" >/dev/null 2>&1 || "$py" -m pip install "$module_name" >/dev/null 2>&1 || true
+      if "$py" -m "$module_name" --version >/dev/null 2>&1; then
+        echo "$py"
+        return 0
+      fi
+    fi
+  done
+
+  return 1
+}
+
 # 1. Gather TODOs
 {
   echo "# TODOs in Codebase"
@@ -14,35 +48,23 @@ SUMMARY=ci_metrics_summary.md
 } > "$TODO_REPORT"
 
 # 2. Run cpplint (C++ linting)
-cpplint_found=0
-if command -v cpplint >/dev/null 2>&1; then
-  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r cpplint --quiet --filter=-legal/copyright,-whitespace/line_length 2> "$CPPLINT_REPORT" || true
-  cpplint_found=1
-elif command -v python >/dev/null 2>&1 && python -m cpplint --version >/dev/null 2>&1; then
-  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r python -m cpplint --quiet --filter=-legal/copyright,-whitespace/line_length 2> "$CPPLINT_REPORT" || true
-  cpplint_found=1
-elif command -v python3 >/dev/null 2>&1 && python3 -m cpplint --version >/dev/null 2>&1; then
-  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r python3 -m cpplint --quiet --filter=-legal/copyright,-whitespace/line_length 2> "$CPPLINT_REPORT" || true
-  cpplint_found=1
-fi
-if [[ $cpplint_found -eq 0 ]]; then
-  echo "cpplint not found or not installed." > "$CPPLINT_REPORT"
+if CPPLINT_PY="$(resolve_python_for_module cpplint)"; then
+  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r "$CPPLINT_PY" -m cpplint --quiet --filter=-legal/copyright,-whitespace/line_length 2> "$CPPLINT_REPORT" || true
+  if [[ ! -s "$CPPLINT_REPORT" ]]; then
+    echo "No cpplint issues found." > "$CPPLINT_REPORT"
+  fi
+else
+  echo "cpplint could not be resolved or installed in CI environment." > "$CPPLINT_REPORT"
 fi
 
 # 3. Run lizard (code complexity)
-lizard_found=0
-if command -v lizard >/dev/null 2>&1; then
-  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r lizard > "$LIZARD_REPORT" || true
-  lizard_found=1
-elif command -v python >/dev/null 2>&1 && python -m lizard --version >/dev/null 2>&1; then
-  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r python -m lizard > "$LIZARD_REPORT" || true
-  lizard_found=1
-elif command -v python3 >/dev/null 2>&1 && python3 -m lizard --version >/dev/null 2>&1; then
-  find main tests -type f \( -name '*.cpp' -o -name '*.hpp' \) | xargs -r python3 -m lizard > "$LIZARD_REPORT" || true
-  lizard_found=1
-fi
-if [[ $lizard_found -eq 0 ]]; then
-  echo "lizard not found or not installed." > "$LIZARD_REPORT"
+if LIZARD_PY="$(resolve_python_for_module lizard)"; then
+  "$LIZARD_PY" -m lizard main tests > "$LIZARD_REPORT" 2>&1 || true
+  if [[ ! -s "$LIZARD_REPORT" ]]; then
+    echo "No lizard output produced." > "$LIZARD_REPORT"
+  fi
+else
+  echo "lizard could not be resolved or installed in CI environment." > "$LIZARD_REPORT"
 fi
 
 # 4. Generate Markdown summary
