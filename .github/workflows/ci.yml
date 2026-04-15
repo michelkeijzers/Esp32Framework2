@@ -270,6 +270,13 @@ jobs:
             ci_metrics_lizard.csv
             ci_metrics_metrics.json
             ci_metrics_summary.md
+
+        - name: 📦 Download ci-code-metrics artifact (blue link)
+          if: always()
+          run: |
+            if [[ -n "${{ steps.upload_ci_metrics.outputs.artifact-url }}" ]]; then
+              echo "[Download ci-code-metrics artifact](${{ steps.upload_ci_metrics.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
+            fi
       - name: Add CI metrics summary to GitHub Actions
         if: always()
         run: |
@@ -402,6 +409,14 @@ jobs:
           name: ci-metrics
           path: .artifacts/metrics
           if-no-files-found: warn
+
+        - name: 📦 Download ci-metrics artifact (blue link)
+          if: always()
+          run: |
+            # GitHub does not provide a direct artifact URL for this step, so link to the artifacts page
+            if [[ -n "$GITHUB_RUN_ID" ]]; then
+              echo "[Download ci-metrics artifact](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)" >> "$GITHUB_STEP_SUMMARY"
+            fi
 
   deploy-docs:
     if: github.ref == 'refs/heads/main'
