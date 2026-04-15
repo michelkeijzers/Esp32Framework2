@@ -252,7 +252,7 @@ jobs:
       - name: Upload CI metrics artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ci-metrics
+          name: ci-code-metrics
           path: |
             ci_metrics_todos.txt
             ci_metrics_cpplint.txt
