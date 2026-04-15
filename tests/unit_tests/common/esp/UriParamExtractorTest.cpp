@@ -76,3 +76,27 @@ TEST(UriParamExtractorTest, ExtractUint32LargeNumber) {
         UriParamExtractor::extractFirstParamAsUint32("/api/v1/presets/*", "/api/v1/presets/65535");
     EXPECT_EQ(65535u, v);
 }
+
+TEST(UriParamExtractorTest, TrailingWildcardCanCaptureEmptyParameter) {
+    auto params = UriParamExtractor::extractParams("/api/v1/presets/*", "/api/v1/presets/");
+    EXPECT_TRUE(params.empty());
+}
+
+TEST(UriParamExtractorTest, MiddleWildcardCanCaptureEmptySegment) {
+    auto params =
+        UriParamExtractor::extractParams("/api/v1/preset/*/channel/*", "/api/v1/preset//channel/7");
+    ASSERT_EQ(2u, params.size());
+    EXPECT_EQ("", params[0]);
+    EXPECT_EQ("7", params[1]);
+}
+
+TEST(UriParamExtractorTest, PatternPrefixMismatchReturnsEmpty) {
+    auto params = UriParamExtractor::extractParams("/api/v1/presets/*", "/api/v2/presets/1");
+    EXPECT_TRUE(params.empty());
+}
+
+TEST(UriParamExtractorTest, Uint32WithLeadingZerosParsesCorrectly) {
+    uint32_t v =
+        UriParamExtractor::extractFirstParamAsUint32("/api/v1/presets/*", "/api/v1/presets/00042");
+    EXPECT_EQ(42u, v);
+}

@@ -46,6 +46,17 @@ TEST_F(ServiceTasksTest, ConstructorAddsLoggingAndOtaTaskStaticInfos) {
     EXPECT_EQ("OTA Task", nodeStaticInfo.tasksStaticInfo[1].taskName);
 }
 
+TEST(ServiceTasksOffsetTest, ConstructorAppliesNodeOffsetToTaskIds) {
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
+    NodeStaticInfo nodeStaticInfo{1, "Node", "1.0.0", "1.0.0", "", ""};
+    ServiceTasks serviceTasks{mockRtosFactory, nodeStaticInfo, 100};
+
+    (void)serviceTasks;
+    ASSERT_EQ(2U, nodeStaticInfo.tasksStaticInfo.size());
+    EXPECT_EQ(110, nodeStaticInfo.tasksStaticInfo[0].taskId);
+    EXPECT_EQ(112, nodeStaticInfo.tasksStaticInfo[1].taskId);
+}
+
 TEST_F(ServiceTasksTest, GetLoggingTaskReturnsReference) {
     ILoggingTask &ref = serviceTasks.getLoggingTask();
     // Just verify the reference is valid (non-null)
@@ -99,6 +110,17 @@ TEST(LoggingTaskTest, TaskEntryReturnsImmediatelyWhenNoQueueIsPresent) {
     EXPECT_NO_THROW(loggingTask.callTaskEntry());
 }
 
+TEST(LoggingTaskTest, StartReturnsFailWhenTaskCreationFails) {
+    ::testing::StrictMock<MockIFreeRtosFactory> mockRtosFactory;
+    LoggingTask loggingTask(mockRtosFactory);
+
+    EXPECT_CALL(mockRtosFactory,
+                createTask(_, StrEq("logging_task"), 4096, &loggingTask, 5, nullptr))
+        .WillOnce(Return(pdFAIL));
+
+    EXPECT_EQ(ESP_FAIL, loggingTask.start());
+}
+
 TEST(OtaTaskTest, InitReturnsOkAndStartDelegatesToRtosTask) {
     ::testing::StrictMock<MockIFreeRtosFactory> mockRtosFactory;
     OtaTask otaTask(mockRtosFactory);
@@ -114,6 +136,16 @@ TEST(OtaTaskTest, TaskEntryReturnsImmediatelyWhenNoQueueIsPresent) {
     ExposedOtaTask otaTask(mockRtosFactory);
 
     EXPECT_NO_THROW(otaTask.callTaskEntry());
+}
+
+TEST(OtaTaskTest, StartReturnsFailWhenTaskCreationFails) {
+    ::testing::StrictMock<MockIFreeRtosFactory> mockRtosFactory;
+    OtaTask otaTask(mockRtosFactory);
+
+    EXPECT_CALL(mockRtosFactory, createTask(_, StrEq("ota_task"), 8192, &otaTask, 8, nullptr))
+        .WillOnce(Return(pdFAIL));
+
+    EXPECT_EQ(ESP_FAIL, otaTask.start());
 }
 
 class MasterServiceTasksTest : public ::testing::Test {
@@ -135,6 +167,18 @@ TEST_F(MasterServiceTasksTest, ConstructorAddsLoggingOtaAndStatusTaskStaticInfos
     EXPECT_EQ("OTA Task", nodeStaticInfo.tasksStaticInfo[1].taskName);
     EXPECT_EQ(11, nodeStaticInfo.tasksStaticInfo[2].taskId);
     EXPECT_EQ("Status Task", nodeStaticInfo.tasksStaticInfo[2].taskName);
+}
+
+TEST(MasterServiceTasksOffsetTest, ConstructorAppliesNodeOffsetToAllTaskIds) {
+    ::testing::NiceMock<MockIFreeRtosFactory> mockRtosFactory;
+    NodeStaticInfo nodeStaticInfo{1, "Node", "1.0.0", "1.0.0", "", ""};
+    MasterServiceTasks serviceTasks{mockRtosFactory, nodeStaticInfo, 50};
+
+    (void)serviceTasks;
+    ASSERT_EQ(3U, nodeStaticInfo.tasksStaticInfo.size());
+    EXPECT_EQ(60, nodeStaticInfo.tasksStaticInfo[0].taskId);
+    EXPECT_EQ(62, nodeStaticInfo.tasksStaticInfo[1].taskId);
+    EXPECT_EQ(61, nodeStaticInfo.tasksStaticInfo[2].taskId);
 }
 
 TEST_F(MasterServiceTasksTest, StartReturnsFailWhenStatusTaskStartFails) {

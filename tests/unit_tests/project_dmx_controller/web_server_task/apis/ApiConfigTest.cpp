@@ -210,3 +210,63 @@ TEST_F(ApiConfigTest, PutConfigWritesValuesAndReturnsSuccessResponse) {
     EXPECT_THAT(response, HasSubstr("StageWifi"));
     EXPECT_THAT(response, HasSubstr("master_1"));
 }
+
+TEST_F(ApiConfigTest, GetConfigReturnsSuccessWithEmptyValuesWhenKeysMissing) {
+    std::string response;
+
+    EXPECT_CALL(mockNvs, nvs_open(StrEq("config"), NVS_READONLY, _))
+        .WillOnce(DoAll(SetArgPointee<2>(nvsHandle), Return(ESP_OK)));
+    EXPECT_CALL(mockNvs, nvs_get_str(nvsHandle, StrEq("wifi_ssid"), _, _))
+        .WillOnce(Return(ESP_FAIL));
+    EXPECT_CALL(mockNvs, nvs_get_str(nvsHandle, StrEq("device_name"), _, _))
+        .WillOnce(Return(ESP_FAIL));
+    EXPECT_CALL(mockNvs, nvs_close(nvsHandle)).Times(1);
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, _))
+        .WillOnce([&](httpd_req_t *, const char *body, size_t len) {
+            response.assign(body, len);
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiConfig.get_config_handler(&request));
+    EXPECT_THAT(response, HasSubstr("\"wifi_ssid\":\"\""));
+    EXPECT_THAT(response, HasSubstr("\"device_name\":\"\""));
+}
+
+TEST_F(ApiConfigTest, PutConfigHandlesChunkedReceiveWithTimeoutRetry) {
+    std::string response;
+    const char *chunk1 = "{\"wifi_ssid\":\"Chunk";
+    const char *chunk2 = "Wifi\",\"device_name\":\"chunk_node\"}";
+
+    EXPECT_CALL(mockEspHttpServer, httpd_req_recv(&request, _, _))
+        .WillOnce([&](httpd_req_t *, char *buffer, size_t) {
+            std::strcpy(buffer, chunk1);
+            return static_cast<int>(std::strlen(chunk1));
+        })
+        .WillOnce([&](httpd_req_t *, char *buffer, size_t) {
+            std::strcpy(buffer, chunk2);
+            return static_cast<int>(std::strlen(chunk2));
+        })
+        .WillOnce(Return(0));
+
+    EXPECT_CALL(mockNvs, nvs_open(StrEq("config"), NVS_READWRITE, _))
+        .WillOnce(DoAll(SetArgPointee<2>(nvsHandle), Return(ESP_OK)));
+    EXPECT_CALL(mockNvs, nvs_set_str(nvsHandle, StrEq("wifi_ssid"), StrEq("ChunkWifi")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockNvs, nvs_set_str(nvsHandle, StrEq("device_name"), StrEq("chunk_node")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockNvs, nvs_commit(nvsHandle)).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockNvs, nvs_close(nvsHandle)).Times(1);
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, _))
+        .WillOnce([&](httpd_req_t *, const char *bodyOut, size_t len) {
+            response.assign(bodyOut, len);
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiConfig.put_config_handler(&request));
+    EXPECT_THAT(response, HasSubstr("ChunkWifi"));
+    EXPECT_THAT(response, HasSubstr("chunk_node"));
+}

@@ -221,3 +221,68 @@ TEST_F(ApiPresetsTest, SwapActivationHandlerReturnsUpdatedPresetList) {
     EXPECT_EQ(ESP_OK, apiPresets.swap_preset_activation_handler(&request));
     EXPECT_EQ("[{\"number\":9,\"name\":\"Live\",\"active\":true}]", response);
 }
+
+TEST_F(ApiPresetsTest, BlackoutHandlerReturnsNokWhenBlackoutFails) {
+    EXPECT_CALL(mockPresetManager, blackout()).WillOnce(Return(ESP_FAIL));
+    EXPECT_CALL(mockPresetManager, commit()).Times(0);
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer,
+                httpd_resp_send(&request, StrEq("{\"ack\":\"nok\"}"), HTTPD_RESP_USE_STRLEN))
+        .WillOnce(Return(ESP_OK));
+
+    EXPECT_EQ(ESP_FAIL, apiPresets.blackout_handler(&request));
+}
+
+TEST_F(ApiPresetsTest, MovePresetDownHandlerReturnsUpdatedPresetList) {
+    std::string response;
+    request.uri = "/api/v1/presets/6/move_down";
+    Preset preset(6, "MovedDown", false);
+
+    EXPECT_CALL(mockPresetManager, move_preset(6, false)).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockPresetManager, commit()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockPresetManager, get_presets()).WillOnce(Return(std::vector<Preset>{preset}));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, HTTPD_RESP_USE_STRLEN))
+        .WillOnce([&](httpd_req_t*, const char* body, size_t) {
+            response = body;
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiPresets.move_preset_down_handler(&request));
+    EXPECT_EQ("[{\"number\":6,\"name\":\"MovedDown\",\"active\":false}]", response);
+}
+
+TEST_F(ApiPresetsTest, DeletePresetHandlerReturnsUpdatedPresetListOnSuccess) {
+    std::string response;
+    request.uri = "/api/v1/presets/3";
+    Preset preset(1, "Keep", false);
+
+    EXPECT_CALL(mockPresetManager, delete_preset(3)).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockPresetManager, commit()).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockPresetManager, get_presets()).WillOnce(Return(std::vector<Preset>{preset}));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, HTTPD_RESP_USE_STRLEN))
+        .WillOnce([&](httpd_req_t*, const char* body, size_t) {
+            response = body;
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiPresets.delete_preset_handler(&request));
+    EXPECT_EQ("[{\"number\":1,\"name\":\"Keep\",\"active\":false}]", response);
+}
+
+TEST_F(ApiPresetsTest, InsertPresetAtHandlerReturnsInvalidArgForTooLargePosition) {
+    request.uri = "/api/v1/presets/4294967295/insert_at";
+
+    EXPECT_CALL(mockPresetManager, save_preset(_)).Times(0);
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer,
+                httpd_resp_send(&request, StrEq("{\"ack\":\"nok\"}"), HTTPD_RESP_USE_STRLEN))
+        .WillOnce(Return(ESP_OK));
+
+    EXPECT_EQ(ESP_ERR_INVALID_ARG, apiPresets.insert_preset_at_handler(&request));
+}

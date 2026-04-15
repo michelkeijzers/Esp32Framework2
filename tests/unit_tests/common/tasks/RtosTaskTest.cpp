@@ -63,3 +63,28 @@ TEST_F(RtosTaskTest, GetTickCountForwardsToFactory) {
 }
 
 TEST_F(RtosTaskTest, TaskEntryIsNoOpByDefault) { EXPECT_NO_THROW(task.callTaskEntry()); }
+
+TEST_F(RtosTaskTest, CreateQueueCanBeCalledMultipleTimes) {
+    IRtosQueue* first = task.createQueue(sizeof(uint8_t), 2);
+    IRtosQueue* second = task.createQueue(sizeof(uint32_t), 3);
+
+    ASSERT_NE(nullptr, first);
+    ASSERT_NE(nullptr, second);
+    ASSERT_EQ(2U, task.queues_.size());
+    EXPECT_EQ(sizeof(uint8_t), task.queues_[0]->itemSize());
+    EXPECT_EQ(sizeof(uint32_t), task.queues_[1]->itemSize());
+}
+
+TEST_F(RtosTaskTest, StartAppendsDefaultQueueAfterExistingQueues) {
+    IRtosQueue* first = task.createQueue(sizeof(uint16_t), 1);
+    ASSERT_NE(nullptr, first);
+
+    EXPECT_CALL(mockFreeRtosFactory, createTask(_, StrEq("test_task"), 1024, &task,
+                                                static_cast<UBaseType_t>(3), nullptr))
+        .WillOnce(Return(pdPASS));
+
+    EXPECT_EQ(ESP_OK, task.start());
+    ASSERT_EQ(2U, task.queues_.size());
+    EXPECT_EQ(sizeof(uint16_t), task.queues_[0]->itemSize());
+    EXPECT_EQ(sizeof(int), task.queues_[1]->itemSize());
+}

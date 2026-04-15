@@ -80,3 +80,49 @@ TEST(ApiNodesTest, SaveNodesInfoHandlerSendsJsonAckResponse) {
 
     EXPECT_EQ(0, apiNodes.save_nodes_info_handler(&request));
 }
+
+TEST(ApiNodesTest, GetNodesInfoHandlerWithSetButEmptyNodesStillReturnsEmptyArray) {
+    MockIEspHttpServer mockEspHttpServer;
+    ApiNodes apiNodes(mockEspHttpServer);
+    httpd_req_t request{};
+    std::string responseBody;
+
+    NodesStaticInfo nodesStaticInfo;
+    apiNodes.set_nodes_static_info(nodesStaticInfo);
+
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, HTTPD_RESP_USE_STRLEN))
+        .WillOnce([&](httpd_req_t*, const char* body, size_t) {
+            responseBody = body;
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(0, apiNodes.get_nodes_info_handler(&request));
+    EXPECT_EQ("[]", responseBody);
+}
+
+TEST(ApiNodesTest, GetNodesInfoHandlerEscapesOnlyQuoteAndBackslash) {
+    MockIEspHttpServer mockEspHttpServer;
+    ApiNodes apiNodes(mockEspHttpServer);
+    httpd_req_t request{};
+    std::string responseBody;
+
+    NodeStaticInfo node(5, "Line1\nLine2", "fw", "cfg", "aa:bb", "10.0.0.9");
+    node.addTaskStaticInfo(TaskStaticInfo(1, "task\tname"));
+    NodesStaticInfo nodesStaticInfo;
+    nodesStaticInfo.addNodeStaticInfo(node);
+    apiNodes.set_nodes_static_info(nodesStaticInfo);
+
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, HTTPD_RESP_USE_STRLEN))
+        .WillOnce([&](httpd_req_t*, const char* body, size_t) {
+            responseBody = body;
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(0, apiNodes.get_nodes_info_handler(&request));
+    EXPECT_THAT(responseBody, ::testing::HasSubstr("Line1\nLine2"));
+    EXPECT_THAT(responseBody, ::testing::HasSubstr("task\tname"));
+}
