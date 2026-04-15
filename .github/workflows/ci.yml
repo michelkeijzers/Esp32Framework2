@@ -271,12 +271,12 @@ jobs:
             ci_metrics_metrics.json
             ci_metrics_summary.md
 
-        - name: 📦 Download ci-code-metrics artifact (blue link)
-          if: always()
-          run: |
-            if [[ -n "${{ steps.upload_ci_metrics.outputs.artifact-url }}" ]]; then
-              echo "[Download ci-code-metrics artifact](${{ steps.upload_ci_metrics.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
-            fi
+      - name: 📦 Download ci-code-metrics artifact (blue link)
+        if: always()
+        run: |
+          if [[ -n "${{ steps.upload_ci_metrics.outputs.artifact-url }}" ]]; then
+            echo "[Download ci-code-metrics artifact](${{ steps.upload_ci_metrics.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
+          fi
       - name: Add CI metrics summary to GitHub Actions
         if: always()
         run: |
@@ -663,13 +663,13 @@ jobs:
           path: tests/build/coverage_html/**
           if-no-files-found: warn
 
-        - name: 📦 Download coverage-html artifact (blue link)
-          if: always()
-          run: |
-            # GitHub does not provide a direct artifact URL for this step, so link to the artifacts page
-            if [[ -n "$GITHUB_RUN_ID" ]]; then
-              echo "[Download coverage-html artifact](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)" >> "$GITHUB_STEP_SUMMARY"
-            fi
+      - name: 📦 Download coverage-html artifact (blue link)
+        if: always()
+        run: |
+          # GitHub does not provide a direct artifact URL for this step, so link to the artifacts page
+          if [[ -n "$GITHUB_RUN_ID" ]]; then
+            echo "[Download coverage-html artifact](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload coverage XML artifact
         if: always()
