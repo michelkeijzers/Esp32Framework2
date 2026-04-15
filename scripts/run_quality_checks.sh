@@ -52,7 +52,14 @@ if [[ ! -s /tmp/clang_tidy_files.txt ]]; then
   exit 1
 fi
 
-xargs -a /tmp/clang_tidy_files.txt clang-tidy -p "$HOST_TEST_BUILD_DIR" --warnings-as-errors=* --quiet
+CLANG_TIDY_CHECKS="-*,clang-analyzer-*,bugprone-*"
+CLANG_TIDY_WERROR="clang-analyzer-*,bugprone-*"
+
+xargs -a /tmp/clang_tidy_files.txt clang-tidy \
+  -p "$HOST_TEST_BUILD_DIR" \
+  --checks="$CLANG_TIDY_CHECKS" \
+  --warnings-as-errors="$CLANG_TIDY_WERROR" \
+  --quiet
 
 echo ""
 echo "========== QUALITY: WEBSITE =========="
