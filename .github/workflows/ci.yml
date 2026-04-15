@@ -198,6 +198,45 @@ jobs:
         run: docker pull $CI_IMAGE
 
       - name: Generate documentation artifact
+
+    ci-metrics:
+      runs-on: ubuntu-latest
+      needs: prepare-image
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+          with:
+            submodules: recursive
+
+        - name: Login to GHCR
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Pull CI container image
+          run: docker pull $CI_IMAGE
+
+        - name: Run CI metrics script
+          run: |
+            docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash scripts/ci_metrics.sh
+
+        - name: Upload CI metrics artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ci-metrics
+            path: |
+              ci_metrics_todos.txt
+              ci_metrics_cpplint.txt
+              ci_metrics_lizard.txt
+              ci_metrics_summary.md
+
+        - name: Add CI metrics summary to GitHub Actions
+          if: always()
+          run: |
+            echo "### CI Metrics Summary" >> $GITHUB_STEP_SUMMARY
+            cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
