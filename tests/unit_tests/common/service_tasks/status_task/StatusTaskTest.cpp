@@ -37,7 +37,8 @@ class ControlledReceiveQueue final : public RtosQueue {
     bool receive(void* item, uint32_t timeoutMs) override {
         (void)timeoutMs;
         if (readIndex_ < queuedMessages_.size()) {
-            std::memcpy(item, &queuedMessages_[readIndex_], sizeof(StatusTaskMessages::MessageEnvelope));
+            std::memcpy(item, &queuedMessages_[readIndex_],
+                        sizeof(StatusTaskMessages::MessageEnvelope));
             ++readIndex_;
             return true;
         }
@@ -194,7 +195,8 @@ TEST_F(StatusTaskTest, TaskEntryHandlesReceiveFalseAndPeriodicHeartbeatCheckThen
 TEST_F(StatusTaskTest, TaskEntryReceivesMessageAndDispatchesToHandleMessage) {
     std::vector<StatusTaskMessages::MessageEnvelope> queuedMessages;
     queuedMessages.push_back(makeSetTaskNameMessage(88, "from-queue"));
-    statusTask.queues_.push_back(std::make_unique<ControlledReceiveQueue>(std::move(queuedMessages), true));
+    statusTask.queues_.push_back(
+        std::make_unique<ControlledReceiveQueue>(std::move(queuedMessages), true));
 
     EXPECT_CALL(mockRtosFactory, getTickCount())
         .WillOnce(Return(0U))
