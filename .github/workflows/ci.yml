@@ -273,12 +273,12 @@ jobs:
       - name: Add CI metrics summary to GitHub Actions
         if: always()
         run: |
-          echo "### CI Metrics Summary" >> $GITHUB_STEP_SUMMARY
-          cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
-          if [[ -n "${{ steps.upload_ci_metrics.outputs.artifact-url }}" ]]; then
-            echo >> $GITHUB_STEP_SUMMARY
-            echo "[Download ci-code-metrics artifact](${{ steps.upload_ci_metrics.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
-          fi
+            echo "### 📊 CI Code Metrics" >> $GITHUB_STEP_SUMMARY
+            cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
+            if [[ -n "${{ steps.upload_ci_metrics.outputs.artifact-url }}" ]]; then
+              echo >> $GITHUB_STEP_SUMMARY
+              echo "[⬇️ Download ci-code-metrics artifact](${{ steps.upload_ci_metrics.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
+            fi
       - name: Enforce lizard thresholds
         if: steps.run_ci_metrics.outcome == 'failure'
         run: |
@@ -376,14 +376,23 @@ jobs:
           SUMMARY_FILE="$METRICS_DIR/summary.md"
 
           if [[ -f "$SUMMARY_FILE" ]]; then
-            cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
-          else
-            printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' >> "$GITHUB_STEP_SUMMARY"
-          fi
+              echo "### 📈 Repository Metrics" >> "$GITHUB_STEP_SUMMARY"
+              cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+            else
+              printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' >> "$GITHUB_STEP_SUMMARY"
+            fi
 
-          if [[ -n "${{ needs.ci-metrics.outputs.artifact_url }}" ]]; then
-            printf '\n- [Download ci-code-metrics artifact](%s)\n' "${{ needs.ci-metrics.outputs.artifact_url }}" >> "$GITHUB_STEP_SUMMARY"
-          fi
+            # Add explicit ci-code-metrics artifact link if available
+            if [[ -n "${{ needs.ci-metrics.outputs.artifact_url }}" ]]; then
+              echo >> "$GITHUB_STEP_SUMMARY"
+              echo "[⬇️ Download ci-code-metrics artifact](${ { needs.ci-metrics.outputs.artifact_url } })" >> "$GITHUB_STEP_SUMMARY"
+            fi
+
+            # Add explicit ci-metrics artifact link if available
+            if [[ -n "$GITHUB_RUN_ID" ]]; then
+              echo >> "$GITHUB_STEP_SUMMARY"
+              echo "[⬇️ Download ci-metrics artifact](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)" >> "$GITHUB_STEP_SUMMARY"
+            fi
 
       - name: Upload metrics artifact
         if: always()
