@@ -4,6 +4,10 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   COVERAGE_MIN_PERCENT: ${{ vars.COVERAGE_MIN_PERCENT }}
   CI_IMAGE: ghcr.io/michelkeijzers/esp32framework2-ci:${{ github.sha }}
+  LIZARD_CCN_THRESHOLD: "18"
+  LIZARD_NLOC_THRESHOLD: "89"
+  LIZARD_LENGTH_THRESHOLD: "107"
+  LIZARD_ARGUMENT_THRESHOLD: "9"
 
 on:
   push:
@@ -233,6 +237,8 @@ jobs:
   ci-metrics:
     runs-on: ubuntu-latest
     needs: prepare-image
+    outputs:
+      artifact_url: ${{ steps.upload_ci_metrics.outputs.artifact-url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -247,26 +253,44 @@ jobs:
       - name: Pull CI container image
         run: docker pull $CI_IMAGE
       - name: Run CI metrics script
+        id: run_ci_metrics
+        continue-on-error: true
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash scripts/ci_metrics.sh
       - name: Upload CI metrics artifacts
-        uses: actions/upload-artifact@v4
+        id: upload_ci_metrics
+        if: always()
+        uses: actions/upload-artifact@v5
         with:
           name: ci-code-metrics
           path: |
             ci_metrics_todos.txt
             ci_metrics_cpplint.txt
             ci_metrics_lizard.txt
+            ci_metrics_lizard.csv
+            ci_metrics_metrics.json
             ci_metrics_summary.md
       - name: Add CI metrics summary to GitHub Actions
         if: always()
         run: |
           echo "### CI Metrics Summary" >> $GITHUB_STEP_SUMMARY
           cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
+          if [[ -n "${{ steps.upload_ci_metrics.outputs.artifact-url }}" ]]; then
+            echo >> $GITHUB_STEP_SUMMARY
+            echo "[Download ci-code-metrics artifact](${{ steps.upload_ci_metrics.outputs.artifact-url }})" >> $GITHUB_STEP_SUMMARY
+          fi
+      - name: Enforce lizard thresholds
+        if: steps.run_ci_metrics.outcome == 'failure'
+        run: |
+          echo "ci-metrics thresholds were exceeded. See the uploaded ci-code-metrics artifact for details."
+          exit 1
 
   metrics:
+    if: always()
     runs-on: ubuntu-latest
-    needs: prepare-image
+    needs:
+      - prepare-image
+      - ci-metrics
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -355,6 +379,10 @@ jobs:
             cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
           else
             printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [[ -n "${{ needs.ci-metrics.outputs.artifact_url }}" ]]; then
+            printf '\n- [Download ci-code-metrics artifact](%s)\n' "${{ needs.ci-metrics.outputs.artifact_url }}" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload metrics artifact

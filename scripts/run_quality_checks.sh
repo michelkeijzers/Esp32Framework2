@@ -62,6 +62,14 @@ xargs -a /tmp/clang_tidy_files.txt clang-tidy \
   --quiet
 
 echo ""
+echo "========== QUALITY: LIZARD =========="
+QUALITY_METRICS_DIR="$(mktemp -d)"
+if ! CI_METRICS_OUTPUT_DIR="$QUALITY_METRICS_DIR" bash scripts/ci_metrics.sh --lizard-only; then
+  cat "$QUALITY_METRICS_DIR/ci_metrics_lizard.txt"
+  exit 1
+fi
+
+echo ""
 echo "========== QUALITY: WEBSITE =========="
 if [[ ! -f "$WEBSITE_DIR/package.json" ]]; then
   echo "Missing $WEBSITE_DIR/package.json"
