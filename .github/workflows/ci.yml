@@ -393,7 +393,7 @@ jobs:
             # Add explicit ci-code-metrics artifact link if available
             if [[ -n "${{ needs.ci-metrics.outputs.artifact_url }}" ]]; then
               echo >> "$GITHUB_STEP_SUMMARY"
-              echo "[⬇️ Download ci-code-metrics artifact](${ { needs.ci-metrics.outputs.artifact_url } })" >> "$GITHUB_STEP_SUMMARY"
+              echo "[⬇️ Download ci-code-metrics artifact](${{ needs.ci-metrics.outputs.artifact_url }})" >> "$GITHUB_STEP_SUMMARY"
             fi
 
             # Add explicit ci-metrics artifact link if available
@@ -410,13 +410,13 @@ jobs:
           path: .artifacts/metrics
           if-no-files-found: warn
 
-        - name: 📦 Download ci-metrics artifact (blue link)
-          if: always()
-          run: |
-            # GitHub does not provide a direct artifact URL for this step, so link to the artifacts page
-            if [[ -n "$GITHUB_RUN_ID" ]]; then
-              echo "[Download ci-metrics artifact](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)" >> "$GITHUB_STEP_SUMMARY"
-            fi
+      - name: 📦 Download ci-metrics artifact (blue link)
+        if: always()
+        run: |
+          # GitHub does not provide a direct artifact URL for this step, so link to the artifacts page
+          if [[ -n "$GITHUB_RUN_ID" ]]; then
+            echo "[Download ci-metrics artifact](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts)" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   deploy-docs:
     if: github.ref == 'refs/heads/main'
