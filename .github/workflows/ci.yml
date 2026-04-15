@@ -306,41 +306,36 @@ jobs:
 
             GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-            cat > "${METRICS_DIR}/metrics.json" <<EOF
-            {
-              "generated_at_utc": "${GENERATED_AT}",
-              "code": {
-                "cpp_hpp_file_count": ${CPP_FILE_COUNT},
-                "cpp_hpp_line_count": ${CPP_LINE_COUNT}
-              },
-              "tests": {
-                "total": ${TOTAL_TESTS},
-                "unit": ${UNIT_TESTS},
-                "integration": ${INTEGRATION_TESTS}
-              },
-              "docs": {
-                "markdown_file_count": ${DOC_MD_COUNT},
-                "plantuml_file_count": ${PUML_COUNT}
-              },
-              "website": {
-                "file_count": ${WEBSITE_FILE_COUNT}
-              }
-            }
-            EOF
+            printf '{\n' > "${METRICS_DIR}/metrics.json"
+            printf '  "generated_at_utc": "%s",\n' "${GENERATED_AT}" >> "${METRICS_DIR}/metrics.json"
+            printf '  "code": {\n' >> "${METRICS_DIR}/metrics.json"
+            printf '    "cpp_hpp_file_count": %s,\n' "${CPP_FILE_COUNT}" >> "${METRICS_DIR}/metrics.json"
+            printf '    "cpp_hpp_line_count": %s\n' "${CPP_LINE_COUNT}" >> "${METRICS_DIR}/metrics.json"
+            printf '  },\n' >> "${METRICS_DIR}/metrics.json"
+            printf '  "tests": {\n' >> "${METRICS_DIR}/metrics.json"
+            printf '    "total": %s,\n' "${TOTAL_TESTS}" >> "${METRICS_DIR}/metrics.json"
+            printf '    "unit": %s,\n' "${UNIT_TESTS}" >> "${METRICS_DIR}/metrics.json"
+            printf '    "integration": %s\n' "${INTEGRATION_TESTS}" >> "${METRICS_DIR}/metrics.json"
+            printf '  },\n' >> "${METRICS_DIR}/metrics.json"
+            printf '  "docs": {\n' >> "${METRICS_DIR}/metrics.json"
+            printf '    "markdown_file_count": %s,\n' "${DOC_MD_COUNT}" >> "${METRICS_DIR}/metrics.json"
+            printf '    "plantuml_file_count": %s\n' "${PUML_COUNT}" >> "${METRICS_DIR}/metrics.json"
+            printf '  },\n' >> "${METRICS_DIR}/metrics.json"
+            printf '  "website": {\n' >> "${METRICS_DIR}/metrics.json"
+            printf '    "file_count": %s\n' "${WEBSITE_FILE_COUNT}" >> "${METRICS_DIR}/metrics.json"
+            printf '  }\n' >> "${METRICS_DIR}/metrics.json"
+            printf '}\n' >> "${METRICS_DIR}/metrics.json"
 
-            cat > "${METRICS_DIR}/summary.md" <<EOF
-            ## CI Metrics
-
-            - Generated at (UTC): ${GENERATED_AT}
-            - C++ files (`*.cpp`, `*.hpp`): ${CPP_FILE_COUNT}
-            - C++ lines (`*.cpp`, `*.hpp`): ${CPP_LINE_COUNT}
-            - Total tests discovered: ${TOTAL_TESTS}
-            - Unit tests discovered: ${UNIT_TESTS}
-            - Integration tests discovered: ${INTEGRATION_TESTS}
-            - Docs Markdown files: ${DOC_MD_COUNT}
-            - Docs PlantUML files: ${PUML_COUNT}
-            - Website files: ${WEBSITE_FILE_COUNT}
-            EOF
+            printf '## CI Metrics\n\n' > "${METRICS_DIR}/summary.md"
+            printf -- '- Generated at (UTC): %s\n' "${GENERATED_AT}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- C++ files (*.cpp, *.hpp): %s\n' "${CPP_FILE_COUNT}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- C++ lines (*.cpp, *.hpp): %s\n' "${CPP_LINE_COUNT}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- Total tests discovered: %s\n' "${TOTAL_TESTS}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- Unit tests discovered: %s\n' "${UNIT_TESTS}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- Integration tests discovered: %s\n' "${INTEGRATION_TESTS}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- Docs Markdown files: %s\n' "${DOC_MD_COUNT}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- Docs PlantUML files: %s\n' "${PUML_COUNT}" >> "${METRICS_DIR}/summary.md"
+            printf -- '- Website files: %s\n' "${WEBSITE_FILE_COUNT}" >> "${METRICS_DIR}/summary.md"
           '
 
       - name: Publish metrics summary
