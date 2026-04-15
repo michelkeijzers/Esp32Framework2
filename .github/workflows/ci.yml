@@ -237,7 +237,6 @@ jobs:
           run: |
             echo "### CI Metrics Summary" >> $GITHUB_STEP_SUMMARY
             cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
-        run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             DOCS_ARTIFACT_DIR=/workspace/.artifacts/docs
