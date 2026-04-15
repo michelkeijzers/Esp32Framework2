@@ -293,16 +293,24 @@ jobs:
             rm -rf "${METRICS_DIR}"
             mkdir -p "${METRICS_DIR}"
 
+            # Seed placeholder artifacts early so upload always has files.
+            printf '{\n  "generated_at_utc": "%s",\n  "status": "collecting"\n}\n' "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" > "${METRICS_DIR}/metrics.json"
+            printf '## CI Metrics\n\n- Metrics collection started.\n' > "${METRICS_DIR}/summary.md"
+
             CPP_FILE_COUNT=$(find /workspace/main /workspace/tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | wc -l)
             CPP_LINE_COUNT=$(find /workspace/main /workspace/tests -type f \( -name "*.cpp" -o -name "*.hpp" \) -print0 | xargs -0 -r cat | wc -l)
             DOC_MD_COUNT=$(find /workspace/docs -type f -name "*.md" | wc -l)
             PUML_COUNT=$(find /workspace/docs -type f -name "*.puml" | wc -l)
             WEBSITE_FILE_COUNT=$(find /workspace/main/project_dmx_controller/website -type f | wc -l)
 
-            cmake -S /workspace/tests -B ${HOST_TEST_BUILD_DIR} > /dev/null
-            TOTAL_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N | grep -E "^  Test" | wc -l)
-            UNIT_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -E "IntegrationTest|AppMainIntegrationTest" | grep -E "^  Test" | wc -l)
-            INTEGRATION_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -R "IntegrationTest|AppMainIntegrationTest" | grep -E "^  Test" | wc -l)
+            TOTAL_TESTS=0
+            UNIT_TESTS=0
+            INTEGRATION_TESTS=0
+            if cmake -S /workspace/tests -B ${HOST_TEST_BUILD_DIR} > /dev/null; then
+              TOTAL_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N 2>/dev/null | grep -E "^  Test" | wc -l || true)
+              UNIT_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -E "IntegrationTest|AppMainIntegrationTest" 2>/dev/null | grep -E "^  Test" | wc -l || true)
+              INTEGRATION_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -R "IntegrationTest|AppMainIntegrationTest" 2>/dev/null | grep -E "^  Test" | wc -l || true)
+            fi
 
             GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -354,8 +362,8 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: ci-metrics
-          path: .artifacts/metrics/**
-          if-no-files-found: error
+          path: .artifacts/metrics
+          if-no-files-found: warn
 
   deploy-docs:
     if: github.ref == 'refs/heads/main'
