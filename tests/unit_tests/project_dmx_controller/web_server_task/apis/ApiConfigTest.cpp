@@ -100,6 +100,84 @@ TEST_F(ApiConfigTest, PutConfigRejectsInvalidSsid) {
     EXPECT_THAT(response, HasSubstr("Invalid SSID"));
 }
 
+TEST_F(ApiConfigTest, PutConfigRejectsInvalidDeviceName) {
+    std::string response;
+    const char *body = "{\"wifi_ssid\":\"HomeWifi\",\"device_name\":\"invalid name\"}";
+
+    EXPECT_CALL(mockEspHttpServer, httpd_req_recv(&request, _, _))
+        .WillOnce([&](httpd_req_t *req, char *buffer, size_t maxLen) {
+            (void)req;
+            (void)maxLen;
+            return captureRequestBody(req, buffer, maxLen, body);
+        })
+        .WillOnce(Return(0));
+    EXPECT_CALL(mockNvs, nvs_open(_, _, _)).Times(0);
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, _))
+        .WillOnce([&](httpd_req_t *, const char *bodyOut, size_t) {
+            response = bodyOut;
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiConfig.put_config_handler(&request));
+    EXPECT_THAT(response, HasSubstr("Invalid device name"));
+}
+
+TEST_F(ApiConfigTest, PutConfigReturnsErrorWhenNvsOpenFails) {
+    std::string response;
+    const char *body = "{\"wifi_ssid\":\"StageWifi\",\"device_name\":\"master_1\"}";
+
+    EXPECT_CALL(mockEspHttpServer, httpd_req_recv(&request, _, _))
+        .WillOnce([&](httpd_req_t *req, char *buffer, size_t maxLen) {
+            (void)req;
+            (void)maxLen;
+            return captureRequestBody(req, buffer, maxLen, body);
+        })
+        .WillOnce(Return(0));
+    EXPECT_CALL(mockNvs, nvs_open(StrEq("config"), NVS_READWRITE, _)).WillOnce(Return(ESP_FAIL));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, _))
+        .WillOnce([&](httpd_req_t *, const char *bodyOut, size_t) {
+            response = bodyOut;
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiConfig.put_config_handler(&request));
+    EXPECT_THAT(response, HasSubstr("Failed to open NVS"));
+}
+
+TEST_F(ApiConfigTest, PutConfigWritesOnlyProvidedDeviceName) {
+    std::string response;
+    const char *body = "{\"device_name\":\"master_only\"}";
+
+    EXPECT_CALL(mockEspHttpServer, httpd_req_recv(&request, _, _))
+        .WillOnce([&](httpd_req_t *req, char *buffer, size_t maxLen) {
+            (void)req;
+            (void)maxLen;
+            return captureRequestBody(req, buffer, maxLen, body);
+        })
+        .WillOnce(Return(0));
+    EXPECT_CALL(mockNvs, nvs_open(StrEq("config"), NVS_READWRITE, _))
+        .WillOnce(DoAll(SetArgPointee<2>(nvsHandle), Return(ESP_OK)));
+    EXPECT_CALL(mockNvs, nvs_set_str(nvsHandle, StrEq("wifi_ssid"), _)).Times(0);
+    EXPECT_CALL(mockNvs, nvs_set_str(nvsHandle, StrEq("device_name"), StrEq("master_only")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockNvs, nvs_commit(nvsHandle)).WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockNvs, nvs_close(nvsHandle)).Times(1);
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
+        .WillOnce(Return(ESP_OK));
+    EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, _))
+        .WillOnce([&](httpd_req_t *, const char *bodyOut, size_t len) {
+            response.assign(bodyOut, len);
+            return ESP_OK;
+        });
+
+    EXPECT_EQ(ESP_OK, apiConfig.put_config_handler(&request));
+    EXPECT_THAT(response, HasSubstr("master_only"));
+}
+
 TEST_F(ApiConfigTest, PutConfigWritesValuesAndReturnsSuccessResponse) {
     std::string response;
     const char *body = "{\"wifi_ssid\":\"StageWifi\",\"device_name\":\"master_1\"}";

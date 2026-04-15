@@ -48,7 +48,10 @@ TEST_F(ApiConfigurationTest, GetConfigurationReturnsStoredValues) {
     EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
         .WillOnce(Return(ESP_OK));
     EXPECT_CALL(mockEspHttpServer,
-                httpd_resp_send(&request, StrEq("{\"wifi_ssid\":\"NodeWifi\",\"device_name\":\"node_a\",\"circular navigation\":true}"), HTTPD_RESP_USE_STRLEN))
+                httpd_resp_send(&request,
+                                StrEq("{\"wifi_ssid\":\"NodeWifi\",\"device_name\":\"node_a\","
+                                      "\"circular navigation\":true}"),
+                                HTTPD_RESP_USE_STRLEN))
         .WillOnce(Return(ESP_OK));
 
     EXPECT_EQ(ESP_OK, apiConfiguration.get_configuration_handler(&request));
@@ -58,8 +61,12 @@ TEST_F(ApiConfigurationTest, GetConfigurationReturnsDefaultsWhenNvsOpenFails) {
     EXPECT_CALL(mockNvs, nvs_open(StrEq("config"), NVS_READONLY, _)).WillOnce(Return(ESP_FAIL));
     EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
         .WillOnce(Return(ESP_OK));
-    EXPECT_CALL(mockEspHttpServer,
-                httpd_resp_send(&request, StrEq("{\"wifi_ssid\":\"\",\"device_name\":\"\",\"circular navigation\":false}"), HTTPD_RESP_USE_STRLEN))
+    EXPECT_CALL(
+        mockEspHttpServer,
+        httpd_resp_send(
+            &request,
+            StrEq("{\"wifi_ssid\":\"\",\"device_name\":\"\",\"circular navigation\":false}"),
+            HTTPD_RESP_USE_STRLEN))
         .WillOnce(Return(ESP_OK));
 
     EXPECT_EQ(ESP_OK, apiConfiguration.get_configuration_handler(&request));

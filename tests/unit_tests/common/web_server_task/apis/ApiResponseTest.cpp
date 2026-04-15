@@ -93,6 +93,10 @@ TEST_F(ApiResponseTest, GetHttpStatus500) {
     EXPECT_EQ(500, ApiResponse::get_http_status(ApiResponse::INTERNAL_SERVER_ERROR));
 }
 
+TEST_F(ApiResponseTest, GetHttpStatusConflict) {
+    EXPECT_EQ(409, ApiResponse::get_http_status(ApiResponse::CONFLICT));
+}
+
 // ─────────────────────────────────────────────────────────────
 // get_status_text
 // ─────────────────────────────────────────────────────────────
@@ -112,4 +116,21 @@ TEST_F(ApiResponseTest, GetStatusText404) {
 TEST_F(ApiResponseTest, GetStatusText500) {
     EXPECT_STREQ("Internal Server Error",
                  ApiResponse::get_status_text(ApiResponse::INTERNAL_SERVER_ERROR));
+}
+
+TEST_F(ApiResponseTest, GetStatusTextUnauthorized) {
+    EXPECT_STREQ("Unauthorized", ApiResponse::get_status_text(ApiResponse::UNAUTHORIZED));
+}
+
+TEST_F(ApiResponseTest, GetStatusTextForbidden) {
+    EXPECT_STREQ("Forbidden", ApiResponse::get_status_text(ApiResponse::FORBIDDEN));
+}
+
+TEST_F(ApiResponseTest, GetStatusTextConflict) {
+    EXPECT_STREQ("Conflict", ApiResponse::get_status_text(ApiResponse::CONFLICT));
+}
+
+TEST_F(ApiResponseTest, GetStatusTextUnknownForOutOfRangeCode) {
+    auto unknown = static_cast<ApiResponse::StatusCode>(999);
+    EXPECT_STREQ("Unknown", ApiResponse::get_status_text(unknown));
 }
