@@ -119,7 +119,7 @@ jobs:
 
             grep -o "\"file\": \"[^\"]*\"" "$COMPILE_DB" \
               | sed "s/\"file\": \"//; s/\"$//" \
-              | grep "^/workspace/main/.*\\.cpp$" \
+              | grep "^/workspace/main/.*\.cpp$" \
               | sort -u > /tmp/clang_tidy_files.txt
 
             if [ ! -s /tmp/clang_tidy_files.txt ]; then
@@ -198,45 +198,48 @@ jobs:
         run: docker pull $CI_IMAGE
 
       - name: Generate documentation artifact
+        run: |
+          echo "Docs job placeholder - implement generation steps here."
 
-    ci-metrics:
-      runs-on: ubuntu-latest
-      needs: prepare-image
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v5
-          with:
-            submodules: recursive
+  ci-metrics:
+    runs-on: ubuntu-latest
+    needs: prepare-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
-        - name: Login to GHCR
-          uses: docker/login-action@v3
-          with:
-            registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Pull CI container image
-          run: docker pull $CI_IMAGE
+      - name: Pull CI container image
+        run: docker pull $CI_IMAGE
 
-        - name: Run CI metrics script
-          run: |
-            docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash scripts/ci_metrics.sh
+      - name: Run CI metrics script
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash scripts/ci_metrics.sh
 
-        - name: Upload CI metrics artifacts
-          uses: actions/upload-artifact@v4
-          with:
-            name: ci-metrics
-            path: |
-              ci_metrics_todos.txt
-              ci_metrics_cpplint.txt
-              ci_metrics_lizard.txt
-              ci_metrics_summary.md
+      - name: Upload CI metrics artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-metrics
+          path: |
+            ci_metrics_todos.txt
+            ci_metrics_cpplint.txt
+            ci_metrics_lizard.txt
+            ci_metrics_summary.md
 
-        - name: Add CI metrics summary to GitHub Actions
-          if: always()
-          run: |
-            echo "### CI Metrics Summary" >> $GITHUB_STEP_SUMMARY
-            cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
+      - name: Add CI metrics summary to GitHub Actions
+        if: always()
+        run: |
+          echo "### CI Metrics Summary" >> $GITHUB_STEP_SUMMARY
+          cat ci_metrics_summary.md >> $GITHUB_STEP_SUMMARY
+
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
             set -e
             DOCS_ARTIFACT_DIR=/workspace/.artifacts/docs
@@ -255,7 +258,6 @@ jobs:
 
             find "${DOCS_ARTIFACT_DIR}" -type f -name "*.puml" -print0 | xargs -0 -r java -Djava.awt.headless=true -jar "${PLANTUML_JAR}" -tsvg
 
-            # Ensure GitHub Pages has a root entry point and does not run Jekyll filtering.
             touch "${DOCS_ARTIFACT_DIR}/.nojekyll"
 
             if [ ! -f "${DOCS_ARTIFACT_DIR}/index.html" ]; then
@@ -296,354 +298,3 @@ jobs:
           name: docs-generated
           path: .artifacts/docs/**
           if-no-files-found: error
-
-  metrics:
-    runs-on: ubuntu-latest
-    needs: prepare-image
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull CI container image
-        run: docker pull $CI_IMAGE
-
-      - name: Generate repository metrics
-        run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
-            set -e
-
-            METRICS_DIR=/workspace/.artifacts/metrics
-            HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
-
-            rm -rf "${METRICS_DIR}"
-            mkdir -p "${METRICS_DIR}"
-
-            CPP_FILE_COUNT=$(find /workspace/main /workspace/tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | wc -l)
-            CPP_LINE_COUNT=$(find /workspace/main /workspace/tests -type f \( -name "*.cpp" -o -name "*.hpp" \) -print0 | xargs -0 -r cat | wc -l)
-            DOC_MD_COUNT=$(find /workspace/docs -type f -name "*.md" | wc -l)
-            PUML_COUNT=$(find /workspace/docs -type f -name "*.puml" | wc -l)
-            WEBSITE_FILE_COUNT=$(find /workspace/main/project_dmx_controller/website -type f | wc -l)
-
-            cmake -S /workspace/tests -B ${HOST_TEST_BUILD_DIR} > /dev/null
-            TOTAL_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N | grep -E "^  Test" | wc -l)
-            UNIT_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -E "IntegrationTest|AppMainIntegrationTest" | grep -E "^  Test" | wc -l)
-            INTEGRATION_TESTS=$(ctest --test-dir ${HOST_TEST_BUILD_DIR} -N -R "IntegrationTest|AppMainIntegrationTest" | grep -E "^  Test" | wc -l)
-
-            GENERATED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-            cat > "${METRICS_DIR}/metrics.json" <<EOF
-            {
-              "generated_at_utc": "${GENERATED_AT}",
-              "code": {
-                "cpp_hpp_file_count": ${CPP_FILE_COUNT},
-                "cpp_hpp_line_count": ${CPP_LINE_COUNT}
-              },
-              "tests": {
-                "total": ${TOTAL_TESTS},
-                "unit": ${UNIT_TESTS},
-                "integration": ${INTEGRATION_TESTS}
-              },
-              "docs": {
-                "markdown_file_count": ${DOC_MD_COUNT},
-                "plantuml_file_count": ${PUML_COUNT}
-              },
-              "website": {
-                "file_count": ${WEBSITE_FILE_COUNT}
-              }
-            }
-            EOF
-
-            cat > "${METRICS_DIR}/summary.md" <<EOF
-            ## CI Metrics
-
-            - Generated at (UTC): ${GENERATED_AT}
-            - C++ files (`*.cpp`, `*.hpp`): ${CPP_FILE_COUNT}
-            - C++ lines (`*.cpp`, `*.hpp`): ${CPP_LINE_COUNT}
-            - Total tests discovered: ${TOTAL_TESTS}
-            - Unit tests discovered: ${UNIT_TESTS}
-            - Integration tests discovered: ${INTEGRATION_TESTS}
-            - Docs Markdown files: ${DOC_MD_COUNT}
-            - Docs PlantUML files: ${PUML_COUNT}
-            - Website files: ${WEBSITE_FILE_COUNT}
-            EOF
-          '
-
-      - name: Publish metrics summary
-        run: |
-          METRICS_DIR=.artifacts/metrics
-          SUMMARY_FILE="$METRICS_DIR/summary.md"
-
-          if [[ -f "$SUMMARY_FILE" ]]; then
-            cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
-          else
-            printf '## CI Metrics\n\n- Metrics summary was not generated in this run.\n' >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Upload metrics artifact
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: ci-metrics
-          path: .artifacts/metrics/**
-          if-no-files-found: error
-
-  deploy-docs:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: docs
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Download generated docs artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: docs-generated
-          path: _site
-
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-  build:
-    runs-on: ubuntu-latest
-    needs: prepare-image
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull CI container image
-        run: docker pull $CI_IMAGE
-
-      - name: Run ESP-IDF build only
-        run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
-            set -e
-
-            if [ -f /opt/esp/idf/export.sh ]; then
-              . /opt/esp/idf/export.sh > /dev/null 2>&1
-            elif [ -f /opt/esp/esp-idf-v6/export.sh ]; then
-              . /opt/esp/esp-idf-v6/export.sh > /dev/null 2>&1
-            elif [ -n "$IDF_PATH" ] && [ -f "$IDF_PATH/export.sh" ]; then
-              . "$IDF_PATH/export.sh" > /dev/null 2>&1
-            else
-              echo "ESP-IDF export.sh not found"
-              exit 1
-            fi
-
-            rm -rf /workspace/build
-
-            echo "========== BUILD =========="
-            idf.py -DBUILD_HOST_TESTS_WITH_MAIN=OFF -DBUILD_HOST_COVERAGE_WITH_MAIN=OFF reconfigure
-            idf.py -DBUILD_HOST_TESTS_WITH_MAIN=OFF -DBUILD_HOST_COVERAGE_WITH_MAIN=OFF build
-          '
-
-  unit-tests:
-    runs-on: ubuntu-latest
-    needs:
-      - prepare-image
-      - build
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull CI container image
-        run: docker pull $CI_IMAGE
-
-      - name: Run host unit tests
-        run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
-            set -e
-            HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
-            UNIT_REPORT_DIR=/workspace/.artifacts/test-reports/unit
-
-            cmake -E rm -rf \
-              ${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2 \
-              ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
-            cmake -E rm -rf ${UNIT_REPORT_DIR}
-            cmake -S tests -B ${HOST_TEST_BUILD_DIR}
-            cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
-            mkdir -p ${UNIT_REPORT_DIR}
-
-            echo "========== UNIT TESTS =========="
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -E "IntegrationTest|AppMainIntegrationTest"
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -E "IntegrationTest|AppMainIntegrationTest" --output-junit ${UNIT_REPORT_DIR}/unit-tests.xml
-          '
-
-      - name: Upload unit test report artifact
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: unit-test-results
-          path: .artifacts/test-reports/unit/unit-tests.xml
-          if-no-files-found: warn
-
-  integration-tests:
-    if: github.event_name == 'schedule' || github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs:
-      - prepare-image
-      - build
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull CI container image
-        run: docker pull $CI_IMAGE
-
-      - name: Run host integration tests
-        run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
-            set -e
-            HOST_TEST_BUILD_DIR=/tmp/esp32framework2-tests-build
-            INTEGRATION_REPORT_DIR=/workspace/.artifacts/test-reports/integration
-
-            cmake -E rm -rf \
-              ${HOST_TEST_BUILD_DIR}/CMakeFiles/3.30.2 \
-              ${HOST_TEST_BUILD_DIR}/_deps/googletest-subbuild/CMakeFiles/3.30.2
-            cmake -E rm -rf ${INTEGRATION_REPORT_DIR}
-            cmake -S tests -B ${HOST_TEST_BUILD_DIR}
-            cmake --build ${HOST_TEST_BUILD_DIR} --config Release --parallel "$(nproc)"
-            mkdir -p ${INTEGRATION_REPORT_DIR}
-
-            echo "========== INTEGRATION TESTS =========="
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release -N -R "IntegrationTest|AppMainIntegrationTest"
-            ctest --test-dir ${HOST_TEST_BUILD_DIR} -C Release --output-on-failure --progress --timeout 120 -j "$(nproc)" -R "IntegrationTest|AppMainIntegrationTest" --output-junit ${INTEGRATION_REPORT_DIR}/integration-tests.xml
-          '
-
-      - name: Upload integration test report artifact
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: integration-test-results
-          path: .artifacts/test-reports/integration/integration-tests.xml
-          if-no-files-found: warn
-
-  coverage:
-    if: github.event_name == 'schedule' || github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs:
-      - prepare-image
-      - build
-      - unit-tests
-      - integration-tests
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          submodules: recursive
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull CI container image
-        run: docker pull $CI_IMAGE
-
-      - name: Generate host coverage
-        run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -lc '
-            set -e
-
-            echo "========== COVERAGE: BUILD & RUN =========="
-            cmake -E rm -rf tests/build
-            cmake -S tests -B tests/build -DCMAKE_BUILD_TYPE=Debug -DENABLE_GCOV=ON
-            cmake --build tests/build --target unit_tests --parallel "$(nproc)"
-            cmake --build tests/build --target integration_tests --parallel "$(nproc)"
-            cmake \
-              -DGCOVR_EXE=/usr/bin/gcovr \
-              -DSOURCE_ROOT=/workspace \
-              -DCTEST_PARALLEL_LEVEL="$(nproc)" \
-              -DTEST_BUILD_DIR=/workspace/tests/build \
-              -P /workspace/tests/cmake/RunGcovr.cmake
-
-            echo "========== COVERAGE OUTPUT =========="
-            [ -f tests/build/coverage_html/index.html ] && echo "HTML report: tests/build/coverage_html/index.html" || echo "HTML report not found at tests/build/coverage_html/index.html"
-            [ -f tests/build/coverage.xml ] && echo "Cobertura XML: tests/build/coverage.xml" || echo "Cobertura XML not found at tests/build/coverage.xml"
-          '
-
-      - name: Enforce coverage threshold
-        run: |
-          set -e
-          COVERAGE_XML=tests/build/coverage.xml
-          MIN_COVERAGE="${COVERAGE_MIN_PERCENT:-95.0}"
-
-          if [ ! -f "$COVERAGE_XML" ]; then
-            echo "Coverage XML not found at $COVERAGE_XML"
-            exit 1
-          fi
-
-          LINE_RATE=$(grep -o 'line-rate="[0-9.]*"' "$COVERAGE_XML" | head -n 1 | sed 's/line-rate="//; s/"//')
-          if [ -z "$LINE_RATE" ]; then
-            echo "Could not parse line-rate from $COVERAGE_XML"
-            exit 1
-          fi
-
-          COVERAGE_PERCENT=$(awk -v rate="$LINE_RATE" 'BEGIN { printf "%.2f", rate * 100 }')
-          echo "Coverage: ${COVERAGE_PERCENT}% (minimum required: ${MIN_COVERAGE}%)"
-
-          awk -v coverage="$COVERAGE_PERCENT" -v min="$MIN_COVERAGE" 'BEGIN { exit !(coverage + 0 >= min + 0) }' || {
-            echo "Coverage gate failed: ${COVERAGE_PERCENT}% is below ${MIN_COVERAGE}%"
-            exit 1
-          }
-
-      - name: Upload coverage HTML artifact
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: coverage-html
-          path: tests/build/coverage_html/**
-          if-no-files-found: warn
-
-      - name: Upload coverage XML artifact
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: coverage-xml
-          path: tests/build/coverage.xml
-          if-no-files-found: warn
