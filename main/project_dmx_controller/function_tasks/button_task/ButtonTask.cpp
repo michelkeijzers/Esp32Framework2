@@ -13,4 +13,4 @@ esp_err_t ButtonTask::init() {
     return ESP_OK;
 }
 
-esp_err_t ButtonTask::start() { return RtosTask::start(); }
+esp_err_t ButtonTask::start() { return FunctionTask::start(); }

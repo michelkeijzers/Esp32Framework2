@@ -21,5 +21,5 @@ class FunctionTask : public RtosTask, public IFunctionTask {
     virtual ~FunctionTask() = default;
 
     virtual esp_err_t init() = 0;
-    virtual esp_err_t start() = 0;
+    esp_err_t start() override;
 };

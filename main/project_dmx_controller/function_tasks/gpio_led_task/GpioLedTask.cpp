@@ -14,4 +14,4 @@ esp_err_t GpioLedTask::init() {
     return ESP_OK;
 }
 
-esp_err_t GpioLedTask::start() { return RtosTask::start(); }
+esp_err_t GpioLedTask::start() { return FunctionTask::start(); }

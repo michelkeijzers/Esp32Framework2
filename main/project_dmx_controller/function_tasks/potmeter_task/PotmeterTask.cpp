@@ -14,4 +14,4 @@ esp_err_t PotmeterTask::init() {
     return ESP_OK;
 }
 
-esp_err_t PotmeterTask::start() { return RtosTask::start(); }
+esp_err_t PotmeterTask::start() { return FunctionTask::start(); }

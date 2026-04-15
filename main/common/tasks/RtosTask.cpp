@@ -5,6 +5,7 @@
 #include "RtosQueue.hpp"
 #include "RtosQueueSet.hpp"
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 RtosTask::RtosTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize,
                    UBaseType_t priority)
     : freeRtosFactory_(freeRtosFactory), name_(name), stackSize_(stackSize), priority_(priority) {}

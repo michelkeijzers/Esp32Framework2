@@ -1,6 +1,7 @@
 
 #include "ApiPresets.hpp"
 
+#include <limits>
 #include <sstream>
 
 #include "../../../common/esp/esp_http_server/UriParamExtractor.hpp"
@@ -175,7 +176,12 @@ esp_err_t ApiPresets::insert_preset_at_handler(httpd_req_t *req) {
     // Extract position from URI: /api/v1/presets/<num>/insert_at
     uint32_t position =
         UriParamExtractor::extractFirstParamAsUint32("/api/v1/presets/*/insert_at", req->uri);
-    Preset new_preset(position, "New Preset", false);
+    if (position > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
+        espHttpServer_.httpd_resp_set_type(req, "application/json");
+        espHttpServer_.httpd_resp_send(req, "{\"ack\":\"nok\"}", HTTPD_RESP_USE_STRLEN);
+        return ESP_ERR_INVALID_ARG;
+    }
+    Preset new_preset(static_cast<int>(position), "New Preset", false);
 
     esp_err_t err = presetManager_.save_preset(new_preset);
     if (err != ESP_OK) {

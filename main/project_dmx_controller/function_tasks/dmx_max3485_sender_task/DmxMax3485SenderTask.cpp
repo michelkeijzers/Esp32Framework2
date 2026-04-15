@@ -17,7 +17,7 @@ esp_err_t DmxMax3485SenderTask::init() {
     return ESP_OK;
 }
 
-esp_err_t DmxMax3485SenderTask::start() { return RtosTask::start(); }
+esp_err_t DmxMax3485SenderTask::start() { return FunctionTask::start(); }
 
 void DmxMax3485SenderTask::setChannelValue(uint16_t channel, uint8_t value) {
     if (channel < 512) {

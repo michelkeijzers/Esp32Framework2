@@ -30,7 +30,12 @@ ApiServer::ApiServer(IEspFactory &espFactory, ICommonApiFactory &commonApiFactor
     server = nullptr;
 }
 
-ApiServer::~ApiServer() { stop(); }
+ApiServer::~ApiServer() {
+    if (server != nullptr) {
+        espHttpServer_.httpd_stop(server);
+        server = nullptr;
+    }
+}
 
 void ApiServer::start()  // TODO: esp_err_t return type and error handling
 {
@@ -76,7 +81,8 @@ esp_err_t ApiServer::static_file_handler(httpd_req_t *req) {
     char buffer[1024];
     size_t bytes_read;
     while ((bytes_read = fread(buffer, 1, sizeof(buffer), f)) > 0) {
-        espHttpServer_.httpd_resp_send_chunk(req, buffer, bytes_read);
+        const ssize_t chunk_len = static_cast<ssize_t>(bytes_read);
+        espHttpServer_.httpd_resp_send_chunk(req, buffer, chunk_len);
     }
     espHttpServer_.httpd_resp_send_chunk(req, NULL, 0);
     fclose(f);

@@ -12,6 +12,7 @@
 
 class RtosTask : public IRtosTask {
    public:
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     RtosTask(IFreeRtosFactory &freeRtosFactory, const char *name, uint32_t stackSize,
              UBaseType_t priority);
     virtual ~RtosTask() = default;

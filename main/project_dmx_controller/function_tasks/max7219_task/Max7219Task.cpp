@@ -13,4 +13,4 @@ esp_err_t Max7219Task::init() {
     return ESP_OK;
 }
 
-esp_err_t Max7219Task::start() { return RtosTask::start(); }
+esp_err_t Max7219Task::start() { return FunctionTask::start(); }
