@@ -147,7 +147,7 @@ TEST_F(ApiPresetValuesTest, SetPresetValueHandlerDefaultsValueToZeroForTwoParame
     EXPECT_CALL(mockEspHttpServer, httpd_resp_set_type(&request, StrEq("application/json")))
         .WillOnce(Return(ESP_OK));
     EXPECT_CALL(mockEspHttpServer, httpd_resp_send(&request, _, HTTPD_RESP_USE_STRLEN))
-        .WillOnce([&](httpd_req_t *, const char *body, size_t) {
+        .WillOnce([&](httpd_req_t*, const char* body, size_t) {
             response = body;
             return ESP_OK;
         });
