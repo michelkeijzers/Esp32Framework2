@@ -17,7 +17,7 @@ fi
 
 echo ""
 echo "========== QUALITY: CLANG-FORMAT =========="
-find main tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | xargs -r clang-format -n --Werror
+find main tests -type d \( -name build -o -name CMakeFiles \) -prune -o -type f \( -name "*.cpp" -o -name "*.hpp" \) -print | xargs -r clang-format -n --Werror
 
 echo ""
 echo "========== QUALITY: PRETTIER (REPO) =========="

@@ -71,7 +71,7 @@ jobs:
         run: docker pull $CI_IMAGE
       - name: Run clang-format (C++)
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -c 'find main tests -type f \( -name "*.cpp" -o -name "*.hpp" \) | xargs -r clang-format -n --Werror'
+          docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -c 'find main tests -type d \( -name build -o -name CMakeFiles \) -prune -o -type f \( -name "*.cpp" -o -name "*.hpp" \) -print | xargs -r clang-format -n --Werror'
       - name: Run Prettier (JS/Markdown/CSS)
         run: |
           docker run --rm -v "$GITHUB_WORKSPACE":/workspace -w /workspace $CI_IMAGE bash -c 'prettier --check "**/*.{js,ts,css,scss,md,json,html}"'
